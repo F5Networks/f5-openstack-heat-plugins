@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+from f5.bigip import BigIP
 from f5_heat.resources import f5_sys_iappservice
 from heat.common import exception
 from heat.common import template_format
@@ -20,6 +21,7 @@ from heat.engine.hot.template import HOTemplate20150430
 from heat.engine import rsrc_defn
 from heat.engine import template
 
+import inspect
 import mock
 import pytest
 

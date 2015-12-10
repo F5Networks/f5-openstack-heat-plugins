@@ -125,7 +125,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         service_dict = self.build_service_dict()
 
         try:
-            self.bigip.iapp.create_service(
+            self.bigip.sys.iapp.create_service(
                 name=self.properties[self.NAME],
                 service=service_dict
             )
@@ -141,7 +141,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         self.get_bigip()
 
         try:
-            self.bigip.iapp.delete_service(
+            self.bigip.sys.iapp.delete_service(
                 name=self.properties[self.NAME]
             )
         except Exception as ex:

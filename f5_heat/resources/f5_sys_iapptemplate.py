@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+from f5.bigip import BigIP
 from heat.common import exception
 from heat.common.i18n import _
 from heat.engine import properties
@@ -50,6 +51,20 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
             properties.Schema.STRING,
             _('BigIP resource reference.'),
             required=True
+        ),
+        BIGIP_USERNAME: properties.Schema(
+            properties.Schema.STRING,
+            _('BigIP username.'),
+            required=True
+        ),
+        BIGIP_PASSWORD: properties.Schema(
+            properties.Schema.STRING,
+            _('BigIP password.'),
+            required=True
+        ),
+        REQUIRES_MODULES: properties.Schema(
+            properties.Schema.LIST,
+            _('Modules required for this iApp Template.')
         ),
         REQUIRES_MODULES: properties.Schema(
             properties.Schema.LIST,
@@ -92,14 +107,14 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
     def handle_create(self):
         '''Create the template on the BigIP.
 
-        :raises: ResourceFailure
+        :raises: ResourceFailure # TODO Change to proper exception
         '''
 
         template_dict = self.build_iapp_dict()
         self.get_bigip()
 
         try:
-            self.bigip.iapp.create_template(
+            self.bigip.sys.iapp.create_template(
                 name=self.properties[self.NAME],
                 template=template_dict
             )
@@ -109,7 +124,7 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
     def handle_delete(self):
         '''Delete the iApp Template on the BigIP.
 
-        :raises: ResourceFailure
+        :raises: ResourceFailure # TODO Change to proper exception
         '''
 
         self.get_bigip()
@@ -117,7 +132,7 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
         self.get_bigip()
 
         try:
-            self.bigip.iapp.delete_template(
+            self.bigip.sys.iapp.delete_template(
                 self.properties[self.NAME]
             )
         except Exception as ex:

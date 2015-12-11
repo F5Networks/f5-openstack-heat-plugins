@@ -28,6 +28,7 @@ class F5SysiAppTemplate(resource.Resource):
         BIGIP_SERVER,
         BIGIP_USERNAME,
         BIGIP_PASSWORD,
+        REQUIRES_MODULES,
         IMPLEMENTATION,
         PRESENTATION,
         HELP
@@ -36,6 +37,7 @@ class F5SysiAppTemplate(resource.Resource):
         'bigip_server',
         'bigip_username',
         'bigip_password',
+        'requires_modules',
         'implementation',
         'presentation',
         'help'
@@ -61,6 +63,10 @@ class F5SysiAppTemplate(resource.Resource):
             properties.Schema.STRING,
             _('Password to use to login to the BigIP.'),
             required=True
+        ),
+        REQUIRES_MODULES: properties.Schema(
+            properties.Schema.STRING,
+            _('Modules required for this iApp Template.')
         ),
         IMPLEMENTATION: properties.Schema(
             properties.Schema.STRING,
@@ -108,7 +114,11 @@ class F5SysiAppTemplate(resource.Resource):
             'presentation': self.properties[self.PRESENTATION] or ''
         }
         definition = {'definition': sections}
-        template = {'name': self.properties[self.NAME], 'actions': definition}
+        template = {
+            'name': self.properties[self.NAME],
+            'actions': definition,
+            'requiresModules': self.properties[self.REQUIRES_MODULES]
+        }
         return template
 
     def handle_create(self):

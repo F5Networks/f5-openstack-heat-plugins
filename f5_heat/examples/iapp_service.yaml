@@ -69,35 +69,33 @@ resources:
       bigip_server: { get_param: ve_instance }
       bigip_username: { get_param: bigip_un }
       bigip_password: { get_param: bigip_pw }
+      requires_modules: [ LTM ]
       implementation: |
         #TMSH-VERSION: 11.6.0
-
+        iapp::template start
         tmsh::create {
             ltm pool http_pool
                 description "A pool of http servers"
                 load-balancing-mode least-connections-node
                 members replace-all-with {
-                    129.0.0.1:80 {
+                    129.0.0.1:8000 {
                         address 129.0.0.1
                     }
-                    129.0.0.2:80 {
-                        address 129.0.0.2
+                    130.0.0.1:8000 {
+                        address 130.0.0.1
                     }
-                    129.0.0.3:80 {
-                        address 129.0.0.3
+                    140.0.0.1:8000 {
+                        address 140.0.0.1
                     }
-                    129.0.0.4:80 {
-                        address 129.0.0.4
-                    }
-                    129.0.0.5:80 {
-                        address 129.0.0.5
+                    150.0.0.1:8000 {
+                        address 150.0.0.1
                     }
                 }
         }
 
         tmsh::create {
             ltm virtual http_vs
-                destination 10.4.4.115:80
+                destination 10.15.15.30:80
                 ip-protocol tcp
                 mask 255.255.255.255
                 pool http_pool
@@ -118,6 +116,7 @@ resources:
                 mask 255.255.255.255
                 traffic-group traffic-group-1
         } 
+        iapp::template stop
       presentation: | 
         section say_hello {
             message intro "This template deploys a virtual server and a pool with several members."

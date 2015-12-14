@@ -1,0 +1,62 @@
+# Copyright 2015 F5 Networks Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+heat_template_version: 2015-04-30
+
+description: Test of creating a pool on an existing VE server
+
+parameters:
+  pool_name:
+    type: string
+    label: Pool Name
+    default: test_pool
+  sd_action:
+    type: string
+    label: Service Down Action
+    description: Should be one of the following, Drop, Reject, Reselect
+    default: None
+  ve_instance:
+    type: string
+    label: VE Instance IP
+    description: IP of existing VE
+    default: 10.190.6.4
+  bigip_un:
+    type: string
+    label: BigIP Login Username
+    default: admin
+  bigip_pw:
+    type: string
+    label: BigIP Login Password
+    default: admin
+    hidden: true
+parameter_groups:
+  - label: VE Parameters
+    parameters:
+      - ve_instance
+      - bigip_un
+      - bigip_pw
+  - label: Pool Parameters
+    parameters:
+      - pool_name
+      - sd_action
+resources:
+  ve_pool:
+    type: F5::LTM::Pool
+    properties:
+      name: { get_param: pool_name }
+      bigip_server: { get_param: ve_instance }
+      bigip_username: { get_param: bigip_un }
+      bigip_password: { get_param: bigip_pw }
+      members: [{'ip_address': '128.0.0.1', 'port': 80}, {'ip_address': '129.0.0.1', 'port': 80}]

@@ -17,7 +17,7 @@ from heat.common import exception
 from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
-from f5.bigip.bigip import BigIP
+from f5.bigip import BigIP
 
 
 class F5SysiAppService(resource.Resource):

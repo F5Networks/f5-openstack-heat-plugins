@@ -69,7 +69,7 @@ resources:
       bigip_server: { get_param: ve_instance }
       bigip_username: { get_param: bigip_un }
       bigip_password: { get_param: bigip_pw }
-      requires_modules: [ LTM ]
+      requires_modules: [ ltm ]
       implementation: |
         #TMSH-VERSION: 11.6.0
         iapp::template start

@@ -65,7 +65,7 @@ class F5SysiAppTemplate(resource.Resource):
             required=True
         ),
         REQUIRES_MODULES: properties.Schema(
-            properties.Schema.STRING,
+            properties.Schema.LIST,
             _('Modules required for this iApp Template.')
         ),
         IMPLEMENTATION: properties.Schema(

@@ -25,14 +25,18 @@ class F5SysiAppTemplate(resource.Resource):
 
     PROPERTIES = (
         NAME,
-        BIGIP,
+        BIGIP_SERVER,
+        BIGIP_USERNAME,
+        BIGIP_PASSWORD,
         REQUIRES_MODULES,
         IMPLEMENTATION,
         PRESENTATION,
         HELP
     ) = (
         'name',
-        'bigip',
+        'bigip_server',
+        'bigip_username',
+        'bigip_password',
         'requires_modules',
         'implementation',
         'presentation',
@@ -45,9 +49,19 @@ class F5SysiAppTemplate(resource.Resource):
             _('Name of the template.'),
             required=True
         ),
-        BIGIP: properties.Schema(
-            properties.Schema.MAP,
+        BIGIP_SERVER: properties.Schema(
+            properties.Schema.STRING,
             _('BigIP device.'),
+            required=True
+        ),
+        BIGIP_USERNAME: properties.Schema(
+            properties.Schema.STRING,
+            _('BigIP username.'),
+            required=True
+        ),
+        BIGIP_PASSWORD: properties.Schema(
+            properties.Schema.STRING,
+            _('BigIP password.'),
             required=True
         ),
         REQUIRES_MODULES: properties.Schema(
@@ -82,9 +96,9 @@ class F5SysiAppTemplate(resource.Resource):
         super(F5SysiAppTemplate, self).__init__(name, definition, stack)
         try:
             self.bigip = BigIP(
-                self.properties[self.stack.resource_by_refid(self.BIGIP)],
-                self.properties['admin'],
-                self.properties['admin']
+                self.properties[self.BIGIP_SERVER],
+                self.properties[self.BIGIP_USERNAME],
+                self.properties[self.BIGIP_PASSWORD]
             )
         except Exception as ex:
             raise Exception('Failed to initialize BigIP object: {}'.format(ex))

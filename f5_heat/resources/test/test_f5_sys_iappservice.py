@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+from f5.bigip import BigIP
 from f5_heat.resources import f5_sys_iappservice
 from heat.common import exception
 from heat.common import template_format
@@ -22,6 +23,7 @@ from heat.engine import stack
 from heat.engine import template
 from heat.tests import utils
 
+import inspect
 import mock
 import pytest
 
@@ -40,6 +42,11 @@ resources:
       template_name: testing_template
 '''
 
+
+iapp_service_dict = {
+    'name': u'testing',
+    'template': '/Common/testing_template'
+}
 
 def mock_template():
     '''Mock a Heat template for the Kilo version.'''
@@ -62,56 +69,67 @@ def mock_stack(templ_dict, templ):
 
 
 @pytest.fixture
-def F5SysiAppService():
+@mock.patch('f5_heat.resources.f5_sys_iappservice.BigIP')
+def F5SysiAppService(mocked_bigip):
     '''Instantiate the F5SysiAppService resource with a mocked BigIP.'''
-    f5_sys_iappservice.BigIP = mock.Mock()
     template_dict, template = mock_template()
     rsrc_def, stk = mock_stack(template_dict, template)
     return f5_sys_iappservice.F5SysiAppService(
-        "iapp_service", rsrc_def, stk
+        "iapp_template", rsrc_def, stk
     )
 
 
-def test__init__error():
-    f5_sys_iappservice.BigIP.__init__ = mock.Mock(side_effect=Exception())
+@pytest.fixture
+def CreateServiceSideEffect(F5SysiAppService):
+    F5SysiAppService.bigip.sys.iapp.create_service.side_effect = \
+        Exception()
+    return F5SysiAppService
+
+
+@pytest.fixture
+def DeleteServiceSideEffect(F5SysiAppService):
+    F5SysiAppService.bigip.sys.iapp.delete_service.side_effect = \
+        Exception()
+    return F5SysiAppService
+
+# Tests
+
+@mock.patch.object(f5_sys_iappservice.BigIP, '__init__')
+def test__init__error(mocked_init):
     template_dict, template = mock_template()
     rsrc_def, stk = mock_stack(template_dict, template)
     with pytest.raises(Exception):
         f5_sys_iappservice.F5SysiAppService(
-            "iapp_service", rsrc_def, stk
+            "iapp_template", rsrc_def, stk
         )
 
 
-class TestCreate(object):
-    def test_handle_create(self, F5SysiAppService):
-        create_result = F5SysiAppService.handle_create()
-        assert create_result == None
-        assert F5SysiAppService.bigip.sys.iapp.create_service.call_args == \
-            mock.call(name=u'testing',
-                      service={
-                          'name': u'testing',
-                          'template': '/Common/testing_template'}
-                      )
-
-    def test_handle_create_error(self, F5SysiAppService):
-        F5SysiAppService.bigip.sys.iapp.create_service.side_effect = \
-            Exception()
-        with pytest.raises(exception.ResourceFailure):
-                F5SysiAppService.handle_create()
+def test_handle_create(F5SysiAppService):
+    template_dict, template = mock_template()
+    create_result = F5SysiAppService.handle_create()
+    assert create_result == None
+    assert F5SysiAppService.bigip.sys.iapp.create_service.call_args == \
+        mock.call(
+            name=u'testing',
+            service=iapp_service_dict
+        )
 
 
-class TestDelete(object):
-    def test_handle_delete(self, F5SysiAppService):
-        delete_result = F5SysiAppService.handle_delete()
-        assert delete_result == None
-        assert F5SysiAppService.bigip.sys.iapp.delete_service.call_args == \
-            mock.call(name=u'testing')
+def test_handle_create_error(CreateServiceSideEffect):
+    with pytest.raises(exception.ResourceFailure):
+        CreateServiceSideEffect.handle_create()
 
-    def test_handle_delete_error(self, F5SysiAppService):
-        F5SysiAppService.bigip.sys.iapp.delete_service.side_effect = \
-            Exception()
-        with pytest.raises(exception.ResourceFailure):
-            F5SysiAppService.handle_delete()
+
+def test_handle_delete(F5SysiAppService):
+    delete_result = F5SysiAppService.handle_delete()
+    assert delete_result == None
+    assert F5SysiAppService.bigip.sys.iapp.delete_service.call_args == \
+        mock.call(name=u'testing')
+
+
+def test_handle_delete_error(DeleteServiceSideEffect):
+    with pytest.raises(exception.ResourceFailure):
+        DeleteServiceSideEffect.handle_delete()
 
 
 def test_resource_mapping():
@@ -119,3 +137,11 @@ def test_resource_mapping():
     assert rsrc_map == {
         'F5::Sys::iAppService': f5_sys_iappservice.F5SysiAppService
     }
+
+
+# The test below shows that the BigIP object and init method is no longer
+# mocked.
+
+def test_suite_metatest():
+    assert f5_sys_iappservice.BigIP is BigIP
+    assert True == inspect.ismethod(f5_sys_iappservice.BigIP.__init__)

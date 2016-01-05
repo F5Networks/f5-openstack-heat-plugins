@@ -5,7 +5,6 @@ RUN apt-get -y dist-upgrade
 RUN apt-get -y update
 RUN apt-get -y install python
 RUN apt-get -y install heat-engine
-RUN apt-get -y install git
 RUN apt-get -y install python-pip
 RUN apt-get -y install build-essential
 RUN apt-get -y install libssl-dev
@@ -13,7 +12,6 @@ RUN apt-get -y install libffi-dev
 RUN apt-get -y install python-dev
 RUN apt-get -y install git
 RUN apt-get -y install vim
-RUN apt-get -y install emacs
 RUN pip install pytest
 RUN pip install pytest-cov
 RUN pip install hacking

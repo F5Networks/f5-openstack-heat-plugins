@@ -105,7 +105,11 @@ def DeleteTemplateSideEffect(F5SysiAppTemplate):
 # Tests
 
 
-@mock.patch.object(f5_sys_iapptemplate.BigIP, '__init__')
+@mock.patch.object(
+    f5_sys_iapptemplate.BigIP,
+    '__init__',
+    side_effect=Exception()
+)
 def test__init__error(mocked_init):
     template_dict, template = mock_template()
     rsrc_def, stk = mock_stack(template_dict, template)
@@ -116,7 +120,6 @@ def test__init__error(mocked_init):
 
 
 def test_handle_create(F5SysiAppTemplate):
-    template_dict, template = mock_template()
     create_result = F5SysiAppTemplate.handle_create()
     assert create_result == None
     assert F5SysiAppTemplate.bigip.sys.iapp.create_template.call_args == \

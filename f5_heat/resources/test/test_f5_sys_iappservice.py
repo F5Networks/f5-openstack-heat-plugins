@@ -48,6 +48,7 @@ iapp_service_dict = {
     'template': '/Common/testing_template'
 }
 
+
 def mock_template():
     '''Mock a Heat template for the Kilo version.'''
     versions = ('2015-04-30', '2015-04-30')
@@ -94,7 +95,12 @@ def DeleteServiceSideEffect(F5SysiAppService):
 
 # Tests
 
-@mock.patch.object(f5_sys_iappservice.BigIP, '__init__')
+
+@mock.patch.object(
+    f5_sys_iappservice.BigIP,
+    '__init__',
+    side_effect=Exception()
+)
 def test__init__error(mocked_init):
     template_dict, template = mock_template()
     rsrc_def, stk = mock_stack(template_dict, template)
@@ -105,7 +111,6 @@ def test__init__error(mocked_init):
 
 
 def test_handle_create(F5SysiAppService):
-    template_dict, template = mock_template()
     create_result = F5SysiAppService.handle_create()
     assert create_result == None
     assert F5SysiAppService.bigip.sys.iapp.create_service.call_args == \

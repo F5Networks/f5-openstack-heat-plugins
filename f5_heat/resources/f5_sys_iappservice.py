@@ -87,7 +87,7 @@ class F5SysiAppService(resource.Resource):
     def handle_create(self):
         '''Creates the iApp Service from an iApp template.
 
-        :raises: ResourceFailure
+        :raises: ResourceFailure # TODO Change to proper exception
         '''
 
         template_dict = {
@@ -107,7 +107,7 @@ class F5SysiAppService(resource.Resource):
     def handle_delete(self):
         '''Deletes the iApp Service
 
-        :raises: Resource Failure
+        :raises: Resource Failure # TODO Change to proper exception
         '''
 
         try:

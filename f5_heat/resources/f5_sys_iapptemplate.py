@@ -124,7 +124,7 @@ class F5SysiAppTemplate(resource.Resource):
     def handle_create(self):
         '''Create the template on the BigIP.
 
-        :raises: ResourceFailure
+        :raises: ResourceFailure # TODO Change to proper exception
         '''
 
         template_dict = self.build_iapp_dict()
@@ -139,7 +139,7 @@ class F5SysiAppTemplate(resource.Resource):
     def handle_delete(self):
         '''Delete the iApp Template on the BigIP.
 
-        :raises: ResourceFailure
+        :raises: ResourceFailure # TODO Change to proper exception
         '''
 
         try:

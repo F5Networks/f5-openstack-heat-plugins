@@ -78,24 +78,15 @@ resources:
                 description "A pool of http servers"
                 load-balancing-mode least-connections-node
                 members replace-all-with {
-                    129.0.0.1:8000 {
-                        address 129.0.0.1
-                    }
-                    130.0.0.1:8000 {
-                        address 130.0.0.1
-                    }
-                    140.0.0.1:8000 {
-                        address 140.0.0.1
-                    }
-                    150.0.0.1:8000 {
-                        address 150.0.0.1
+                    10.17.17.10:8080 {
+                        address 10.17.17.10
                     }
                 }
         }
 
         tmsh::create {
             ltm virtual http_vs
-                destination 10.15.15.30:80
+                destination 10.17.17.11:80
                 ip-protocol tcp
                 mask 255.255.255.255
                 pool http_pool
@@ -109,8 +100,8 @@ resources:
         }
 
         tmsh::create {
-            ltm virtual-address 10.4.4.115
-                address 10.4.4.115
+            ltm virtual-address 10.17.17.11
+                address 10.17.17.11
                 arp enabled
                 icmp-echo enabled
                 mask 255.255.255.255

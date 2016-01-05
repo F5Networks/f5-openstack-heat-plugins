@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-from f5.bigip import BigIP
 from heat.common import exception
 from heat.common.i18n import _
 from heat.engine import properties
@@ -107,14 +106,14 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
     def handle_create(self):
         '''Create the template on the BigIP.
 
-        :raises: ResourceFailure # TODO Change to proper exception
+        :raises: ResourceFailure
         '''
 
         template_dict = self.build_iapp_dict()
         self.get_bigip()
 
         try:
-            self.bigip.sys.iapp.create_template(
+            self.bigip.iapp.create_template(
                 name=self.properties[self.NAME],
                 template=template_dict
             )
@@ -124,15 +123,17 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
     def handle_delete(self):
         '''Delete the iApp Template on the BigIP.
 
-        :raises: ResourceFailure # TODO Change to proper exception
+        :raises: ResourceFailure
         '''
 
         self.get_bigip()
 
         self.get_bigip()
 
+        self.get_bigip()
+
         try:
-            self.bigip.sys.iapp.delete_template(
+            self.bigip.iapp.delete_template(
                 self.properties[self.NAME]
             )
         except Exception as ex:

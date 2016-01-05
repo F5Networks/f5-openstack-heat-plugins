@@ -13,11 +13,11 @@
 # limitations under the License.
 #
 
+from f5.bigip import BigIP
 from heat.common import exception
 from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
-from f5.bigip.bigip import BigIP
 
 
 class F5SysiAppTemplate(resource.Resource):
@@ -28,6 +28,7 @@ class F5SysiAppTemplate(resource.Resource):
         BIGIP_SERVER,
         BIGIP_USERNAME,
         BIGIP_PASSWORD,
+        REQUIRES_MODULES,
         IMPLEMENTATION,
         PRESENTATION,
         HELP
@@ -36,6 +37,7 @@ class F5SysiAppTemplate(resource.Resource):
         'bigip_server',
         'bigip_username',
         'bigip_password',
+        'requires_modules',
         'implementation',
         'presentation',
         'help'
@@ -49,18 +51,22 @@ class F5SysiAppTemplate(resource.Resource):
         ),
         BIGIP_SERVER: properties.Schema(
             properties.Schema.STRING,
-            _('IP address of BigIP device.'),
+            _('BigIP device.'),
             required=True
         ),
         BIGIP_USERNAME: properties.Schema(
             properties.Schema.STRING,
-            _('Username to use to login to the BigIP.'),
+            _('BigIP username.'),
             required=True
         ),
         BIGIP_PASSWORD: properties.Schema(
             properties.Schema.STRING,
-            _('Password to use to login to the BigIP.'),
+            _('BigIP password.'),
             required=True
+        ),
+        REQUIRES_MODULES: properties.Schema(
+            properties.Schema.LIST,
+            _('Modules required for this iApp Template.')
         ),
         IMPLEMENTATION: properties.Schema(
             properties.Schema.STRING,
@@ -95,7 +101,7 @@ class F5SysiAppTemplate(resource.Resource):
                 self.properties[self.BIGIP_PASSWORD]
             )
         except Exception as ex:
-            raise Exception('Failed initializing BigIP object: {}'.format(ex))
+            raise Exception('Failed to initialize BigIP object: {}'.format(ex))
 
     def build_iapp_dict(self):
         '''Build dictionary for posting to BigIP.
@@ -108,32 +114,36 @@ class F5SysiAppTemplate(resource.Resource):
             'presentation': self.properties[self.PRESENTATION] or ''
         }
         definition = {'definition': sections}
-        template = {'name': self.properties[self.NAME], 'actions': definition}
+        template = {
+            'name': self.properties[self.NAME],
+            'actions': definition,
+            'requiresModules': self.properties[self.REQUIRES_MODULES]
+        }
         return template
 
     def handle_create(self):
         '''Create the template on the BigIP.
 
-        :raises: ResourceFailure
+        :raises: ResourceFailure # TODO Change to proper exception
         '''
 
         template_dict = self.build_iapp_dict()
         try:
-            self.bigip.iapp.create_template(
+            self.bigip.sys.iapp.create_template(
                 name=self.properties[self.NAME],
                 template=template_dict
             )
-        except exception as ex:
+        except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
     def handle_delete(self):
         '''Delete the iApp Template on the BigIP.
 
-        :raises: ResourceFailure
+        :raises: ResourceFailure # TODO Change to proper exception
         '''
 
         try:
-            self.bigip.iapp.delete_template(
+            self.bigip.sys.iapp.delete_template(
                 self.properties[self.NAME]
             )
         except Exception as ex:

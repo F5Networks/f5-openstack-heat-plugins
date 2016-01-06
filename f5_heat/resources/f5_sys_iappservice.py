@@ -26,14 +26,10 @@ class F5SysiAppService(resource.Resource):
     PROPERTIES = (
         NAME,
         BIGIP_SERVER,
-        BIGIP_USERNAME,
-        BIGIP_PASSWORD,
         TEMPLATE_NAME
     ) = (
         'name',
         'bigip_server',
-        'bigip_username',
-        'bigip_password',
         'template_name'
     )
 
@@ -48,16 +44,6 @@ class F5SysiAppService(resource.Resource):
             _('IP address of BigIP device.'),
             required=True
         ),
-        BIGIP_USERNAME: properties.Schema(
-            properties.Schema.STRING,
-            _('Username to use to login to the BigIP.'),
-            required=True
-        ),
-        BIGIP_PASSWORD: properties.Schema(
-            properties.Schema.STRING,
-            _('Password to use to login to the BigIP.'),
-            required=True
-        ),
         TEMPLATE_NAME: properties.Schema(
             properties.Schema.STRING,
             _('Template to use when creating the service.'),
@@ -65,21 +51,15 @@ class F5SysiAppService(resource.Resource):
         )
     }
 
-    def __init__(self, name, definition, stack):
-        '''Initializes the BigIP object for use throughout the resource.
+    def bigip_connect(self):
+        refid = self.properties[self.BIGIP_SERVER]
+        bigip_resource = self.stack.resource_by_refid(refid)
 
-        :param string name: resource name
-        :param definition: resource definition from heat
-        :param stack: the current heat stack object
-        :raises: Generic execption for now #TODO Change to proper exception.
-        '''
-
-        super(F5SysiAppService, self).__init__(name, definition, stack)
         try:
             self.bigip = BigIP(
-                self.properties[self.BIGIP_SERVER],
-                self.properties[self.BIGIP_USERNAME],
-                self.properties[self.BIGIP_PASSWORD]
+                bigip_resource.properties['ip'],
+                bigip_resource.properties['username'],
+                bigip_resource.properties['password']
             )
         except Exception as ex:
             raise Exception('Failed to initialize BigIP object: {}'.format(ex))
@@ -97,7 +77,7 @@ class F5SysiAppService(resource.Resource):
             )
         }
         try:
-            self.bigip.sys.iapp.create_service(
+            self.bigip.iapp.create_service(
                 name=self.properties[self.NAME],
                 service=template_dict
             )
@@ -111,7 +91,7 @@ class F5SysiAppService(resource.Resource):
         '''
 
         try:
-            self.bigip.sys.iapp.delete_service(
+            self.bigip.iapp.delete_service(
                 name=self.properties[self.NAME]
             )
         except Exception as ex:

@@ -1,0 +1,112 @@
+# Copyright 2015 F5 Networks Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# 
+#
+
+heat_template_version: 2015-04-30
+
+description: Test creation of an iapp template and service.
+
+parameters:
+  iapp_template_name:
+    type: string
+    label: iApp Template Name
+    default: iapp_test_template
+  ve_instance:
+    type: string
+    label: VE Instance IP
+    description: IP of existing VE
+    default: 10.190.6.4
+  bigip_username:
+    type: string
+    default: admin
+  bigip_password:
+    type: string
+    default: admin
+    hidden: true
+parameter_groups:
+  - label: VE Parameters
+    parameters:
+      - ve_instance
+      - bigip_username
+      - bigip_password
+  - label: Pool Parameters
+    parameters:
+      - iapp_template_name
+resources:
+  iapp_template:
+    type: F5::Sys::iAppTemplate
+    depends_on: bigip_rsrc
+    properties:
+      name: { get_param: iapp_template_name }
+      bigip_server: { get_resource: bigip_rsrc }
+      requires_modules: [ ltm ]
+      implementation: |
+        #TMSH-VERSION: 11.6.0
+        iapp::template start
+        tmsh::create {
+            ltm pool http_pool
+                description "A pool of http servers"
+                load-balancing-mode least-connections-node
+                members replace-all-with {
+                    129.0.0.1:8000 {
+                        address 129.0.0.1
+                    }
+                    130.0.0.1:8000 {
+                        address 130.0.0.1
+                    }
+                    140.0.0.1:8000 {
+                        address 140.0.0.1
+                    }
+                    150.0.0.1:8000 {
+                        address 150.0.0.1
+                    }
+                }
+        }
+
+        tmsh::create {
+            ltm virtual http_vs
+                destination 10.15.15.30:80
+                ip-protocol tcp
+                mask 255.255.255.255
+                pool http_pool
+                profiles replace-all-with {
+                    http { }
+                    tcp { }
+                }
+                source 0.0.0.0/0
+                translate-address enabled
+                translate-port enabled
+        }
+
+        tmsh::create {
+            ltm virtual-address 10.4.4.115
+                address 10.4.4.115
+                arp enabled
+                icmp-echo enabled
+                mask 255.255.255.255
+                traffic-group traffic-group-1
+        } 
+        iapp::template stop
+      presentation: | 
+        section say_hello {
+            message intro "This template deploys a virtual server and a pool with several members."
+        }
+
+  bigip_rsrc:
+    type: F5::BigIP
+    properties:
+      ip: { get_param: ve_instance }
+      username: { get_param: bigip_username }
+      password: { get_param: bigip_password }

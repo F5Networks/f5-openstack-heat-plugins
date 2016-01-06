@@ -114,6 +114,8 @@ class F5SysiAppTemplate(resource.Resource):
 
         :raises: ResourceFailure
         '''
+	
+	self.bigip_connect()
 
         self.get_bigip()
 

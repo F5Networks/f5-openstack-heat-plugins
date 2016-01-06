@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+from f5.bigip.bigip import BigIP
 from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
@@ -48,6 +49,20 @@ class F5BigIP(resource.Resource):
             required=True
         )
     }
+
+    def __init__(self, name, definition, stack):
+	super(F5BigIP, self).__init__(name, definition, stack)	
+	try:
+            self.bigip = BigIP(
+                self.properties['ip'],
+                self.properties['username'],
+                self.properties['password']
+            )
+        except Exception as ex:
+            raise Exception('Failed to initialize BigIP object: {}'.format(ex))	
+
+    def get_bigip(self):
+	return self.bigip
 
     def handle_create(self):
         '''Create the BigIP resource.'''

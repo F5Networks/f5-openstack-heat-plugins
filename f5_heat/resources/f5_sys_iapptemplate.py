@@ -71,17 +71,9 @@ class F5SysiAppTemplate(resource.Resource):
     }
 
     def bigip_connect(self):
+	'''Retrieve the BigIP connection from the F5::BigIP resource.'''
         refid = self.properties[self.BIGIP_SERVER]
-        bigip_resource = self.stack.resource_by_refid(refid)
-
-        try:
-            self.bigip = BigIP(
-                bigip_resource.properties['ip'],
-                bigip_resource.properties['username'],
-                bigip_resource.properties['password']
-            )
-        except Exception as ex:
-            raise Exception('Failed to initialize BigIP object: {}'.format(ex))
+        self.bigip = self.stack.resource_by_refid(refid).get_bigip()
 
     def build_iapp_dict(self):
         '''Build dictionary for posting to BigIP.
@@ -108,7 +100,8 @@ class F5SysiAppTemplate(resource.Resource):
         '''
 
         template_dict = self.build_iapp_dict()
-        self.bigip_connect()
+        self.bigip_connect() 
+
         try:
             self.bigip.iapp.create_template(
                 name=self.properties[self.NAME],
@@ -122,8 +115,9 @@ class F5SysiAppTemplate(resource.Resource):
 
         :raises: ResourceFailure
         '''
+	
+	self.bigip_connect()
 
-        self.bigip_connect()
         try:
             self.bigip.sys.iapp.delete_template(
                 self.properties[self.NAME]

@@ -125,6 +125,8 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
 
         :raises: ResourceFailure
         '''
+	
+	self.bigip_connect()
 
         self.get_bigip()
 

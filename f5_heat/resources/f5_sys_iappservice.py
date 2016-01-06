@@ -70,6 +70,8 @@ class F5SysiAppService(resource.Resource):
         :raises: ResourceFailure # TODO Change to proper exception
         '''
 
+        self.bigip_connect()
+
         template_dict = {
             'name': self.properties[self.NAME],
             'template': '/Common/{}'.format(
@@ -89,6 +91,8 @@ class F5SysiAppService(resource.Resource):
 
         :raises: Resource Failure # TODO Change to proper exception
         '''
+
+        self.bigip_connect()
 
         try:
             self.bigip.iapp.delete_service(

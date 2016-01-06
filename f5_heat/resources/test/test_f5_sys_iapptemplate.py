@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5.bigip import BigIP
+from f5.bigip.bigip import BigIP
 from f5_heat.resources import f5_sys_iapptemplate
 from heat.common import exception
 from heat.common import template_format
@@ -91,14 +91,14 @@ def F5SysiAppTemplate(mocked_bigip):
 
 @pytest.fixture
 def CreateTemplateSideEffect(F5SysiAppTemplate):
-    F5SysiAppTemplate.bigip.sys.iapp.create_template.side_effect = \
+    F5SysiAppTemplate.bigip.iapp.create_template.side_effect = \
         Exception()
     return F5SysiAppTemplate
 
 
 @pytest.fixture
 def DeleteTemplateSideEffect(F5SysiAppTemplate):
-    F5SysiAppTemplate.bigip.sys.iapp.delete_template.side_effect = \
+    F5SysiAppTemplate.bigip.iapp.delete_template.side_effect = \
         Exception()
     return F5SysiAppTemplate
 
@@ -122,7 +122,7 @@ def test__init__error(mocked_init):
 def test_handle_create(F5SysiAppTemplate):
     create_result = F5SysiAppTemplate.handle_create()
     assert create_result == None
-    assert F5SysiAppTemplate.bigip.sys.iapp.create_template.call_args == \
+    assert F5SysiAppTemplate.bigip.iapp.create_template.call_args == \
         mock.call(
             name=u'testing_template',
             template=iapp_actions_dict
@@ -137,7 +137,7 @@ def test_handle_create_error(CreateTemplateSideEffect):
 def test_handle_delete(F5SysiAppTemplate):
     delete_result = F5SysiAppTemplate.handle_delete()
     assert delete_result == None
-    assert F5SysiAppTemplate.bigip.sys.iapp.delete_template.call_args == \
+    assert F5SysiAppTemplate.bigip.iapp.delete_template.call_args == \
         mock.call('testing_template')
 
 

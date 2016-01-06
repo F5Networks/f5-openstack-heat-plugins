@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5.bigip import BigIP
+from f5.bigip.bigip import BigIP
 from f5_heat.resources import f5_sys_iappservice
 from heat.common import exception
 from heat.common import template_format
@@ -82,14 +82,14 @@ def F5SysiAppService(mocked_bigip):
 
 @pytest.fixture
 def CreateServiceSideEffect(F5SysiAppService):
-    F5SysiAppService.bigip.sys.iapp.create_service.side_effect = \
+    F5SysiAppService.bigip.iapp.create_service.side_effect = \
         Exception()
     return F5SysiAppService
 
 
 @pytest.fixture
 def DeleteServiceSideEffect(F5SysiAppService):
-    F5SysiAppService.bigip.sys.iapp.delete_service.side_effect = \
+    F5SysiAppService.bigip.iapp.delete_service.side_effect = \
         Exception()
     return F5SysiAppService
 
@@ -113,7 +113,7 @@ def test__init__error(mocked_init):
 def test_handle_create(F5SysiAppService):
     create_result = F5SysiAppService.handle_create()
     assert create_result == None
-    assert F5SysiAppService.bigip.sys.iapp.create_service.call_args == \
+    assert F5SysiAppService.bigip.iapp.create_service.call_args == \
         mock.call(
             name=u'testing',
             service=iapp_service_dict
@@ -128,7 +128,7 @@ def test_handle_create_error(CreateServiceSideEffect):
 def test_handle_delete(F5SysiAppService):
     delete_result = F5SysiAppService.handle_delete()
     assert delete_result == None
-    assert F5SysiAppService.bigip.sys.iapp.delete_service.call_args == \
+    assert F5SysiAppService.bigip.iapp.delete_service.call_args == \
         mock.call(name=u'testing')
 
 

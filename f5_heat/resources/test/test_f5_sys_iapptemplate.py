@@ -13,17 +13,13 @@
 # limitations under the License.
 #
 
-from f5.bigip.bigip import BigIP
 from f5_heat.resources import f5_sys_iapptemplate
 from heat.common import exception
 from heat.common import template_format
 from heat.engine.hot.template import HOTemplate20150430
 from heat.engine import rsrc_defn
-from heat.engine import stack
 from heat.engine import template
-from heat.tests import utils
 
-import inspect
 import mock
 import pytest
 
@@ -32,13 +28,18 @@ iapp_template_defn = '''
 heat_template_version: 2015-04-30
 description: Testing iAppTemplate plugin
 resources:
+    bigip_rsrc:
+        type: F5::BigIP
+        properties:
+            ip: 10.0.0.1
+            username: admin
+            password: admin
     iapp_template:
         type: F5::Sys::iAppTemplate
+        depends_on: bigip_rsrc
         properties:
           name: testing_template
-          bigip_server: bigip.abc.com
-          bigip_username: admin
-          bigip_password: password
+          bigip_server: bigip_rsrc
           requires_modules: [ ltm ]
           implementation: |
             hello
@@ -64,33 +65,32 @@ def mock_template():
     template.get_version = mock.Mock(return_value=versions)
     template.get_template_class = mock.Mock(return_value=HOTemplate20150430)
     templ_dict = template_format.parse(iapp_template_defn)
-    return templ_dict, template.Template(templ_dict)
+    return templ_dict
 
 
-def mock_stack(templ_dict, templ):
-    '''Create a partially mocked Heat stack for use in creating a resource.'''
-    stk = stack.Stack(utils.dummy_context(), 'test_stack', templ)
+def create_resource_definition(templ_dict):
+    '''Create a resource definition.'''
     rsrc_def = rsrc_defn.ResourceDefinition(
         'test_stack',
         templ_dict['resources']['iapp_template']['type'],
         properties=templ_dict['resources']['iapp_template']['properties']
     )
-    return rsrc_def, stk
+    return rsrc_def
 
 
 @pytest.fixture
-@mock.patch('f5_heat.resources.f5_sys_iapptemplate.BigIP')
-def F5SysiAppTemplate(mocked_bigip):
-    '''Instantiate the F5SysiAppTemplate resource with a mocked BigIP.'''
-    template_dict, template = mock_template()
-    rsrc_def, stk = mock_stack(template_dict, template)
+def F5SysiAppTemplate():
+    '''Instantiate the F5SysiAppTemplate resource.'''
+    template_dict = mock_template()
+    rsrc_def = create_resource_definition(template_dict)
     return f5_sys_iapptemplate.F5SysiAppTemplate(
-        "iapp_template", rsrc_def, stk
+        "iapp_template", rsrc_def, mock.MagicMock()
     )
 
 
 @pytest.fixture
 def CreateTemplateSideEffect(F5SysiAppTemplate):
+    F5SysiAppTemplate.get_bigip()
     F5SysiAppTemplate.bigip.iapp.create_template.side_effect = \
         Exception()
     return F5SysiAppTemplate
@@ -98,6 +98,7 @@ def CreateTemplateSideEffect(F5SysiAppTemplate):
 
 @pytest.fixture
 def DeleteTemplateSideEffect(F5SysiAppTemplate):
+    F5SysiAppTemplate.get_bigip()
     F5SysiAppTemplate.bigip.iapp.delete_template.side_effect = \
         Exception()
     return F5SysiAppTemplate
@@ -105,26 +106,12 @@ def DeleteTemplateSideEffect(F5SysiAppTemplate):
 # Tests
 
 
-@mock.patch.object(
-    f5_sys_iapptemplate.BigIP,
-    '__init__',
-    side_effect=Exception()
-)
-def test__init__error(mocked_init):
-    template_dict, template = mock_template()
-    rsrc_def, stk = mock_stack(template_dict, template)
-    with pytest.raises(Exception):
-        f5_sys_iapptemplate.F5SysiAppTemplate(
-            "iapp_template", rsrc_def, stk
-        )
-
-
 def test_handle_create(F5SysiAppTemplate):
     create_result = F5SysiAppTemplate.handle_create()
     assert create_result == None
     assert F5SysiAppTemplate.bigip.iapp.create_template.call_args == \
         mock.call(
-            name=u'testing_template',
+            name='testing_template',
             template=iapp_actions_dict
         )
 
@@ -151,11 +138,3 @@ def test_resource_mapping():
     assert rsrc_map == {
         'F5::Sys::iAppTemplate': f5_sys_iapptemplate.F5SysiAppTemplate
     }
-
-
-# The test below shows that the BigIP object and init method is no longer
-# mocked.
-
-def test_suite_metatest():
-    assert f5_sys_iapptemplate.BigIP is BigIP
-    assert True == inspect.ismethod(f5_sys_iapptemplate.BigIP.__init__)

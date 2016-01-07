@@ -51,18 +51,18 @@ class F5BigIP(resource.Resource):
     }
 
     def __init__(self, name, definition, stack):
-	super(F5BigIP, self).__init__(name, definition, stack)	
-	try:
+        super(F5BigIP, self).__init__(name, definition, stack)
+        try:
             self.bigip = BigIP(
                 self.properties['ip'],
                 self.properties['username'],
                 self.properties['password']
             )
         except Exception as ex:
-            raise Exception('Failed to initialize BigIP object: {}'.format(ex))	
+            raise Exception('Failed to initialize BigIP object: {}'.format(ex))
 
     def get_bigip(self):
-	return self.bigip
+        return self.bigip
 
     def handle_create(self):
         '''Create the BigIP resource.'''

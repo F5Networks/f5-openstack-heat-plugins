@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-from f5.bigip.bigip import BigIP
 from heat.common import exception
 from heat.common.i18n import _
 from heat.engine import properties
@@ -70,8 +69,8 @@ class F5SysiAppTemplate(resource.Resource):
         )
     }
 
-    def bigip_connect(self):
-	'''Retrieve the BigIP connection from the F5::BigIP resource.'''
+    def get_bigip(self):
+        '''Retrieve the BigIP connection from the F5::BigIP resource.'''
         refid = self.properties[self.BIGIP_SERVER]
         self.bigip = self.stack.resource_by_refid(refid).get_bigip()
 
@@ -100,7 +99,7 @@ class F5SysiAppTemplate(resource.Resource):
         '''
 
         template_dict = self.build_iapp_dict()
-        self.bigip_connect() 
+        self.get_bigip()
 
         try:
             self.bigip.iapp.create_template(
@@ -115,11 +114,11 @@ class F5SysiAppTemplate(resource.Resource):
 
         :raises: ResourceFailure
         '''
-	
-	self.bigip_connect()
+
+        self.get_bigip()
 
         try:
-            self.bigip.sys.iapp.delete_template(
+            self.bigip.iapp.delete_template(
                 self.properties[self.NAME]
             )
         except Exception as ex:

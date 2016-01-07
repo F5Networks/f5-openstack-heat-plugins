@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-from f5.bigip.bigip import BigIP
 from heat.common import exception
 from heat.common.i18n import _
 from heat.engine import properties
@@ -51,18 +50,10 @@ class F5SysiAppService(resource.Resource):
         )
     }
 
-    def bigip_connect(self):
+    def get_bigip(self):
+        '''Retrieve the BigIP connection from the F5::BigIP resource.'''
         refid = self.properties[self.BIGIP_SERVER]
-        bigip_resource = self.stack.resource_by_refid(refid)
-
-        try:
-            self.bigip = BigIP(
-                bigip_resource.properties['ip'],
-                bigip_resource.properties['username'],
-                bigip_resource.properties['password']
-            )
-        except Exception as ex:
-            raise Exception('Failed to initialize BigIP object: {}'.format(ex))
+        self.bigip = self.stack.resource_by_refid(refid).get_bigip()
 
     def handle_create(self):
         '''Creates the iApp Service from an iApp template.
@@ -70,7 +61,7 @@ class F5SysiAppService(resource.Resource):
         :raises: ResourceFailure # TODO Change to proper exception
         '''
 
-        self.bigip_connect()
+        self.get_bigip()
 
         template_dict = {
             'name': self.properties[self.NAME],
@@ -92,7 +83,7 @@ class F5SysiAppService(resource.Resource):
         :raises: Resource Failure # TODO Change to proper exception
         '''
 
-        self.bigip_connect()
+        self.get_bigip()
 
         try:
             self.bigip.iapp.delete_service(

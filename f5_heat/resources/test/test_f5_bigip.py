@@ -25,7 +25,7 @@ import mock
 import pytest
 import uuid
 
-iapp_service_defn = '''
+f5_bigip_defn = '''
 heat_template_version: 2015-04-30
 description: Testing iAppService plugin
 resources:
@@ -38,7 +38,7 @@ resources:
 '''
 
 
-bad_service_defn = '''
+bad_f5_bigip_defn = '''
 heat_template_version: 2015-04-30
 description: Testing Bad iAppService plugin
 resources:
@@ -52,7 +52,7 @@ resources:
 '''
 
 
-def mock_template(test_templ=iapp_service_defn):
+def mock_template(test_templ=f5_bigip_defn):
     '''Mock a Heat template for the Kilo version.'''
     versions = ('2015-04-30', '2015-04-30')
     template.get_version = mock.Mock(return_value=versions)
@@ -112,7 +112,7 @@ def test_bigip_getter(F5BigIP):
 
 
 def test_bad_property():
-    template_dict = mock_template(bad_service_defn)
+    template_dict = mock_template(bad_f5_bigip_defn)
     rsrc_def = create_resource_definition(template_dict)
     f5_bigip_obj = f5_bigip.F5BigIP('test', rsrc_def, mock.MagicMock())
     with pytest.raises(exception.StackValidationFailed):

@@ -41,6 +41,22 @@ resources:
       template_name: testing_template
 '''
 
+bad_iapp_service_defn = '''
+heat_template_version: 2015-04-30
+description: Testing iAppService plugin
+resources:
+  bigip_rsrc:
+    type: F5::BigIP
+    properties:
+      ip: 10.0.0.1
+      username: admin
+      password: admin
+  iapp_service:
+    type: F5::Sys::iAppService
+    properties:
+      bigip_server: bigip_rsrc
+      template_name: testing_template
+'''
 
 iapp_service_dict = {
     'name': u'testing_service',
@@ -48,12 +64,12 @@ iapp_service_dict = {
 }
 
 
-def mock_template():
+def mock_template(test_templ=iapp_service_defn):
     '''Mock a Heat template for the Kilo version.'''
     versions = ('2015-04-30', '2015-04-30')
     template.get_version = mock.Mock(return_value=versions)
     template.get_template_class = mock.Mock(return_value=HOTemplate20150430)
-    templ_dict = template_format.parse(iapp_service_defn)
+    templ_dict = template_format.parse(test_templ)
     return templ_dict
 
 
@@ -127,3 +143,15 @@ def test_resource_mapping():
     assert rsrc_map == {
         'F5::Sys::iAppService': f5_sys_iappservice.F5SysiAppService
     }
+
+
+def test_bad_property():
+    template_dict = mock_template(bad_iapp_service_defn)
+    rsrc_def = create_resource_definition(template_dict)
+    f5_sys_iappservice_obj = f5_sys_iappservice.F5SysiAppService(
+        'test',
+        rsrc_def,
+        mock.MagicMock()
+    )
+    with pytest.raises(exception.StackValidationFailed):
+        f5_sys_iappservice_obj.validate()

@@ -70,8 +70,8 @@ class F5BigIP(resource.Resource):
 
     def handle_delete(self):
         '''Delete BigIP resource.'''
-        pass
+        del self.bigip
 
 
 def resource_mapping():
-    return {'F5::BigIP': F5BigIP}
+    return {'F5::BigIP::Device': F5BigIP}

@@ -18,8 +18,10 @@ from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
 
+from common.f5_bigip_connection import F5BigIPConnection
 
-class F5SysiAppTemplate(resource.Resource):
+
+class F5SysiAppTemplate(resource.Resource, F5BigIPConnection):
     '''Manages creation of an iApp resource on the BigIP device.'''
 
     PROPERTIES = (
@@ -68,11 +70,6 @@ class F5SysiAppTemplate(resource.Resource):
             _('Help section of the template.'),
         )
     }
-
-    def get_bigip(self):
-        '''Retrieve the BigIP connection from the F5::BigIP resource.'''
-        refid = self.properties[self.BIGIP_SERVER]
-        self.bigip = self.stack.resource_by_refid(refid).get_bigip()
 
     def build_iapp_dict(self):
         '''Build dictionary for posting to BigIP.

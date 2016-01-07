@@ -29,7 +29,7 @@ heat_template_version: 2015-04-30
 description: Testing iAppTemplate plugin
 resources:
     bigip_rsrc:
-        type: F5::BigIP
+        type: F5::BigIP::Device
         properties:
             ip: 10.0.0.1
             username: admin

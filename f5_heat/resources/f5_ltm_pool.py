@@ -17,29 +17,30 @@ from heat.common import exception
 from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
-from f5.bigip.bigip import BigIP
+
+from common.f5_bigip_connection import F5BigIPConnection
 
 
-class F5LTMPool(resource.Resource):
+class F5LTMPool(resource.Resource, F5BigIPConnection):
     '''Manages creation of an F5 Resource.'''
 
     PROPERTIES = (
         NAME,
         BIGIP_SERVER,
-        BIGIP_USERNAME,
-        BIGIP_PASSWORD,
         SERVICE_DOWN_ACTION,
         MEMBERS
     ) = (
         'name',
         'bigip_server',
-        'bigip_username',
-        'bigip_password',
         'service_down_action',
         'members'
     )
 
-    _MEMBER_KEYS = (IP_ADDRESS, PORT) = ('ip_address', 'port')
+    _MEMBER_KEYS = (
+        MEMBER_IP, MEMBER_PORT
+    ) = (
+        'member_ip', 'member_port'
+    )
 
     properties_schema = {
         NAME: properties.Schema(
@@ -49,18 +50,8 @@ class F5LTMPool(resource.Resource):
         ),
         BIGIP_SERVER: properties.Schema(
             properties.Schema.STRING,
-            _('Name of the bigip resource defined in the heat template.'),
-            required=True,
-        ),
-        BIGIP_USERNAME: properties.Schema(
-            properties.Schema.STRING,
-            _('Name of the bigip resource defined in the heat template.'),
-            required=True,
-        ),
-        BIGIP_PASSWORD: properties.Schema(
-            properties.Schema.STRING,
-            _('Name of the bigip resource defined in the heat template.'),
-            required=True,
+            _('Reference to the BigIP server resource.'),
+            required=True
         ),
         SERVICE_DOWN_ACTION: properties.Schema(
             properties.Schema.STRING,
@@ -72,37 +63,20 @@ class F5LTMPool(resource.Resource):
             schema=properties.Schema(
                 properties.Schema.MAP,
                 schema={
-                    IP_ADDRESS: properties.Schema(
+                    MEMBER_IP: properties.Schema(
                         properties.Schema.STRING,
                         _('IP address of the member.'),
+                        required=True
                     ),
-                    PORT: properties.Schema(
+                    MEMBER_PORT: properties.Schema(
                         properties.Schema.STRING,
-                        _('Port the member is listening on.')
+                        _('Port the member is listening on.'),
+                        required=True
                     )
                 }
             )
         )
     }
-
-    def __init__(self, name, definition, stack):
-        '''Initializes the BigIP object for use throughout the resource.
-
-        :param string name: resource name
-        :param definition: resource definition from heat
-        :param stack: the current heat stack object
-        :raises: Generic execption for now #TODO Change to proper exception.
-        '''
-
-        super(F5LTMPool, self).__init__(name, definition, stack)
-        try:
-            self.bigip = BigIP(
-                self.properties[self.BIGIP_SERVER],
-                self.properties[self.BIGIP_USERNAME],
-                self.properties[self.BIGIP_PASSWORD]
-            )
-        except Exception as ex:
-            raise Exception('Failed initializing BigIP object: {}'.format(ex))
 
     def assign_members(self):
         '''Assign members to the pool.
@@ -110,13 +84,13 @@ class F5LTMPool(resource.Resource):
         :raises: ResourceFailure
         '''
 
-        members = self.properties.get(self.MEMBERS)
+        members = self.properties[self.MEMBERS]
         for member in members:
             try:
                 self.bigip.pool.add_member(
                     name=self.properties[self.NAME],
-                    ip_address=member.get(self.IP_ADDRESS),
-                    port=member.get(self.PORT)
+                    ip_address=member.get(self.MEMBER_IP),
+                    port=member.get(self.MEMBER_PORT)
                 )
             except exception as ex:
                 raise exception.ResourceFailure(ex, None, action='ADD MEMBERS')
@@ -127,6 +101,7 @@ class F5LTMPool(resource.Resource):
         :rasies: ResourceFailure
         '''
 
+        self.get_bigip()
         try:
             self.bigip.pool.create(self.properties[self.NAME])
         except exception as ex:
@@ -145,6 +120,7 @@ class F5LTMPool(resource.Resource):
         :raises: ResourceFailure
         '''
 
+        self.get_bigip()
         try:
             self.bigip.pool.delete(self.properties[self.NAME])
         except exception as ex:

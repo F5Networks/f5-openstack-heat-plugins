@@ -23,52 +23,34 @@ parameters:
     type: string
     label: iApp Template Name
     default: iapp_test_template
-  iapp_service_name:
-    type: string
-    label: iApp Service Name
-    default: iapp_test_service
   ve_instance:
     type: string
     label: VE Instance IP
     description: IP of existing VE
     default: 10.190.6.4
-  bigip_un:
+  bigip_username:
     type: string
-    label: BigIP Login Username
     default: admin
-  bigip_pw:
+  bigip_password:
     type: string
-    label: BigIP Login Password
     default: admin
     hidden: true
 parameter_groups:
   - label: VE Parameters
     parameters:
       - ve_instance
-      - bigip_un
-      - bigip_pw
+      - bigip_username
+      - bigip_password
   - label: Pool Parameters
     parameters:
       - iapp_template_name
-      - iapp_service_name
 resources:
-  iapp_service:
-    type: F5::Sys::iAppService
-    depends_on: iapp_template
-    properties:
-      name: { get_param: iapp_service_name }
-      bigip_server: { get_param: ve_instance }
-      bigip_username: { get_param: bigip_un }
-      bigip_password: { get_param: bigip_pw }
-      template_name: { get_param: iapp_template_name }
-
   iapp_template:
     type: F5::Sys::iAppTemplate
+    depends_on: bigip_rsrc
     properties:
       name: { get_param: iapp_template_name }
-      bigip_server: { get_param: ve_instance }
-      bigip_username: { get_param: bigip_un }
-      bigip_password: { get_param: bigip_pw }
+      bigip_server: { get_resource: bigip_rsrc }
       requires_modules: [ ltm ]
       implementation: |
         #TMSH-VERSION: 11.6.0
@@ -78,15 +60,24 @@ resources:
                 description "A pool of http servers"
                 load-balancing-mode least-connections-node
                 members replace-all-with {
-                    10.17.17.10:8080 {
-                        address 10.17.17.10
+                    129.0.0.1:8000 {
+                        address 129.0.0.1
+                    }
+                    130.0.0.1:8000 {
+                        address 130.0.0.1
+                    }
+                    140.0.0.1:8000 {
+                        address 140.0.0.1
+                    }
+                    150.0.0.1:8000 {
+                        address 150.0.0.1
                     }
                 }
         }
 
         tmsh::create {
             ltm virtual http_vs
-                destination 10.17.17.11:80
+                destination 10.15.15.30:80
                 ip-protocol tcp
                 mask 255.255.255.255
                 pool http_pool
@@ -100,8 +91,8 @@ resources:
         }
 
         tmsh::create {
-            ltm virtual-address 10.17.17.11
-                address 10.17.17.11
+            ltm virtual-address 10.4.4.115
+                address 10.4.4.115
                 arp enabled
                 icmp-echo enabled
                 mask 255.255.255.255
@@ -112,3 +103,10 @@ resources:
         section say_hello {
             message intro "This template deploys a virtual server and a pool with several members."
         }
+
+  bigip_rsrc:
+    type: F5::BigIP
+    properties:
+      ip: { get_param: ve_instance }
+      username: { get_param: bigip_username }
+      password: { get_param: bigip_password }

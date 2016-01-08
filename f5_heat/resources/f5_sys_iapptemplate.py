@@ -1,4 +1,4 @@
-# Copyright 2015 F5 Networks Inc.
+# Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-from f5.bigip import BigIP
 from heat.common import exception
 from heat.common.i18n import _
 from heat.engine import properties
@@ -26,8 +25,6 @@ class F5SysiAppTemplate(resource.Resource):
     PROPERTIES = (
         NAME,
         BIGIP_SERVER,
-        BIGIP_USERNAME,
-        BIGIP_PASSWORD,
         REQUIRES_MODULES,
         IMPLEMENTATION,
         PRESENTATION,
@@ -35,8 +32,6 @@ class F5SysiAppTemplate(resource.Resource):
     ) = (
         'name',
         'bigip_server',
-        'bigip_username',
-        'bigip_password',
         'requires_modules',
         'implementation',
         'presentation',
@@ -51,17 +46,7 @@ class F5SysiAppTemplate(resource.Resource):
         ),
         BIGIP_SERVER: properties.Schema(
             properties.Schema.STRING,
-            _('BigIP device.'),
-            required=True
-        ),
-        BIGIP_USERNAME: properties.Schema(
-            properties.Schema.STRING,
-            _('BigIP username.'),
-            required=True
-        ),
-        BIGIP_PASSWORD: properties.Schema(
-            properties.Schema.STRING,
-            _('BigIP password.'),
+            _('BigIP resource reference.'),
             required=True
         ),
         REQUIRES_MODULES: properties.Schema(
@@ -84,24 +69,10 @@ class F5SysiAppTemplate(resource.Resource):
         )
     }
 
-    def __init__(self, name, definition, stack):
-        '''Initializes the BigIP object for use throughout this class.
-
-        :param string name: resource name
-        :param definition: resource definition from heat
-        :param stack: current heat stack object
-        :raises: Generic exception # TODO Change to proper exception
-        '''
-
-        super(F5SysiAppTemplate, self).__init__(name, definition, stack)
-        try:
-            self.bigip = BigIP(
-                self.properties[self.BIGIP_SERVER],
-                self.properties[self.BIGIP_USERNAME],
-                self.properties[self.BIGIP_PASSWORD]
-            )
-        except Exception as ex:
-            raise Exception('Failed to initialize BigIP object: {}'.format(ex))
+    def get_bigip(self):
+        '''Retrieve the BigIP connection from the F5::BigIP resource.'''
+        refid = self.properties[self.BIGIP_SERVER]
+        self.bigip = self.stack.resource_by_refid(refid).get_bigip()
 
     def build_iapp_dict(self):
         '''Build dictionary for posting to BigIP.
@@ -124,12 +95,14 @@ class F5SysiAppTemplate(resource.Resource):
     def handle_create(self):
         '''Create the template on the BigIP.
 
-        :raises: ResourceFailure # TODO Change to proper exception
+        :raises: ResourceFailure
         '''
 
         template_dict = self.build_iapp_dict()
+        self.get_bigip()
+
         try:
-            self.bigip.sys.iapp.create_template(
+            self.bigip.iapp.create_template(
                 name=self.properties[self.NAME],
                 template=template_dict
             )
@@ -139,11 +112,13 @@ class F5SysiAppTemplate(resource.Resource):
     def handle_delete(self):
         '''Delete the iApp Template on the BigIP.
 
-        :raises: ResourceFailure # TODO Change to proper exception
+        :raises: ResourceFailure
         '''
 
+        self.get_bigip()
+
         try:
-            self.bigip.sys.iapp.delete_template(
+            self.bigip.iapp.delete_template(
                 self.properties[self.NAME]
             )
         except Exception as ex:

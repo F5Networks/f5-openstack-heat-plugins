@@ -76,8 +76,8 @@ class F5LTMVirtualServer(resource.Resource, F5BigIPConnection):
         try:
             self.bigip.virtual_server.create(
                 name=self.properties[self.NAME],
-                ip_address=properties[self.IP],
-                port=properties[self.PORT]
+                ip_address=self.properties[self.IP],
+                port=self.properties[self.PORT]
             )
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')

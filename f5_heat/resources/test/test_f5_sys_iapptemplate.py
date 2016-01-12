@@ -131,7 +131,7 @@ def DeleteTemplateSideEffect(F5SysiAppTemplate):
 
 def test_handle_create(F5SysiAppTemplate):
     create_result = F5SysiAppTemplate.handle_create()
-    assert create_result == None
+    assert create_result is None
     assert F5SysiAppTemplate.bigip.iapp.create_template.call_args == \
         mock.call(
             name='testing_template',
@@ -146,7 +146,7 @@ def test_handle_create_error(CreateTemplateSideEffect):
 
 def test_handle_delete(F5SysiAppTemplate):
     delete_result = F5SysiAppTemplate.handle_delete()
-    assert delete_result == None
+    assert delete_result is None
     assert F5SysiAppTemplate.bigip.iapp.delete_template.call_args == \
         mock.call('testing_template')
 

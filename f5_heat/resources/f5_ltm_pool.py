@@ -92,7 +92,7 @@ class F5LTMPool(resource.Resource, F5BigIPConnection):
                     ip_address=member.get(self.MEMBER_IP),
                     port=member.get(self.MEMBER_PORT)
                 )
-            except exception as ex:
+            except Exception as ex:
                 raise exception.ResourceFailure(ex, None, action='ADD MEMBERS')
 
     def handle_create(self):
@@ -104,7 +104,7 @@ class F5LTMPool(resource.Resource, F5BigIPConnection):
         self.get_bigip()
         try:
             self.bigip.pool.create(self.properties[self.NAME])
-        except exception as ex:
+        except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
         self.assign_members()
@@ -123,7 +123,7 @@ class F5LTMPool(resource.Resource, F5BigIPConnection):
         self.get_bigip()
         try:
             self.bigip.pool.delete(self.properties[self.NAME])
-        except exception as ex:
+        except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='DELETE')
 
 

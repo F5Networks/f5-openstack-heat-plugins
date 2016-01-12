@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5_heat.resources import f5_sys_iappservice
+from f5_heat.resources import f5_ltm_virtualserver
 from heat.common import exception
 from heat.common import template_format
 from heat.engine.hot.template import HOTemplate20150430
@@ -22,49 +22,51 @@ from heat.engine import template
 
 import mock
 import pytest
+import uuid
 
-iapp_service_defn = '''
+
+vs_defn = '''
 heat_template_version: 2015-04-30
-description: Testing iAppService plugin
+description: Testing F5 LTM Virtual Server plugin
 resources:
   bigip_rsrc:
-    type: F5::BigIP
+    type: F5::BigIP::Device
     properties:
       ip: 10.0.0.1
       username: admin
       password: admin
-  iapp_service:
-    type: F5::Sys::iAppService
+  vs:
+    type: F5::LTM::VirtualServer
     properties:
-      name: testing_service
+      name: testing_vs
       bigip_server: bigip_rsrc
-      template_name: testing_template
+      ip: 129.0.0.1
+      port: 80
 '''
 
-bad_iapp_service_defn = '''
+bad_vs_defn = '''
 heat_template_version: 2015-04-30
-description: Testing iAppService plugin
+description: Testing F5 LTM Virtual Server plugin
 resources:
   bigip_rsrc:
-    type: F5::BigIP
+    type: F5::BigIP::Device
     properties:
       ip: 10.0.0.1
       username: admin
       password: admin
-  iapp_service:
-    type: F5::Sys::iAppService
+  vs:
+    type: F5::LTM::VirtualServer
     properties:
+      name: testing_vs
+      bad_prop: bad_prop_name
       bigip_server: bigip_rsrc
-      template_name: testing_template
+      ip: 129.0.0.1
+      port: 80
+      extra_port: bad_prop
 '''
 
-iapp_service_dict = {
-    'name': u'testing_service',
-    'template': '/Common/testing_template'
-}
 
-
-def mock_template(test_templ=iapp_service_defn):
+def mock_template(test_templ=vs_defn):
     '''Mock a Heat template for the Kilo version.'''
     versions = ('2015-04-30', '2015-04-30')
     template.get_version = mock.Mock(return_value=versions)
@@ -77,81 +79,81 @@ def create_resource_definition(templ_dict):
     '''Create resource definition.'''
     rsrc_def = rsrc_defn.ResourceDefinition(
         'test_stack',
-        templ_dict['resources']['iapp_service']['type'],
-        properties=templ_dict['resources']['iapp_service']['properties']
+        templ_dict['resources']['vs']['type'],
+        properties=templ_dict['resources']['vs']['properties']
     )
     return rsrc_def
 
 
 @pytest.fixture
-def F5SysiAppService():
+def F5LTMVirtualServer():
     '''Instantiate the F5SysiAppService resource.'''
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
-    return f5_sys_iappservice.F5SysiAppService(
-        "testing_service", rsrc_def, mock.MagicMock()
+    f5_vs_obj = f5_ltm_virtualserver.F5LTMVirtualServer(
+        'testing_vs', rsrc_def, mock.MagicMock()
     )
+    f5_vs_obj.uuid = uuid.uuid4()
+    return f5_vs_obj
 
 
 @pytest.fixture
-def CreateServiceSideEffect(F5SysiAppService):
-    F5SysiAppService.get_bigip()
-    F5SysiAppService.bigip.iapp.create_service.side_effect = \
-        Exception()
-    return F5SysiAppService
+def CreateVirtualServerSideEffect(F5LTMVirtualServer):
+    F5LTMVirtualServer.get_bigip()
+    F5LTMVirtualServer.bigip.virtual_server.create.side_effect = Exception()
+    return F5LTMVirtualServer
 
 
 @pytest.fixture
-def DeleteServiceSideEffect(F5SysiAppService):
-    F5SysiAppService.get_bigip()
-    F5SysiAppService.bigip.iapp.delete_service.side_effect = \
-        Exception()
-    return F5SysiAppService
-
-# Tests
+def DeleteVirtualServerSideEffect(F5LTMVirtualServer):
+    F5LTMVirtualServer.get_bigip()
+    F5LTMVirtualServer.bigip.virtual_server.delete.side_effect = Exception()
+    return F5LTMVirtualServer
 
 
-def test_handle_create(F5SysiAppService):
-    create_result = F5SysiAppService.handle_create()
+def test_handle_create(F5LTMVirtualServer):
+    create_result = F5LTMVirtualServer.handle_create()
     assert create_result is None
-    assert F5SysiAppService.bigip.iapp.create_service.call_args == \
+    assert F5LTMVirtualServer.bigip.virtual_server.create.call_args == \
         mock.call(
-            name=u'testing_service',
-            service=iapp_service_dict
+            name=u'testing_vs',
+            ip_address=u'129.0.0.1',
+            port=80
         )
 
 
-def test_handle_create_error(CreateServiceSideEffect):
+def test_handle_create_error(CreateVirtualServerSideEffect):
     with pytest.raises(exception.ResourceFailure):
-        CreateServiceSideEffect.handle_create()
+        CreateVirtualServerSideEffect.handle_create()
 
 
-def test_handle_delete(F5SysiAppService):
-    delete_result = F5SysiAppService.handle_delete()
-    assert delete_result is None
-    assert F5SysiAppService.bigip.iapp.delete_service.call_args == \
-        mock.call(name=u'testing_service')
+def test_handle_delete(F5LTMVirtualServer):
+    assert None == F5LTMVirtualServer.handle_delete()
+    assert F5LTMVirtualServer.bigip.virtual_server.delete.call_args == \
+        mock.call(
+            name=u'testing_vs'
+        )
 
 
-def test_handle_delete_error(DeleteServiceSideEffect):
+def test_handle_delete_error(DeleteVirtualServerSideEffect):
     with pytest.raises(exception.ResourceFailure):
-        DeleteServiceSideEffect.handle_delete()
+        DeleteVirtualServerSideEffect.handle_delete()
 
 
 def test_resource_mapping():
-    rsrc_map = f5_sys_iappservice.resource_mapping()
+    rsrc_map = f5_ltm_virtualserver.resource_mapping()
     assert rsrc_map == {
-        'F5::Sys::iAppService': f5_sys_iappservice.F5SysiAppService
+        'F5::LTM::VirtualServer': f5_ltm_virtualserver.F5LTMVirtualServer
     }
 
 
 def test_bad_property():
-    template_dict = mock_template(bad_iapp_service_defn)
+    template_dict = mock_template(bad_vs_defn)
     rsrc_def = create_resource_definition(template_dict)
-    f5_sys_iappservice_obj = f5_sys_iappservice.F5SysiAppService(
+    f5_ltm_vs_obj = f5_ltm_virtualserver.F5LTMVirtualServer(
         'test',
         rsrc_def,
         mock.MagicMock()
     )
     with pytest.raises(exception.StackValidationFailed):
-        f5_sys_iappservice_obj.validate()
+        f5_ltm_vs_obj.validate()

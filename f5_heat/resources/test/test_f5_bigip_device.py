@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-from f5.bigip.bigip import BigIP
-from f5_heat.resources import f5_bigip
+from f5.bigip import BigIP
+from f5_heat.resources import f5_bigip_device
 from heat.common import exception
 from heat.common import template_format
 from heat.engine.hot.template import HOTemplate20150430
@@ -30,7 +30,7 @@ heat_template_version: 2015-04-30
 description: Testing iAppService plugin
 resources:
   bigip_rsrc:
-    type: F5::BigIP
+    type: F5::BigIP::Device
     properties:
       ip: 10.0.0.1
       username: admin
@@ -43,7 +43,7 @@ heat_template_version: 2015-04-30
 description: Testing Bad iAppService plugin
 resources:
   bigip_rsrc:
-    type: F5::BigIP
+    type: F5::BigIP::Device
     properties:
       ip: good_ip
       username: admin
@@ -76,7 +76,7 @@ def F5BigIP():
     '''Instantiate the F5BigIP resource.'''
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
-    f5_bigip_obj = f5_bigip.F5BigIP(
+    f5_bigip_obj = f5_bigip_device.F5BigIPDevice(
         "testing_service", rsrc_def, mock.MagicMock()
     )
     f5_bigip_obj.validate()
@@ -85,25 +85,33 @@ def F5BigIP():
 
 # Tests
 
-@mock.patch.object(f5_bigip.BigIP, '__init__', side_effect=Exception())
+@mock.patch.object(
+    f5_bigip_device.BigIP,
+    '__init__',
+    side_effect=Exception()
+)
 def test__init__error(mocked_bigip):
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
     with pytest.raises(Exception):
-        f5_bigip.F5BigIP('test_template', rsrc_def, mock.MagicMock())
+        f5_bigip_device.F5BigIPDevice(
+            'test_template',
+            rsrc_def,
+            mock.MagicMock()
+        )
 
 
 def test_handle_create(F5BigIP):
     # Set uuid on resource object because stack is mocked out
     F5BigIP.uuid = uuid.uuid4()
     create_result = F5BigIP.handle_create()
-    assert create_result == None
+    assert create_result is None
     assert F5BigIP.resource_id is not None
 
 
 def test_handle_delete(F5BigIP):
     delete_result = F5BigIP.handle_delete()
-    assert delete_result == None
+    assert delete_result is None
 
 
 def test_bigip_getter(F5BigIP):
@@ -114,13 +122,17 @@ def test_bigip_getter(F5BigIP):
 def test_bad_property():
     template_dict = mock_template(bad_f5_bigip_defn)
     rsrc_def = create_resource_definition(template_dict)
-    f5_bigip_obj = f5_bigip.F5BigIP('test', rsrc_def, mock.MagicMock())
+    f5_bigip_obj = f5_bigip_device.F5BigIPDevice(
+        'test',
+        rsrc_def,
+        mock.MagicMock()
+    )
     with pytest.raises(exception.StackValidationFailed):
         f5_bigip_obj.validate()
 
 
 def test_resource_mapping():
-    rsrc_map = f5_bigip.resource_mapping()
+    rsrc_map = f5_bigip_device.resource_mapping()
     assert rsrc_map == {
-        'F5::BigIP': f5_bigip.F5BigIP
+        'F5::BigIP::Device': f5_bigip_device.F5BigIPDevice
     }

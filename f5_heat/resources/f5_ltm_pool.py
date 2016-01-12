@@ -18,10 +18,10 @@ from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
 
-from common.f5_bigip_connection import F5BigIPConnection
+from common.f5_bigip_connection import F5BigIPMixin
 
 
-class F5LTMPool(resource.Resource, F5BigIPConnection):
+class F5LTMPool(resource.Resource, F5BigIPMixin):
     '''Manages creation of an F5 Resource.'''
 
     PROPERTIES = (
@@ -92,7 +92,7 @@ class F5LTMPool(resource.Resource, F5BigIPConnection):
                     ip_address=member.get(self.MEMBER_IP),
                     port=member.get(self.MEMBER_PORT)
                 )
-            except exception as ex:
+            except Exception as ex:
                 raise exception.ResourceFailure(ex, None, action='ADD MEMBERS')
 
     def handle_create(self):
@@ -104,7 +104,7 @@ class F5LTMPool(resource.Resource, F5BigIPConnection):
         self.get_bigip()
         try:
             self.bigip.pool.create(self.properties[self.NAME])
-        except exception as ex:
+        except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
         self.assign_members()
@@ -123,7 +123,7 @@ class F5LTMPool(resource.Resource, F5BigIPConnection):
         self.get_bigip()
         try:
             self.bigip.pool.delete(self.properties[self.NAME])
-        except exception as ex:
+        except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='DELETE')
 
 

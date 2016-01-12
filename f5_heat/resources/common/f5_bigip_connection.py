@@ -14,7 +14,7 @@
 #
 
 
-class F5BigIPConnection(object):
+class F5BigIPMixin(object):
     '''This class is to be subclassed by an F5 Heat Resource Plugin.'''
 
     def get_bigip(self):

@@ -1,4 +1,4 @@
-# Copyright 2015-2016-2016 F5 Networks Inc.
+# Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
 
-from common.f5_bigip_connection import F5BigIPConnection
+from common.f5_bigip_connection import F5BigIPMixin
 
 
-class F5LTMVirtualServer(resource.Resource, F5BigIPConnection):
+class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
     '''Manages creation of an F5 Virtual Server Resource.'''
 
     PROPERTIES = (

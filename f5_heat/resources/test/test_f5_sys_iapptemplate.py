@@ -82,11 +82,17 @@ iapp_actions_dict = {
 }
 
 
-def mock_template(test_templ=iapp_template_defn):
+versions = ('2015-04-30', '2015-04-30')
+
+
+@mock.patch.object(template, 'get_version', return_value=versions)
+@mock.patch.object(
+    template,
+    'get_template_class',
+    return_value=HOTemplate20150430
+)
+def mock_template(templ_vers, templ_class, test_templ=iapp_template_defn):
     '''Mock a Heat template for the Kilo version.'''
-    versions = ('2015-04-30', '2015-04-30')
-    template.get_version = mock.Mock(return_value=versions)
-    template.get_template_class = mock.Mock(return_value=HOTemplate20150430)
     templ_dict = template_format.parse(test_templ)
     return templ_dict
 
@@ -131,7 +137,7 @@ def DeleteTemplateSideEffect(F5SysiAppTemplate):
 
 def test_handle_create(F5SysiAppTemplate):
     create_result = F5SysiAppTemplate.handle_create()
-    assert create_result == None
+    assert create_result is None
     assert F5SysiAppTemplate.bigip.iapp.create_template.call_args == \
         mock.call(
             name='testing_template',
@@ -140,18 +146,20 @@ def test_handle_create(F5SysiAppTemplate):
 
 
 def test_handle_create_error(CreateTemplateSideEffect):
+    '''Currently, test exists to satisfy 100% code coverage.'''
     with pytest.raises(exception.ResourceFailure):
         CreateTemplateSideEffect.handle_create()
 
 
 def test_handle_delete(F5SysiAppTemplate):
     delete_result = F5SysiAppTemplate.handle_delete()
-    assert delete_result == None
+    assert delete_result is None
     assert F5SysiAppTemplate.bigip.iapp.delete_template.call_args == \
         mock.call('testing_template')
 
 
 def test_handle_delete_error(DeleteTemplateSideEffect):
+    '''Currently, test exists to satisfy 100% code coverage.'''
     with pytest.raises(exception.ResourceFailure):
         DeleteTemplateSideEffect.handle_delete()
 
@@ -164,7 +172,7 @@ def test_resource_mapping():
 
 
 def test_bad_property():
-    template_dict = mock_template(bad_iapp_template_defn)
+    template_dict = mock_template(test_templ=bad_iapp_template_defn)
     rsrc_def = create_resource_definition(template_dict)
     f5_sys_iapptemplate_obj = f5_sys_iapptemplate.F5SysiAppTemplate(
         'test',

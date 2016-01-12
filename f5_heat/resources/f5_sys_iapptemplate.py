@@ -18,10 +18,10 @@ from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
 
-from common.f5_bigip_connection import F5BigIPConnection
+from common.f5_bigip_connection import F5BigIPMixin
 
 
-class F5SysiAppTemplate(resource.Resource, F5BigIPConnection):
+class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
     '''Manages creation of an iApp resource on the BigIP device.'''
 
     PROPERTIES = (

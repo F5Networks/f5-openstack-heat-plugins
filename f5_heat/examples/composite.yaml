@@ -46,10 +46,14 @@ parameters:
     type: string
     label: Port of Virtual Server
     default: 80
-  pool_name:
+  pool1_name:
     type: string
-    label: Name of Pool
+    label: Name of Pool 1
     default: pool_resource
+  pool2_name:
+    type: string
+    label: Name of Pool 2
+    default: pool_resource2
   iapp_template_name:
     type: string
     label: Name of iApp Template
@@ -73,7 +77,7 @@ parameter_groups:
       - vs_port
   - label: Pool Settings
     parameters:
-      - pool_name
+      - pool1_name
       - pool2_name
   - label: iApp Settings
     parameters:
@@ -95,7 +99,6 @@ resources:
       password: { get_param: bigip_pw }
   virtual_server:
     type: F5::LTM::VirtualServer
-    depends_on: bigip2
     properties:
       bigip_server: { get_resource: bigip1 }
       name: { get_param: vs_name }
@@ -103,10 +106,9 @@ resources:
       port: { get_param: vs_port }   
   pool1:
     type: F5::LTM::Pool
-    depends_on: bigip1
     properties:
       bigip_server: { get_resource: bigip1 }
-      name: { get_param: pool_name }
+      name: { get_param: pool1_name }
       members:
         - member_ip: 140.0.0.3
           member_port: 80
@@ -126,13 +128,14 @@ resources:
     depends_on: iapp_template
     properties:
       name: { get_param: iapp_service_name }
-      bigip_server: { get_resource: bigip2 }
+      bigip_server: { get_resource: bigip1 }
       template_name: { get_param: iapp_template_name }
   iapp_template:
     type: F5::Sys::iAppTemplate
+    depends_on: bigip1
     properties:
       name: { get_param: iapp_template_name }
-      bigip_server: { get_resource: bigip2 }
+      bigip_server: { get_resource: bigip1 }
       requires_modules: [ ltm ]
       implementation: |
         #TMSH-VERSION: 11.6.0

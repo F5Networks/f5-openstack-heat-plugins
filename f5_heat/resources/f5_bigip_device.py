@@ -13,13 +13,13 @@
 # limitations under the License.
 #
 
-from f5.bigip.bigip import BigIP
+from f5.bigip import BigIP
 from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
 
 
-class F5BigIP(resource.Resource):
+class F5BigIPDevice(resource.Resource):
     '''Holds BigIP server, username, and password.'''
 
     PROPERTIES = (
@@ -51,7 +51,7 @@ class F5BigIP(resource.Resource):
     }
 
     def __init__(self, name, definition, stack):
-        super(F5BigIP, self).__init__(name, definition, stack)
+        super(F5BigIPDevice, self).__init__(name, definition, stack)
         try:
             self.bigip = BigIP(
                 self.properties['ip'],
@@ -70,8 +70,8 @@ class F5BigIP(resource.Resource):
 
     def handle_delete(self):
         '''Delete BigIP resource.'''
-        pass
+        del self.bigip
 
 
 def resource_mapping():
-    return {'F5::BigIP': F5BigIP}
+    return {'F5::BigIP::Device': F5BigIPDevice}

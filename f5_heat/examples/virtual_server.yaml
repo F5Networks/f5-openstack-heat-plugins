@@ -18,10 +18,18 @@ heat_template_version: 2015-04-30
 description: Test of creating a pool on an existing VE server
 
 parameters:
-  pool_name:
+  vs_name:
     type: string
     label: Pool Name
     default: test_pool
+  vs_ip:
+    type: string
+    label: Virtual Server IP
+    default: 128.0.0.1
+  vs_port:
+    type: number
+    label: Virtual Server Port
+    default: 80
   ve_instance:
     type: string
     label: VE Instance IP
@@ -44,7 +52,9 @@ parameter_groups:
       - bigip_pw
   - label: Pool Parameters
     parameters:
-      - pool_name
+      - vs_name
+      - vs_ip
+      - vs_port
 resources:
   bigip_rsrc:
     type: F5::BigIP::Device
@@ -52,13 +62,11 @@ resources:
       ip: { get_param: ve_instance }
       username: { get_param: bigip_un }
       password: { get_param: bigip_pw }
-  ve_pool:
-    type: F5::LTM::Pool
+  virtual_server:
+    type: F5::LTM::VirtualServer
+    depends_on: bigip_rsrc
     properties:
-      name: { get_param: pool_name }
       bigip_server: { get_resource: bigip_rsrc }
-      members:
-        - member_ip: 128.0.0.1
-          member_port: 80
-        - member_ip: 129.0.0.1
-          member_port: 80 
+      name: { get_param: vs_name }
+      ip: { get_param: vs_ip }
+      port: { get_param: vs_port }

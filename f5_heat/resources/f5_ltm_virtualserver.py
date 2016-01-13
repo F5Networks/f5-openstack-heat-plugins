@@ -21,74 +21,80 @@ from heat.engine import resource
 from common.f5_bigip_connection import F5BigIPMixin
 
 
-class F5SysiAppService(resource.Resource, F5BigIPMixin):
-    '''Manages creation of an iApp resource on the BigIP device.'''
+class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
+    '''Manages creation of an F5 Virtual Server Resource.'''
 
     PROPERTIES = (
         NAME,
         BIGIP_SERVER,
-        TEMPLATE_NAME
+        IP,
+        PORT,
+        DEFAULT_POOL
     ) = (
         'name',
         'bigip_server',
-        'template_name'
+        'ip',
+        'port',
+        'default_pool'
     )
 
     properties_schema = {
         NAME: properties.Schema(
             properties.Schema.STRING,
-            _('Name of the template.'),
+            _('Name of the pool resource.'),
             required=True
         ),
         BIGIP_SERVER: properties.Schema(
             properties.Schema.STRING,
-            _('IP address of BigIP device.'),
+            _('Reference to the BigIP Server resource.'),
             required=True
         ),
-        TEMPLATE_NAME: properties.Schema(
+        IP: properties.Schema(
             properties.Schema.STRING,
-            _('Template to use when creating the service.'),
+            _('The address of the virtual IP.'),
             required=True
+        ),
+        PORT: properties.Schema(
+            properties.Schema.INTEGER,
+            _('The port used for the virtual address.'),
+            required=True
+        ),
+        DEFAULT_POOL: properties.Schema(
+            properties.Schema.STRING,
+            _('The pool to be associated with this virtual server.'),
         )
     }
 
     def handle_create(self):
-        '''Creates the iApp Service from an iApp template.
+        '''Create the BigIP Virtual Server resource on the given device.
 
-        :raises: ResourceFailure # TODO Change to proper exception
+        :raises: ResourceFailure exception
         '''
 
         self.get_bigip()
 
-        template_dict = {
-            'name': self.properties[self.NAME],
-            'template': '/Common/{}'.format(
-                self.properties[self.TEMPLATE_NAME]
-            )
-        }
         try:
-            self.bigip.iapp.create_service(
+            self.bigip.virtual_server.create(
                 name=self.properties[self.NAME],
-                service=template_dict
+                ip_address=self.properties[self.IP],
+                port=self.properties[self.PORT]
             )
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
     def handle_delete(self):
-        '''Deletes the iApp Service
+        '''Delete the BigIP Virtual Server resource on the given device.
 
-        :raises: Resource Failure # TODO Change to proper exception
+        :raises: ResourceFailure exception
         '''
 
         self.get_bigip()
 
         try:
-            self.bigip.iapp.delete_service(
-                name=self.properties[self.NAME]
-            )
+            self.bigip.virtual_server.delete(name=self.properties[self.NAME])
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='DELETE')
 
 
 def resource_mapping():
-    return {'F5::Sys::iAppService': F5SysiAppService}
+    return {'F5::LTM::VirtualServer': F5LTMVirtualServer}

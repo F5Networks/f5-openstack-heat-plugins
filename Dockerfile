@@ -27,16 +27,18 @@ RUN pip install hacking
 RUN pip install cryptography
 RUN pip install funcsigs
 
-# Add the private key to be used to clone private repos on github.com
-# add your ssh-key for github to the build: ADD ~/.ssh/github_priv_key /root/.ssh/
-ADD github_rsa_4096 /root/.ssh/
-RUN ssh-agent bash -c 'ssh-add /root/.ssh/github_rsa_4096; ssh-keyscan -H github.com >> ~/.ssh/known_hosts; git clone -b feature.bigip_less_auth git@github.com:pjbreaux/f5-openstack-heat-plugins.git /root/f5-openstack-heat-plugins; pip install git+ssh://git@github.com/F5Networks/f5-icontrol-rest-python@v0.1.0; git clone -b master git@github.com:pjbreaux/f5-common-python.git /root/f5-common-python'
-
 # Clone openstack heat engine and install requirements for heat engine
 RUN git clone https://github.com/openstack/heat.git /root/heat
 RUN cd /root/heat && git checkout stable/kilo
 RUN pip install -r /root/heat/requirements.txt
 
+# Add the private key to be used to clone private repos on github.com
+# add your ssh-key for github to the build: ADD ~/.ssh/github_priv_key /root/.ssh/
+ADD github_rsa_4096 /root/.ssh/
+# Modify the git clones below to pull the specific branches you wish to test
+RUN ssh-agent bash -c 'ssh-add /root/.ssh/github_rsa_4096; ssh-keyscan -H github.com >> ~/.ssh/known_hosts; git clone -b feature.setup_travis git@github.com:pjbreaux/f5-openstack-heat-plugins.git /root/f5-openstack-heat-plugins; pip install git+ssh://git@github.com/F5Networks/f5-icontrol-rest-python@v0.1.0; git clone -b master git@github.com:F5Networks/f5-common-python.git /root/f5-common-python'
+
 # Setup test enviroment
 WORKDIR /root
 ENV PYTHONPATH /root/heat:/root/f5-common-python:/root/f5-openstack-heat-plugins
+ENV PYTHONDONTWRITEBYTECODE=True

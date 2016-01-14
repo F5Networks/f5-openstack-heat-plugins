@@ -1,0 +1,35 @@
+sudo: required
+language: python
+python:
+    - "2.7"
+env:
+    - PYTHONPATH=heat:f5-common-python:f5-openstack-heat-plugins
+before_install:
+    - sudo apt-get -qq update
+    - git config --global user.email "OpenStack_TravisCI@f5.com"
+    - git config --global user.name "Travis F5 Openstack"
+    - git fetch --depth=100
+    - sudo apt-get -y install build-essential
+    - sudo apt-get -y install libssl-dev
+    - sudo apt-get -y install libffi-dev
+    - sudo apt-get -y install python-dev
+    - git clone -b master https://github.com/F5Networks/f5-common-python.git
+    - git clone -b stable/kilo https://github.com/openstack/heat.git
+install:
+    - pip install -Iv eventlet=0.17.4
+    - pip install -Iv netaddr=0.7.18
+    - pip install -Iv pyopenssl=0.15.1
+    - pip install -Iv requests
+    - pip install -Iv suds=0.4
+    - pip install pytest pytest-cov hacking cryptography funcsigs
+    - pip install -r heat/requirements.txt
+script:
+    - flake8 .
+    - py.test 
+notifications:
+    slack:
+      rooms:
+        - f5openstackdev:IbC9KXz2vGVq9jkOLCT5USYD#f5-openstack-heat-plugins
+        - f5openstackdev:IbC9KXz2vGVq9jkOLCT5USYD#build-status
+      on_success: change
+      on_failure: always

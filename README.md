@@ -46,24 +46,21 @@ Before you open a pull request, your code must have passing [pytest](http://pyte
 #### Unit Tests
 We use pytest for our unit tests
 1. If you haven't already, install the required test packages and the requirements.txt in your virtual environment.
-```
-shell
+```shell
 $ pip install hacking pytest pytest-cov
 $ pip install -r requirements.txt
 ```
 2. Run the tests and produce a coverage repor.  The `--cov-report=html` will
 create a `htmlcov/` directory that you can view in your browser to see the
 missing lines of code.
-```
-shell
+```shell
 py.test --cov ./icontrol --cov-report=html
 open htmlcov/index.html
 ```
 
 #### Style Checks
 We use the hacking module for our style checks (installed as part of step 1 in the Unit Test section).
-```
-shell
+```shell
 flake8 ./
 ```
 

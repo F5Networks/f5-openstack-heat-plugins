@@ -17,7 +17,7 @@ limitations under the License.
 # Contributing Guide for f5-openstack-heat-plugins
 If you have found this that means you you want to help us out. Thanks in advance for lending a hand! This guide should
 get you up and running quickly and make it easy for you to contribute. If we don't answer your questions here and you
-help or just want to say hi shoot us an email at f5_openstack_heat@f5.com.
+need help or just want to say hi, shoot us an email at f5_openstack_heat@f5.com.
 
 ## Issues
 Creating issues is good, creating good issues is even better. Filing meaningful bug reports with lots of information

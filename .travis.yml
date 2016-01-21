@@ -3,29 +3,26 @@ language: python
 python:
     - "2.7"
 env:
-    - PYTHONPATH=heat:f5-common-python:f5-openstack-heat-plugins
+    - PYTHONPATH=/home/travis/heat:/home/travis/f5-common-python:$PWD
 before_install:
     - sudo apt-get -qq update
     - git config --global user.email "OpenStack_TravisCI@f5.com"
     - git config --global user.name "Travis F5 Openstack"
     - git fetch --depth=100
-    - sudo apt-get -y install build-essential
-    - sudo apt-get -y install libssl-dev
-    - sudo apt-get -y install libffi-dev
-    - sudo apt-get -y install python-dev
-    - git clone -b master https://github.com/F5Networks/f5-common-python.git
-    - git clone -b stable/kilo https://github.com/openstack/heat.git
+    - sudo apt-get -y install build-essential libssl-dev libffi-dev python-dev
+    - git clone -b master https://$GIT_PA_TOKEN@github.com/F5Networks/f5-common-python.git ~/f5-common-python
+    - git clone -b stable/kilo https://github.com/openstack/heat.git ~/heat
 install:
-    - pip install -Iv eventlet=0.17.4
-    - pip install -Iv netaddr=0.7.18
-    - pip install -Iv pyopenssl=0.15.1
-    - pip install -Iv requests
-    - pip install -Iv suds=0.4
+    - pip install -I eventlet==0.17.4
+    - pip install -I netaddr==0.7.18
+    - pip install -I pyopenssl==0.15.1
+    - pip install -I requests
+    - pip install -I suds==0.4
     - pip install pytest pytest-cov hacking cryptography funcsigs
-    - pip install -r heat/requirements.txt
+    - pip install -r ~/heat/requirements.txt
 script:
-    - flake8 .
-    - py.test 
+    - flake8 f5_heat/resources/
+    - py.test f5_heat/resources/test --cov=f5_heat/resources
 notifications:
     slack:
       rooms:

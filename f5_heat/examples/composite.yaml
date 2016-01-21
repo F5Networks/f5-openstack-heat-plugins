@@ -33,7 +33,7 @@ parameters:
   bigip_pw:
     type: string
     label: Password of BigIP Login
-    default: admin
+    hidden: True
   vs_name:
     type: string
     label: Name of Virtual Server
@@ -99,6 +99,7 @@ resources:
       password: { get_param: bigip_pw }
   virtual_server:
     type: F5::LTM::VirtualServer
+    depends_on: bigip1
     properties:
       bigip_server: { get_resource: bigip1 }
       name: { get_param: vs_name }
@@ -106,6 +107,7 @@ resources:
       port: { get_param: vs_port }   
   pool1:
     type: F5::LTM::Pool
+    depends_on: bigip1
     properties:
       bigip_server: { get_resource: bigip1 }
       name: { get_param: pool1_name }

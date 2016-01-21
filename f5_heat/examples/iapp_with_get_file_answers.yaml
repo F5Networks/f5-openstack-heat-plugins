@@ -66,26 +66,8 @@ resources:
       name: { get_param: iapp_service_name }
       bigip_server: { get_resource: bigip_rsrc }
       template_name: { get_param: iapp_template_name }
-      lists: |
-        [
-            {
-              "name": "some_variables__multi",
-              "encrypted": "no",
-              "value": [
-                "Option 1",
-                "Bonus Option",
-                "Yet Another Option"
-              ]
-            },
-            {
-              "name": "some_variables__multi_2",
-              "encrypted": "no",
-              "value": [
-                "Test A",
-                "Test B"
-              ]
-            }
-        ] 
+      lists:
+        get_file: iapps/lab_1_list.json
       variables: >
         [
             {

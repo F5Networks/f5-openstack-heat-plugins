@@ -39,6 +39,7 @@ resources:
       name: testing_service
       bigip_server: bigip_rsrc
       template_name: testing_template
+      variables: '{"good": "json"}'
 '''
 
 bad_iapp_service_defn = '''
@@ -58,9 +59,46 @@ resources:
       template_name: testing_template
 '''
 
+bad_valueerror_json_defn = '''
+heat_template_version: 2015-04-30
+description: Testing iAppService plugin
+resources:
+  bigip_rsrc:
+    type: F5::BigIP
+    properties:
+      ip: 10.0.0.1
+      username: admin
+      password: admin
+  iapp_service:
+    type: F5::Sys::iAppService
+    properties:
+      bigip_server: bigip_rsrc
+      template_name: testing_template
+      tables: '{{"bad_json": "bad"}'
+'''
+
+empty_json_defn = '''
+heat_template_version: 2015-04-30
+description: Testing iAppService plugin
+resources:
+  bigip_rsrc:
+    type: F5::BigIP
+    properties:
+      ip: 10.0.0.1
+      username: admin
+      password: admin
+  iapp_service:
+    type: F5::Sys::iAppService
+    properties:
+      bigip_server: bigip_rsrc
+      template_name: testing_template
+      tables: ''
+'''
+
 iapp_service_dict = {
     'name': u'testing_service',
-    'template': '/Common/testing_template'
+    'template': '/Common/testing_template',
+    'variables': {u'good': u'json'}
 }
 
 
@@ -87,6 +125,12 @@ def create_resource_definition(templ_dict):
         properties=templ_dict['resources']['iapp_service']['properties']
     )
     return rsrc_def
+
+
+def controlled_init(test_templ):
+    template_dict = mock_template(test_templ=test_templ)
+    rsrc_def = create_resource_definition(template_dict)
+    return template_dict, rsrc_def
 
 
 @pytest.fixture
@@ -153,9 +197,10 @@ def test_resource_mapping():
     }
 
 
+# The following test instantiation with a bogus template or bogus json
+
 def test_bad_property():
-    template_dict = mock_template(test_templ=bad_iapp_service_defn)
-    rsrc_def = create_resource_definition(template_dict)
+    template_dict, rsrc_def = controlled_init(bad_iapp_service_defn)
     f5_sys_iappservice_obj = f5_sys_iappservice.F5SysiAppService(
         'test',
         rsrc_def,
@@ -163,3 +208,23 @@ def test_bad_property():
     )
     with pytest.raises(exception.StackValidationFailed):
         f5_sys_iappservice_obj.validate()
+
+
+def test_valueerror_json_property():
+    template_dict, rsrc_def = controlled_init(bad_valueerror_json_defn)
+    with pytest.raises(ValueError):
+        f5_sys_iappservice.F5SysiAppService(
+            'test',
+            rsrc_def,
+            mock.MagicMock()
+        )
+
+
+def test_empty_json_property():
+    template_dict, rsrc_def = controlled_init(empty_json_defn)
+    with pytest.raises(ValueError):
+        f5_sys_iappservice.F5SysiAppService(
+            'test',
+            rsrc_def,
+            mock.MagicMock()
+        )

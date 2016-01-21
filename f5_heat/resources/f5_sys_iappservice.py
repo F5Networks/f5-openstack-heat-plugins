@@ -13,12 +13,19 @@
 # limitations under the License.
 #
 
+
 from heat.common import exception
 from heat.common.i18n import _
+from heat.common.i18n import _LE
 from heat.engine import properties
 from heat.engine import resource
 
 from common.f5_bigip_connection import F5BigIPMixin
+from oslo_log import log as logging
+
+import json
+
+LOG = logging.getLogger(__name__)
 
 
 class F5SysiAppService(resource.Resource, F5BigIPMixin):
@@ -27,11 +34,17 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
     PROPERTIES = (
         NAME,
         BIGIP_SERVER,
-        TEMPLATE_NAME
+        TEMPLATE_NAME,
+        VARIABLES,
+        LISTS,
+        TABLES
     ) = (
         'name',
         'bigip_server',
-        'template_name'
+        'template_name',
+        'variables',
+        'lists',
+        'tables'
     )
 
     properties_schema = {
@@ -49,8 +62,58 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
             properties.Schema.STRING,
             _('Template to use when creating the service.'),
             required=True
+        ),
+        VARIABLES: properties.Schema(
+            properties.Schema.STRING,
+            _('JSON formatted list of variables for the service.')
+        ),
+        LISTS: properties.Schema(
+            properties.Schema.STRING,
+            _('JSON formatted list of lists of variables.')
+        ),
+        TABLES: properties.Schema(
+            properties.Schema.STRING,
+            _('JSON formatted list of tables for the service.')
         )
     }
+
+    def __init__(self, name, defn, stack):
+        '''Call super and validate answer properties.'''
+        super(F5SysiAppService, self).__init__(name, defn, stack)
+
+        self.app_answers = {}
+        for prop in [self.VARIABLES, self.LISTS, self.TABLES]:
+            if self.properties[prop] is not None:
+                self.validate_app_answers(prop)
+
+    def validate_app_answers(self, prop_name):
+        '''Load a property as json.
+
+        :param prop_name: name of property to load
+        :raises: KeyError, ValueError, TypeError
+        '''
+
+        try:
+            self.app_answers[prop_name] = json.loads(
+                self.properties[prop_name]
+            )
+        except Exception:
+            LOG.error(
+                _LE("'%s' property failed to parse as JSON") % prop_name
+            )
+            raise
+
+    def build_service_dict(self):
+        '''Builds a dictionary of service configuration.'''
+
+        service_dict = {
+            'name': self.properties[self.NAME],
+            'template': '/Common/{}'.format(
+                self.properties[self.TEMPLATE_NAME]
+            )
+        }
+        service_dict.update(self.app_answers)
+        return service_dict
 
     def handle_create(self):
         '''Creates the iApp Service from an iApp template.
@@ -59,17 +122,12 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         '''
 
         self.get_bigip()
+        service_dict = self.build_service_dict()
 
-        template_dict = {
-            'name': self.properties[self.NAME],
-            'template': '/Common/{}'.format(
-                self.properties[self.TEMPLATE_NAME]
-            )
-        }
         try:
             self.bigip.iapp.create_service(
                 name=self.properties[self.NAME],
-                service=template_dict
+                service=service_dict
             )
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')

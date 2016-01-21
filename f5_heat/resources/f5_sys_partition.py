@@ -1,4 +1,4 @@
-# Copyright 2015-2016 F5 Networks Inc.
+# Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,26 +18,23 @@ from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
 
+from common.f5_bigip_connection import f5_bigip
 from common.f5_bigip_connection import F5BigIPMixin
 
 
-class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
+class F5SysPartition(resource.Resource, F5BigIPMixin):
     '''Manages creation of an F5 Virtual Server Resource.'''
 
     PROPERTIES = (
         NAME,
         BIGIP_SERVER,
-        IP,
-        PORT,
-        DEFAULT_POOL,
-        VLAN
+        NAME,
+        SUBPATH
     ) = (
         'name',
         'bigip_server',
-        'ip',
-        'port',
-        'default_pool',
-        'vlan'
+        'name',
+        'subpath'
     )
 
     properties_schema = {
@@ -51,64 +48,56 @@ class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
             _('Reference to the BigIP Server resource.'),
             required=True
         ),
-        IP: properties.Schema(
+        NAME: properties.Schema(
             properties.Schema.STRING,
-            _('The address of the virtual IP.'),
+            _('Name of the folder or partition.'),
             required=True
         ),
-        PORT: properties.Schema(
-            properties.Schema.INTEGER,
-            _('The port used for the virtual address.'),
-            required=True
-        ),
-        DEFAULT_POOL: properties.Schema(
+        SUBPATH: properties.Schema(
             properties.Schema.STRING,
-            _('The pool to be associated with this virtual server.'),
-        ),
-        VLAN: properties.Schema(
-            properties.Schema.STRING,
-            _('VLAN to use for this virtual server.')
+            _('Subpath for the folder or parition.'),
+            default='/'
         )
     }
 
+    def get_partition_name(self):
+        '''Retrieve partition name from this resource.
+
+        :returns: string of partition name
+        '''
+
+        return self.properties[self.NAME]
+
+    @f5_bigip
     def handle_create(self):
         '''Create the BigIP Virtual Server resource on the given device.
 
         :raises: ResourceFailure exception
         '''
 
-        self.get_bigip()
-
-        create_kwargs = {
-            'name': self.properties[self.NAME],
-            'ip_address': self.properties[self.IP],
-            'port': self.properties[self.PORT],
-            'vlan': self.properties[self.VLAN]
-        }
-        if self.properties[self.DEFAULT_POOL]:
-            create_kwargs['pool'] = self.properties[self.DEFAULT_POOL]
-
         try:
-            self.bigip.virtualcollection.virtual.create(**create_kwargs)
+            self.bigip.sys.foldercollection.folder.create(
+                name=self.properties[self.NAME],
+                subPath=self.properties[self.SUBPATH]
+            )
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
+    @f5_bigip
     def handle_delete(self):
         '''Delete the BigIP Virtual Server resource on the given device.
 
         :raises: ResourceFailure exception
         '''
 
-        self.get_bigip()
-
         try:
-            loaded_pool = self.bigip.virtualcollection.virtual.load(
+            loaded_partition = self.bigip.sys.foldercollection.folder.load(
                 name=self.properties[self.NAME]
             )
-            loaded_pool.delete()
+            loaded_partition.delete()
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='DELETE')
 
 
 def resource_mapping():
-    return {'F5::LTM::VirtualServer': F5LTMVirtualServer}
+    return {'F5::Sys::Partition': F5SysPartition}

@@ -95,30 +95,12 @@ resources:
         [
             {
               "name": "some_variables__name_value_pairs",
-              "columnNames": [
-                "name",
-                "value"
-              ],
+              "columnNames": [ "name", "value" ],
               "rows": [
-                {
-                  "row": [
-                    "Paul",
-                    "31"
-                  ]
-                },
-                {
-                  "row": [
-                    "Cy",
-                    "2"
-                  ]
-                },
-                {
-                  "row": [
-                    "Lauren",
-                    "30"
-                  ]
-                }
-              ]
+                      { "row": [ "Paul", "31" ] },
+                      { "row": [ "Cy", "2" ] },
+                      { "row": [ "Lauren", "30" ] }
+                      ]
             },
             {
               "name": "some_variables__table2",

@@ -20,10 +20,6 @@ description: Template using all F5 resource types
 parameters:
   ve_instance1:
     type: string
-    label: IP of First VE Instance
-    default: 10.190.6.7
-  ve_instance2:
-    type: string
     label: IP of Second VE Instance
     default: 10.190.6.4
   bigip_un:
@@ -34,26 +30,6 @@ parameters:
     type: string
     label: Password of BigIP Login
     hidden: True
-  vs_name:
-    type: string
-    label: Name of Virtual Server
-    default: vs_resource
-  vs_ip:
-    type: string
-    label: IP of Virtual Server
-    default: 140.0.0.1
-  vs_port:
-    type: string
-    label: Port of Virtual Server
-    default: 80
-  pool1_name:
-    type: string
-    label: Name of Pool 1
-    default: pool_resource
-  pool2_name:
-    type: string
-    label: Name of Pool 2
-    default: pool_resource2
   iapp_template_name:
     type: string
     label: Name of iApp Template
@@ -62,27 +38,23 @@ parameters:
     type: string
     label: Name of iApp Service
     default: iapp_service_resource
+  test_var:
+    type: string
+    description: SSH key pair
+    constraints:
+      - custom_constraint: nova.keypair
 
 parameter_groups:
   - label: VE Parameters
     parameters:
       - ve_instance1
-      - ve_instance2
       - bigip_un
       - bigip_pw
-  - label: Virtual Server Settings
-    parameters:
-      - vs_name
-      - vs_ip
-      - vs_port
-  - label: Pool Settings
-    parameters:
-      - pool1_name
-      - pool2_name
   - label: iApp Settings
     parameters:
       - iapp_template_name
       - iapp_service_name
+      - test_var
 
 resources:
   bigip1:
@@ -91,40 +63,6 @@ resources:
       ip: { get_param: ve_instance1 }
       username: { get_param: bigip_un }
       password: { get_param: bigip_pw }
-  bigip2:
-    type: F5::BigIP::Device
-    properties:
-      ip: { get_param: ve_instance2 }
-      username: { get_param: bigip_un }
-      password: { get_param: bigip_pw }
-  virtual_server:
-    type: F5::LTM::VirtualServer
-    depends_on: bigip1
-    properties:
-      bigip_server: { get_resource: bigip1 }
-      name: { get_param: vs_name }
-      ip: { get_param: vs_ip }
-      port: { get_param: vs_port }   
-  pool1:
-    type: F5::LTM::Pool
-    depends_on: bigip1
-    properties:
-      bigip_server: { get_resource: bigip1 }
-      name: { get_param: pool1_name }
-      members:
-        - member_ip: 140.0.0.3
-          member_port: 80
-        - member_ip: 140.0.0.4
-          member_port: 80
-  pool2:
-    type: F5::LTM::Pool
-    depends_on: bigip2
-    properties:
-      bigip_server: { get_resource: bigip2 }
-      name: { get_param: pool2_name }
-      members:
-        - member_ip: 150.0.0.1
-          member_port: 8080
   iapp_service:
     type: F5::Sys::iAppService
     depends_on: iapp_template
@@ -149,15 +87,6 @@ resources:
           members replace-all-with {
               129.0.0.1:8000 {
                   address 129.0.0.1
-              }
-              130.0.0.1:8000 {
-                  address 130.0.0.1
-              }
-              140.0.0.1:8000 {
-                  address 140.0.0.1
-              }
-              150.0.0.1:8000 {
-                  address 150.0.0.1
               }
           }
         }

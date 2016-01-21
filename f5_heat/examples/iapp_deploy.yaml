@@ -48,7 +48,7 @@ parameters:
     constraints:
       - custom_constraint: nova.server
 
-parameter_groupt:
+parameter_groups:
   - label: VE Parameters
     parameters:
       - ve_instance1

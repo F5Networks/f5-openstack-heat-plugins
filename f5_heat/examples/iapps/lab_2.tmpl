@@ -1,0 +1,614 @@
+#TMSH-VERSION: 11.6.0
+
+cli admin-partitions {
+    update-partition Common
+}
+cli script /Common/my_app_utils {
+proc init_logging {  } {
+    # get the desired log level from /sys scriptd log-level
+    set scriptd_details [lindex [tmsh::get_config /sys scriptd log-level] 0]
+    set log_level [tmsh::get_field_value $scriptd_details "log-level"]
+
+    # set the log level
+    tmsh::log_level $log_level
+}
+
+proc get_items { args } {
+    package require iapp::legacy 1.0.0
+    return [eval iapp::legacy::app_utils::get_items $args]
+}
+
+proc get_items_local_only { args } {
+    package require iapp::legacy 1.0.0
+    return [eval iapp::legacy::app_utils::get_items_local_only $args]
+}
+
+proc get_items_not_recursive { args } {
+    package require iapp::legacy 1.0.0
+    return [eval iapp::legacy::app_utils::get_items_not_recursive $args]
+}
+
+proc get_items_local_only_not_recursive { args } {
+    package require iapp::legacy 1.0.0
+    return [eval iapp::legacy::app_utils::get_items_local_only_not_recursive $args]
+}
+
+proc get_items_filter { 
+        field_name 
+        field 
+        args } {
+    package require iapp::legacy 1.0.0
+    return [eval iapp::legacy::app_utils::get_items_filter \
+        $field_name \
+        $field \
+        $args]
+}
+
+proc get_items_prefix { prefix args } {
+    package require iapp::legacy 1.0.0
+    return [eval iapp::legacy::app_utils::get_items_prefix \
+        $prefix \
+        $args]
+}
+
+
+proc get_vlans {  } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_vlans]
+}
+
+proc sort_results { results } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::sort_results $results]
+}
+
+proc sort_results_with_spaces { results } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::sort_results_with_spaces $results]
+}
+
+
+proc sort_wa_policy_results { results } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::sort_results_with_spaces $results]
+}
+
+
+proc get_custom_wa_policies {  } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_custom_wa_policies]
+}
+
+
+proc get_provisioned { module } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_provisioned $module]
+}
+
+proc get_platform {  } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_platform]
+}
+
+proc get_is_viprion {  } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_is_viprion]
+}
+
+proc get_ltm_monitors_filter { args } {
+    package require iapp::legacy 1.0.0
+    return [eval iapp::legacy::app_utils::get_ltm_monitors_filter $args]
+}
+
+proc get_bigip_version {  } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_bigip_version]
+}
+
+proc get_bigip_version_is_equal_or_later { compare_version } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_bigip_version_is_equal_or_later \
+        $compare_version]
+}
+
+proc get_bigip_version_is_equal_or_earlier { compare_version } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_bigip_version_is_equal_or_earlier \
+        $compare_version]
+}
+
+proc get_bigip_version_is_equal { compare_version } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_bigip_version_is_equal \
+        $compare_version]
+}
+
+proc get_ssl_keys {  } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_ssl_keys]
+}
+
+proc get_ssl_certs {  } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_ssl_certs]
+}
+
+proc do_tmsh_create { component arguments } {
+    package require iapp::legacy 1.0.0
+    set config_string "$component $arguments"
+    return [iapp::legacy::app_utils::tmsh_create_wrapper config_string]
+}
+
+proc do_tmsh_modify { component arguments } {
+    package require iapp::legacy 1.0.0
+    set config_string "$component $arguments"
+    return [iapp::legacy::app_utils::tmsh_modify_wrapper config_string]
+}
+
+proc do_tmsh_create_no_log { component arguments } {
+    package require iapp::legacy 1.0.0
+    set config_string "$component $arguments"
+    return [iapp::legacy::app_utils::tmsh_create_wrapper_no_log config_string]
+}
+
+proc do_tmsh_modify_no_log { component arguments } {
+    package require iapp::legacy 1.0.0
+    set config_string "$component $arguments"
+    return [iapp::legacy::app_utils::tmsh_modify_wrapper_no_log config_string]
+}
+
+proc add_password { component object_name password_argument password } {
+    package require iapp::legacy 1.0.0
+    set config_string "$component $object_name $password_argument $password"
+    return [iapp::legacy::app_utils::tmsh_modify_wrapper_no_log config_string]
+}
+
+proc do_tmsh_load { component arguments } {
+    package require iapp::legacy 1.0.0
+    set config_string "$component $arguments"
+    return [eval iapp::legacy::app_utils::tmsh_load_wrapper config_string]
+}
+
+proc get_compression_content_type_includes { } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_compression_content_type_includes]
+}
+
+proc add_compression_content_type_includes { profile_name } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::add_compression_content_type_includes \
+        $profile_name]
+}
+
+proc get_http_parent_profile {  } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_http_parent_profile]
+}
+
+proc get_compress_parent_profle {  } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_compress_parent_profle]
+}
+
+proc get_caching_parent_profle { do_configure_wa } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_caching_parent_profle $do_configure_wa]
+}
+
+proc is_lb_method_ratio { lb_method } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::is_lb_method_ratio $lb_method]
+}
+
+proc create_http_comp_accel_profiles { 
+        name_prefix 
+        clients_connect_on_lan_or_wan 
+        use_cache 
+        do_configure_wa 
+        wa_app_name 
+        ssl_rewrite } { 
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_http_comp_accel_profiles \
+        $name_prefix \
+        $clients_connect_on_lan_or_wan \
+        $use_cache \
+        $do_configure_wa \
+        $wa_app_name \
+        $ssl_rewrite]
+}
+
+proc create_one_connect_and_ntlm_profiles { 
+        name_prefix 
+        create_ntlm_profile 
+        using_snat } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_one_connect_and_ntlm_profiles \
+        $name_prefix \
+        $create_ntlm_profile \
+        $using_snat]
+}
+
+proc create_ssl_profile { 
+        name_prefix 
+        key 
+        cert } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_ssl_profile \
+        $name_prefix \
+        $key \
+        $cert]
+}
+
+proc create_basic_server_ssl_profile { name_prefix } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_server_ssl_profile_with_key_cert \
+        $name_prefix \
+        $::EMPTY_STRING \
+        $::EMPTY_STRING \
+        $::NO_ANSWER]
+}
+
+proc create_server_ssl_profile_with_key_cert { 
+        name_prefix 
+        key 
+        cert
+        insecure_compatible } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_server_ssl_profile_with_key_cert \
+        $name_prefix \
+        $key \
+        $cert \
+        $insecure_compatible]
+}
+
+proc create_https_redirect_irule { name_prefix } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_https_redirect_irule_specific_ports \
+        $name_prefix 80 443]
+}
+
+proc create_https_redirect_irule_specific_ports { 
+        name_prefix 
+        original_port 
+        new_port } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_https_redirect_irule_specific_ports \
+        $name_prefix \
+        $original_port \
+        $new_port]
+}
+
+proc create_wa_app { 
+        name_prefix 
+        wa_policy_name 
+        wa_description 
+        hosts } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_wa_app \
+        $name_prefix \
+        $wa_policy_name \
+        $wa_description \
+        $hosts]
+}
+
+proc create_wa_app_new { 
+        name_prefix 
+        wa_policy_name 
+        wa_description 
+        hosts 
+        x_wa_info_header 
+        perf_monitor 
+        data_retention_period } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_wa_app_new \
+        $name_prefix \
+        $wa_policy_name \
+        $wa_description \
+        $hosts \
+        $x_wa_info_header \
+        $perf_monitor \
+        $data_retention_period]
+}
+
+
+proc is_safe_app_name { app_name } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::is_safe_app_name $app_name]
+}
+
+proc create_http_class { 
+        name_prefix 
+        asm_predefined_policy_name 
+        asm_language_choice 
+        wa_enabled } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_http_class \
+        $name_prefix \
+        $asm_predefined_policy_name \
+        $asm_language_choice \
+        $wa_enabled]
+}
+
+proc create_monitor { 
+        name_prefix 
+        monitor_type 
+        monitor_interval 
+        monitor_send 
+        monitor_recv 
+        http_version 
+        dns_name } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_monitor \
+        $name_prefix \
+        $monitor_type \
+        $monitor_interval \
+        monitor_send \
+        monitor_recv \
+        http_version \
+        $dns_name]
+}
+
+proc is_ipv6 { addr } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::is_ipv6 $addr]
+}
+
+proc create_destination { 
+        addr 
+        port } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_destination $addr $port]
+}
+
+proc create_pool { 
+        name_prefix 
+        monitor_name 
+        servers 
+        lb_method } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_pool \
+        $name_prefix \
+        $monitor_name \
+        $servers \
+        $lb_method]
+}
+
+proc create_pool_with_port_override { 
+        name_prefix 
+        monitor_name 
+        servers 
+        lb_method 
+        port_number } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_pool_with_port_override \
+        $name_prefix \
+        $monitor_name \
+        $servers \
+        $lb_method \
+        $port_number]
+}
+
+
+proc do_tcp_request_queue_settings { 
+        pool_name 
+        do_request_queuing 
+        queue_depth 
+        timeout } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::do_tcp_request_queue_settings \
+        $pool_name \
+        $do_request_queuing \
+        $queue_depth \
+        $timeout]
+}
+
+proc get_file_contents { filename } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::get_file_contents $filename]
+}
+
+
+proc create_http_vs { 
+        name_prefix 
+        destination 
+        snat 
+        pool_name 
+        profile_names 
+        persist_profile 
+        tcp_server_profile_name 
+        tcp_client_profile_name } {
+    set name_prefix "${name_prefix}_http"
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_vs \
+         $name_prefix \
+         $destination \
+         $snat \
+         $pool_name \
+         $profile_names \
+         $persist_profile \
+         $tcp_server_profile_name \
+         $tcp_client_profile_name]
+}
+
+proc create_https_vs { 
+        name_prefix 
+        destination 
+        snat 
+        pool_name 
+        profile_names 
+        persist_profile 
+        tcp_server_profile_name 
+        tcp_client_profile_name } {
+    set name_prefix "${name_prefix}_https"
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_vs \
+         $name_prefix \
+         $destination \
+         $snat \
+         $pool_name \
+         $profile_names \
+         $persist_profile \
+         $tcp_server_profile_name \
+         $tcp_client_profile_name]
+}
+
+proc create_vs { 
+        name_prefix      
+        destination 
+        snat 
+        pool_name 
+        profile_names 
+        persist_profile 
+        tcp_server_profile_name 
+        tcp_client_profile_name } {
+    package require iapp::legacy 1.0.0
+    return [iapp::legacy::app_utils::create_vs \
+        $name_prefix \
+        $destination \
+        $snat \
+        $pool_name \
+        $profile_names \
+        $persist_profile \
+        $tcp_server_profile_name \
+        $tcp_client_profile_name]
+}
+    app-service none
+    description none
+    ignore-verification false
+    script-checksum none
+    script-signature Jw6Khtl9fiMKCgKKFO/pSpyRjq5eCG7ozBUjypKqYSQUgufhZehJmeQlhOTUzYOQYxlsZ6DeTKzXp8UuWcUg/ATi9b+/ny+LAoBDPVgRWIokcHKLnx937neJFWR6dlJuZsLCwjZTJUTQ5hv4t91hYdiKlMbWzR+lOF6epFAYO8lalAlb1UBPlOxqPyK0X2OhZ+25RRafTKhJGEXxH4iEYvT6Lyl+Rr85i/O0z1EbEmCjiFTeIGQKw1Y/ShWhHJ1zLvbN8EGo9bgBjBHFtQ5zEeiOKpeKHC5k+SENcMDt7XPaIjDADP1wBoV9sZf4SfIW2fZpvWS3SrjarJ3OxyM77w==
+    signing-key none
+}
+sys application apl-script /Common/my_apl_common {
+script {
+define choice yesno default "Yes" display "small" {
+		"Yes" => "Yes", 
+		"No" => "No"
+	}
+	define choice noyes default "No" display "small" {
+		"No" => "No", 
+		"Yes" => "Yes"
+	}
+
+	define section ssl_section {
+		noyes offload_ssl
+		optional ( offload_ssl == "Yes" ) {
+			choice cert default "/Common/default.crt" display "xxlarge" tcl { tmsh::run_proc f5.app_utils:get_ssl_certs }
+			choice key default "/Common/default.key" display "xxlarge" tcl { tmsh::run_proc f5.app_utils:get_ssl_keys }
+		}
+	}
+
+	define choice lb_method default "least-connections-member" display "xxlarge" {
+		"Dynamic Ratio (member)" => "dynamic-ratio-member",
+		"Dynamic Ratio (node)" => "dynamic-ratio-node",
+		"Fastest (application)" => "fastest-app-response",
+		"Fastest (node)" => "fastest-node",
+		"Least Connections (member)" => "least-connections-member",
+		"Least Connections (node)" => "least-connections-node",
+		"Least Sessions" => "least-sessions",
+		"Observed (member)" => "observed-member",
+		"Observed (node)" => "observed-node",
+		"Predictive (member)" => "predictive-member",
+		"Predictive (node)" => "predictive-node",
+		"Round Robin" => "round-robin",
+		"Ratio (member)" => "ratio-member",
+		"Ratio (node)" => "ratio-node",
+		"Ratio (session)" => "ratio-session",		
+		"Ratio Least Connections (member)" => "ratio-least-connections-member",
+		"Ratio Least Connections (node)" => "ratio-least-connections-node",
+		"Weighted Least Connections (member)" => "weighted-least-connections-member"
+	}
+
+	define choice language_choice default "utf-8" display "xxlarge" {
+		"Arabic (iso-8859-6)" => "iso-8859-6", 
+		"Baltic (iso-8859-4)" => "iso-8859-4", 
+		"Baltic (iso-8859-13)" => "iso-8859-13",
+		"Baltic (windows-1257)" => "windows-1257",
+		"Central European (iso-8859-2)" => "iso-8859-2",
+		"Central European (windows-1250)" => "windows-1250",
+		"Chinese (big5)" => "big5",
+		"Chinese (gb2312)" => "gb2312",
+		"Chinese (gbk)" => "gbk",
+		"Chinese (gb18030)" => "gb18030",
+		"Cyrillic (iso-8859-5)" => "iso-8859-5",
+		"Cyrillic (koi8-r)" => "koi8-r",
+		"Cyrillic (windows-1251)" => "windows-1251",
+		"Greek (iso-8859-7)" => "iso-8859-7",
+		"Greek (windows-1253)" => "windows-1253",
+		"Hebrew (iso-8859-8)" => "iso-8859-8",
+		"Hebrew (windows-1255)" => "windows-1255",
+		"Japanese (euc-jp)" => "euc-jp",
+		"Japanese (shift_jis)" => "shift_jis",
+		"Korean (euc-kr)" => "euc-kr",
+		"Nordic (iso-8859-10)" => "iso-8859-10",
+		"Romanian (iso-8859-16)" => "iso-8859-16",
+		"South European (iso-8859-3)" => "iso-8859-3",
+		"Thai (windows-874)" => "windows-874",
+        "Turkish (iso-8859-9)" => "iso-8859-9",
+		"Unicode (utf-8)" => "utf-8",
+		"Western European (iso-8859-1)" => "iso-8859-1",
+		"Western European (iso-8859-15)" => "iso-8859-15",
+		"Western European (windows-1252)" => "windows-1252"
+	}
+
+    define row ip_and_port {
+        string ip validator "IpAddress"
+        editchoice port default "80" { "http" => "80", "https" => "443" }
+    }
+
+    define table simple_pool_members {
+        string addr required validator "IpAddress"
+        string port default "80" required validator "PortNumber"
+        display "small"
+    }
+}
+    apl-signature PG3SGMHYl/3Jx/q/dcbrWJ4m0DagccHUsxUB78+0odvBb6gtSDxeWG4Xj0GUsoj4eF3VlKWPMLBPeyolnKjpY3YkzS27s8CyEtr/AmEqyblgIq+au/GKmDmTJ9moYoWOln1M2X8sLzABAe6il3oi/A5nzMhU5z1kI20+PsXvtFSmG/9YSrlBdc/UrW7dKDe1/LvmPhiJqx06hJUymLRkvX46mLNxvlwXFj1Qnz8JaZ9YRjEYbIGTbGy1bnWz58UXQ+lZedS3BI8y7XQvFXi8tqXoYgua8gdSE1BzhohB47DX5TPM3KJADQG7AvY8V+3xssWv/NeNG0iKxAKXt+BR1Q==
+}
+sys application template /Common/lab_2 {
+    actions {
+        definition {
+            html-help {
+                <!-- insert html help text -->
+            }
+            implementation {
+                # insert tmsh script
+                tmsh::include "my_app_utils"
+            }
+            macro {
+            }
+            presentation {
+                # insert apl script
+                include "/Common/my_apl_common"
+
+                section virtual {
+                    ip_and_port vsinfo
+                    noyes attach_pool
+                    optional (attach_pool == "Yes") {
+                        section pool {
+                            simple_pool_members servers
+                            lb_method lb
+                        }
+                    }
+                }
+                text {
+                    virtual "Virtual Server Questions"
+                    virtual.vs_info "Enter the IP Address and port for the virtual server."
+                    virtual.attach_pool "Do you want to add a pool to this virtual server?"
+                    pool "Server Pool"
+                    pool.lb "What loab balancing algorithm should be used?"
+                    pool.servers "Enter the IP Address and port combinations for the servers that you want in this pool."
+                }
+            }
+            role-acl none
+            run-as none
+        }
+    }
+    description none
+    ignore-verification false
+    requires-bigip-version-max none
+    requires-bigip-version-min none
+    requires-modules none
+    signing-key none
+    tmpl-checksum none
+    tmpl-signature none
+}

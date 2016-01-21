@@ -18,6 +18,7 @@ from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
 
+from common.f5_bigip_connection import f5_common_resources
 from common.f5_bigip_connection import F5BigIPMixin
 
 
@@ -27,6 +28,7 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
     PROPERTIES = (
         NAME,
         BIGIP_SERVER,
+        PARTITION,
         REQUIRES_MODULES,
         IMPLEMENTATION,
         PRESENTATION,
@@ -34,6 +36,7 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
     ) = (
         'name',
         'bigip_server',
+        'partition',
         'requires_modules',
         'implementation',
         'presentation',
@@ -85,7 +88,7 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
         )
     }
 
-    def build_iapp_dict(self):
+    def _build_iapp_dict(self):
         '''Build dictionary for posting to BigIP.
 
         :returns: dictionary of template information
@@ -103,23 +106,24 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
         }
         return template
 
+    @f5_common_resources
     def handle_create(self):
         '''Create the template on the BigIP.
 
         :raises: ResourceFailure
         '''
 
-        template_dict = self.build_iapp_dict()
-        self.get_bigip()
+        template_dict = self._build_iapp_dict()
+
+        template_dict['partition'] = self.partition_name
 
         try:
-            self.bigip.iapp.create_template(
-                name=self.properties[self.NAME],
-                template=template_dict
-            )
+            self.bigip.sys.applicationcollection.templatecollection.template.\
+                create(**template_dict)
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
+    @f5_common_resources
     def handle_delete(self):
         '''Delete the iApp Template on the BigIP.
 
@@ -135,9 +139,12 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
         self.get_bigip()
 
         try:
-            self.bigip.iapp.delete_template(
-                self.properties[self.NAME]
-            )
+            loaded_template = self.bigip.sys.applicationcollection.\
+                templatecollection.template.load(
+                    name=self.properties[self.NAME],
+                    partition=self.partition_name
+                )
+            loaded_template.delete()
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='DELETE')
 

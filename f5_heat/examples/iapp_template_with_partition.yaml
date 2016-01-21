@@ -23,55 +23,48 @@ parameters:
     type: string
     label: iApp Template Name
     default: iapp_test_template
-  iapp_service_name:
-    type: string
-    label: iApp Service Name
-    default: iapp_test_service
   ve_instance:
     type: string
     label: VE Instance IP
     description: IP of existing VE
-    default: 10.190.6.7
-  bigip_un:
+    default: 10.190.6.4
+  bigip_username:
     type: string
-    label: BigIP Login Username
     default: admin
-  bigip_pw:
+  bigip_password:
     type: string
-    label: BigIP Login Password
     default: admin
     hidden: true
+  partition_name:
+    type: string
+  subpath:
+    type: string
 parameter_groups:
   - label: VE Parameters
     parameters:
       - ve_instance
-      - bigip_un
-      - bigip_pw
-  - label: Pool Parameters
+      - bigip_username
+      - bigip_password
+  - label: Other Parameters
     parameters:
       - iapp_template_name
-      - iapp_service_name
+      - partition_name
+      - subpath
 resources:
-  bigip_rsrc:
-    type: F5::BigIP
+  partition:
+    type: F5::Sys::Partition
+    depends_on: bigip_rsrc
     properties:
-      ip: { get_param: ve_instance }
-      username: { get_param: bigip_un }
-      password: { get_param: bigip_pw }
-
-  iapp_service:
-    type: F5::Sys::iAppService
-    depends_on: iapp_template
-    properties:
-      name: { get_param: iapp_service_name }
+      name: { get_param: partition_name }
       bigip_server: { get_resource: bigip_rsrc }
-      template_name: { get_param: iapp_template_name }
-
+      subpath: { get_param: subpath }
   iapp_template:
     type: F5::Sys::iAppTemplate
+    depends_on: [bigip_rsrc, partition]
     properties:
       name: { get_param: iapp_template_name }
       bigip_server: { get_resource: bigip_rsrc }
+      partition: { get_resource: partition }
       requires_modules: [ ltm ]
       implementation: |
         #TMSH-VERSION: 11.6.0
@@ -124,3 +117,10 @@ resources:
         section say_hello {
             message intro "This template deploys a virtual server and a pool with several members."
         }
+
+  bigip_rsrc:
+    type: F5::BigIP::Device
+    properties:
+      ip: { get_param: ve_instance }
+      username: { get_param: bigip_username }
+      password: { get_param: bigip_password }

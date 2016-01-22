@@ -42,3 +42,4 @@ modify template thanks_world {
     signing-key none
     tmpl-checksum none
     tmpl-signature none
+}

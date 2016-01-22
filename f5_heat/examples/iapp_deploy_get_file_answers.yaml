@@ -68,7 +68,7 @@ resources:
       template_name: { get_param: iapp_template_name }
       lists:
         get_file: iapps/lab_1_list.json
-      variables: >
+      variables: |
         [
             {
               "name": "some_variables__drop_down",

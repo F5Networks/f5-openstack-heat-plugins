@@ -12,7 +12,7 @@ Installation
 ------------
 The heat plugins need to be installed on the machine that the Heat engine is
 running on in order to use templates that refer the the F5 plugins.  After
-installin the plugins the Heat engine must be restarted for them to take
+installing the plugins the Heat engine must be restarted for them to take
 effect.
 
 Ubuntu

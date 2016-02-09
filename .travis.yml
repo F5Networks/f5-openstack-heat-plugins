@@ -13,7 +13,7 @@ before_install:
     - git clone -b master https://$GIT_PA_TOKEN@github.com/F5Networks/f5-common-python.git ~/f5-common-python
     - git clone -b stable/kilo https://github.com/openstack/heat.git ~/heat
 install:
-    - pip install -r requirements.docs.txt
+    - pip install -r requirements.test.txt
     - pip install -r ~/heat/requirements.txt
 script:
     - flake8 f5_heat/resources/

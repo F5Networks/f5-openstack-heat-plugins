@@ -7,9 +7,16 @@ This repository houses all of F5's `Openstack Heat <https://wiki.openstack.org/w
 resource plugins. F5's Heat plugins can be used to orchestrate BIG-IP services
 in your OpenStack environment.
 
+Releases and Versions
+---------------------
+|release| supports the OpenStack |openstack_release| release.
+
+For more information about F5 Networks's OpenStack versioning and a support
+matrix please see `F5 Networks OpenStack Support Matrix <https://F5Networks.github.io/f5-openstack-docs>`__.
+
 Installation
 ------------
-The heat plugins need to be installed on the machine that the Heat engine is
+The heat plugins must be installed on the machine that the Heat engine is
 running on in order to use templates that refer to the F5 plugins.  After
 installing the plugins the Heat engine must be restarted for them to take
 effect.

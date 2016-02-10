@@ -13,16 +13,12 @@ before_install:
     - git clone -b master https://$GIT_PA_TOKEN@github.com/F5Networks/f5-common-python.git ~/f5-common-python
     - git clone -b stable/kilo https://github.com/openstack/heat.git ~/heat
 install:
-    - pip install -I eventlet==0.17.4
-    - pip install -I netaddr==0.7.18
-    - pip install -I pyopenssl==0.15.1
-    - pip install -I requests
-    - pip install -I suds==0.4
-    - pip install pytest pytest-cov hacking cryptography funcsigs
+    - pip install -r requirements.test.txt
     - pip install -r ~/heat/requirements.txt
 script:
     - flake8 f5_heat/resources/
     - py.test f5_heat/resources/test --cov=f5_heat/resources
+    - cd docs; make html
 notifications:
     slack:
       rooms:

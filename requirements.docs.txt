@@ -1,0 +1,8 @@
+cryptography
+eventlet==0.17.4
+funcsigs
+netaddr==0.7.18
+pyopenssl==0.15.1
+requests
+Sphinx==1.3.5
+suds==0.4

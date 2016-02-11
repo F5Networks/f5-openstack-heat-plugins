@@ -10,7 +10,6 @@ before_install:
     - git config --global user.name "Travis F5 Openstack"
     - git fetch --depth=100
     - sudo apt-get -y install build-essential libssl-dev libffi-dev python-dev
-    - git clone -b 0.1 https://github.com/F5Networks/f5-common-python.git ~/f5-common-python
     - git clone -b stable/kilo https://github.com/openstack/heat.git ~/heat
 install:
     - pip install -r requirements.test.txt
@@ -19,11 +18,13 @@ install:
 script:
     - flake8 f5_heat/resources/
     - py.test f5_heat/resources/test --cov=f5_heat/resources
-    - cd docs; make html
+    - cd docs
+    - make html
+    - cd ../
 notifications:
     slack:
       rooms:
-        - f5openstackdev:IbC9KXz2vGVq9jkOLCT5USYD#f5-openstack-heat-plugins
-        - f5openstackdev:IbC9KXz2vGVq9jkOLCT5USYD#build-status
+        - $SLACK_TOKEN
+        - $SLACK_TOKEN
       on_success: change
       on_failure: always

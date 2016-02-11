@@ -1,6 +1,7 @@
 # These packages are required when testing the module
 cryptography
 eventlet==0.17.4
+f5-sdk>=0.1.1a1
 hacking
 funcsigs
 netaddr==0.7.18

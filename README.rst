@@ -22,6 +22,9 @@ running on in order to use templates that refer the the F5 plugins.  After
 installing the plugins the Heat engine must be restarted for them to take
 effect.
 
+*Note: If you are installing a pre-release version of the package with pip
+you will need to use the --pre option.*
+
 Ubuntu
 ~~~~~~
 .. code:: shell

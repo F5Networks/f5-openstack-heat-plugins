@@ -13,7 +13,8 @@ Releases and Versions
 This branch supports the OpenStack Kilo release.
 
 For more information about F5 Networks's OpenStack versioning and a support
-matrix please see `F5 Networks OpenStack Support Matrix <https://F5Networks.github.io/f5-openstack-docs>`__.
+matrix please see `F5 Networks OpenStack Releases and Support Matrix
+<http://f5networks.github.io/f5-openstack-docs/releases_and_versioning/>`__
 
 Installation
 ------------
@@ -21,6 +22,9 @@ The heat plugins must be installed on the machine that the Heat engine is
 running on in order to use templates that refer the the F5 plugins.  After
 installing the plugins the Heat engine must be restarted for them to take
 effect.
+
+*Note: If you are installing a pre-release version of the package with pip
+you will need to use the --pre option.*
 
 Ubuntu
 ~~~~~~

@@ -1,5 +1,6 @@
 cryptography
 eventlet==0.17.4
+f5-sdk>=0.1.1a1
 funcsigs
 netaddr==0.7.18
 pyopenssl==0.15.1

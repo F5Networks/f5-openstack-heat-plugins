@@ -18,29 +18,44 @@ from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
 
-from common.f5_bigip_connection import f5_common_resources
-from common.f5_bigip_connection import F5BigIPMixin
+from common.mixins import f5_common_resources
+from common.mixins import F5BigIPMixin
+from f5.common.iapp_parser import IappParser
 
 
-class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
+class IappTemplateStackValidationFailed(exception.StackValidationFailed):
+    pass
+
+
+class F5SysiAppTemplate(F5BigIPMixin, resource.Resource):
     '''Manages creation of an iApp resource on the BigIP device.'''
 
     PROPERTIES = (
         NAME,
         BIGIP_SERVER,
         PARTITION,
-        REQUIRES_MODULES,
-        IMPLEMENTATION,
-        PRESENTATION,
-        HELP
+        COMPOSITE_TEMPLATE,
+        FULL_TEMPLATE
     ) = (
         'name',
         'bigip_server',
         'partition',
+        'composite_template',
+        'full_template'
+    )
+
+    _COMPOSITE_TEMPLATE_PROPERITES = (
+        REQUIRES_MODULES,
+        IMPLEMENTATION,
+        PRESENTATION,
+        HELP,
+        ROLE_ACL
+    ) = (
         'requires_modules',
         'implementation',
         'presentation',
-        'help'
+        'help',
+        'role-acl'
     )
 
     properties_schema = {
@@ -54,39 +69,71 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
             _('BigIP resource reference.'),
             required=True
         ),
-        BIGIP_USERNAME: properties.Schema(
+        PARTITION: properties.Schema(
             properties.Schema.STRING,
-            _('BigIP username.'),
+            _('Partition resource reference.'),
             required=True
         ),
-        BIGIP_PASSWORD: properties.Schema(
+        COMPOSITE_TEMPLATE: properties.Schema(
+            properties.Schema.MAP,
+            _('Parts of the template to create. The necessary minimum is: '
+              'implementation and presentation.'),
+            required=False,
+            schema={
+                REQUIRES_MODULES: properties.Schema(
+                    properties.Schema.LIST,
+                    _('Modules required for this iApp Template.')
+                ),
+                IMPLEMENTATION: properties.Schema(
+                    properties.Schema.STRING,
+                    _('Implementation section of the template.'),
+                    required=True
+                ),
+                PRESENTATION: properties.Schema(
+                    properties.Schema.STRING,
+                    _('Presentation section of the template.'),
+                    required=True
+                ),
+                HELP: properties.Schema(
+                    properties.Schema.STRING,
+                    _('Help section of the template.')
+                ),
+                ROLE_ACL: properties.Schema(
+                    properties.Schema.LIST,
+                    _('Access control list roles as string.')
+                )
+            }
+        ),
+        FULL_TEMPLATE: properties.Schema(
             properties.Schema.STRING,
-            _('BigIP password.'),
-            required=True
-        ),
-        REQUIRES_MODULES: properties.Schema(
-            properties.Schema.LIST,
-            _('Modules required for this iApp Template.')
-        ),
-        REQUIRES_MODULES: properties.Schema(
-            properties.Schema.LIST,
-            _('Modules required for this iApp Template.')
-        ),
-        IMPLEMENTATION: properties.Schema(
-            properties.Schema.STRING,
-            _('Implementation section of the template.'),
-            required=True
-        ),
-        PRESENTATION: properties.Schema(
-            properties.Schema.STRING,
-            _('Presentation section of the template.'),
-            required=True
-        ),
-        HELP: properties.Schema(
-            properties.Schema.STRING,
-            _('Help section of the template.'),
+            _('Full iapp template string.')
         )
     }
+
+    def __init__(self, name, definition, stack):
+        super(F5SysiAppTemplate, self).__init__(name, definition, stack)
+        if self.properties[self.FULL_TEMPLATE]:
+            if self.properties[self.COMPOSITE_TEMPLATE]:
+                message = _('Full template and composite template cannot both '
+                            'be defined in an F5::Sys::iAppTemplate resource.')
+                raise IappTemplateStackValidationFailed(message)
+
+    def _add_optional_attr(self, iapp_dict):
+        '''When building the iapp dictionary, add optional items.
+
+        :param iapp_dict: dictionary for iapp template
+        :returns: possibly modified dictionary
+        '''
+
+        if self.properties[self.COMPOSITE_TEMPLATE][self.REQUIRES_MODULES]:
+            iapp_dict['requiresModules'] = \
+                self.properties[self.COMPOSITE_TEMPLATE][self.REQUIRES_MODULES]
+
+        if self.properties[self.COMPOSITE_TEMPLATE][self.ROLE_ACL]:
+            iapp_dict['actions']['definition']['roleAcl'] = \
+                self.properties[self.COMPOSITE_TEMPLATE][self.ROLE_ACL]
+
+        return iapp_dict
 
     def _build_iapp_dict(self):
         '''Build dictionary for posting to BigIP.
@@ -95,16 +142,18 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
         '''
 
         sections = {
-            'implementation': self.properties[self.IMPLEMENTATION] or '',
-            'presentation': self.properties[self.PRESENTATION] or ''
+            'implementation': self.properties[
+                self.COMPOSITE_TEMPLATE][self.IMPLEMENTATION] or '',
+            'presentation': self.properties[
+                self.COMPOSITE_TEMPLATE][self.PRESENTATION] or ''
         }
         definition = {'definition': sections}
         template = {
             'name': self.properties[self.NAME],
             'actions': definition,
-            'requiresModules': self.properties[self.REQUIRES_MODULES]
         }
-        return template
+
+        return self._add_optional_attr(template)
 
     @f5_common_resources
     def handle_create(self):
@@ -113,13 +162,17 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
         :raises: ResourceFailure
         '''
 
-        template_dict = self._build_iapp_dict()
-
-        template_dict['partition'] = self.partition_name
+        template_dict = {}
+        if self.properties[self.COMPOSITE_TEMPLATE]:
+            template_dict = self._build_iapp_dict()
+            template_dict['partition'] = self.partition_name
+        else:
+            parser = IappParser(self.properties[self.FULL_TEMPLATE])
+            template_dict = parser.parse_template()
 
         try:
-            self.bigip.sys.applicationcollection.templatecollection.template.\
-                create(**template_dict)
+            template = self.bigip.sys.applications.templates.template
+            template.create(**template_dict)
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
@@ -130,17 +183,9 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
         :raises: ResourceFailure
         '''
 
-        self.get_bigip()
-
-        self.get_bigip()
-
-        self.get_bigip()
-
-        self.get_bigip()
-
         try:
-            loaded_template = self.bigip.sys.applicationcollection.\
-                templatecollection.template.load(
+            loaded_template = self.bigip.sys.applications.templates.template.\
+                load(
                     name=self.properties[self.NAME],
                     partition=self.partition_name
                 )

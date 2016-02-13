@@ -41,6 +41,8 @@ resources:
       bigip_server: bigip_rsrc
       ip: 129.0.0.1
       port: 80
+      default_pool: test_pool
+      vlans: [ test_vlan ]
 '''
 
 bad_vs_defn = '''
@@ -107,25 +109,31 @@ def F5LTMVirtualServer():
 @pytest.fixture
 def CreateVirtualServerSideEffect(F5LTMVirtualServer):
     F5LTMVirtualServer.get_bigip()
-    F5LTMVirtualServer.bigip.virtual_server.create.side_effect = Exception()
+    F5LTMVirtualServer.bigip.ltm.virtuals.virtual.create.side_effect = \
+        exception.ResourceFailure(mock.MagicMock(), None, action='CREATE')
     return F5LTMVirtualServer
 
 
 @pytest.fixture
 def DeleteVirtualServerSideEffect(F5LTMVirtualServer):
     F5LTMVirtualServer.get_bigip()
-    F5LTMVirtualServer.bigip.virtual_server.delete.side_effect = Exception()
+    F5LTMVirtualServer.bigip.ltm.virtuals.virtual.load.side_effect = \
+        exception.ResourceFailure(mock.MagicMock(), None, action='DELETE')
     return F5LTMVirtualServer
 
 
 def test_handle_create(F5LTMVirtualServer):
     create_result = F5LTMVirtualServer.handle_create()
     assert create_result is None
-    assert F5LTMVirtualServer.bigip.virtual_server.create.call_args == \
+    assert F5LTMVirtualServer.bigip.ltm.virtuals.virtual.create.call_args == \
         mock.call(
             name=u'testing_vs',
-            ip_address=u'129.0.0.1',
-            port=80
+            partition='Common',
+            vlans=[u'test_vlan'],
+            pool=u'test_pool',
+            sourceAddressTranslation={'type': 'automap'},
+            destination='/Common/129.0.0.1:80',
+            vlansEnabled=True
         )
 
 
@@ -137,9 +145,10 @@ def test_handle_create_error(CreateVirtualServerSideEffect):
 
 def test_handle_delete(F5LTMVirtualServer):
     assert None == F5LTMVirtualServer.handle_delete()
-    assert F5LTMVirtualServer.bigip.virtual_server.delete.call_args == \
+    assert F5LTMVirtualServer.bigip.ltm.virtuals.virtual.load.call_args == \
         mock.call(
-            name=u'testing_vs'
+            name=u'testing_vs',
+            partition='Common'
         )
 
 

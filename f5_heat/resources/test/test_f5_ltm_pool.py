@@ -108,30 +108,34 @@ def F5LTMPool():
 @pytest.fixture
 def CreatePoolSideEffect(F5LTMPool):
     F5LTMPool.get_bigip()
-    F5LTMPool.bigip.pool.create.side_effect = Exception()
+    F5LTMPool.bigip.ltm.pools.pool.create.side_effect = Exception()
     return F5LTMPool
 
 
 @pytest.fixture
 def AssignMembersSideEffect(F5LTMPool):
     F5LTMPool.get_bigip()
-    F5LTMPool.bigip.pool.add_member.side_effect = Exception()
+    F5LTMPool.bigip.ltm.pools.pool.load().members_s.member.create.side_effect = \
+        exception.ResourceFailure(mock.MagicMock(), None, action='ADD MEMBERS')
     return F5LTMPool
 
 
 @pytest.fixture
 def DeletePoolSideEffect(F5LTMPool):
     F5LTMPool.get_bigip()
-    F5LTMPool.bigip.pool.delete.side_effect = Exception()
+    F5LTMPool.bigip.ltm.pools.pool.load().delete.side_effect = \
+        exception.ResourceFailure(mock.MagicMock(), None, action='DELETE')
     return F5LTMPool
 
 
 def test_handle_create(F5LTMPool):
     create_result = F5LTMPool.handle_create()
     assert create_result is None
-    assert F5LTMPool.bigip.pool.create.call_args == \
+    assert F5LTMPool.bigip.ltm.pools.pool.create.call_args == \
         mock.call(
-            u'testing_pool'
+            name=u'testing_pool',
+            partition=u'Common',
+            service_down_action='Reject'
         )
 
 
@@ -149,9 +153,8 @@ def test_handle_create_assign_members_error(AssignMembersSideEffect):
 
 def test_handle_delete(F5LTMPool):
     assert F5LTMPool.handle_delete() is None
-    assert F5LTMPool.bigip.pool.delete.call_args == mock.call(
-        u'testing_pool'
-    )
+    assert F5LTMPool.bigip.ltm.pools.pool.load.call_args == \
+        mock.call(name='testing_pool', partition='Common')
 
 
 def test_handle_delete_error(DeletePoolSideEffect):

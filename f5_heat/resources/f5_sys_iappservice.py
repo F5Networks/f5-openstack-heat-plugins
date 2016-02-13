@@ -20,7 +20,8 @@ from heat.common.i18n import _LE
 from heat.engine import properties
 from heat.engine import resource
 
-from common.f5_bigip_connection import F5BigIPMixin
+from common.mixins import f5_common_resources
+from common.mixins import F5BigIPMixin
 from oslo_log import log as logging
 
 import json
@@ -62,7 +63,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         PARTITION: properties.Schema(
             properties.Schema.STRING,
             _('Partition resource reference.'),
-            default='Common'
+            required=True
         ),
         TEMPLATE_NAME: properties.Schema(
             properties.Schema.STRING,
@@ -87,12 +88,12 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         '''Call super and validate answer properties.'''
         super(F5SysiAppService, self).__init__(name, defn, stack)
 
-        self.app_answers = {}
+        self.iapp_answers_from_heat = {}
         for prop in [self.VARIABLES, self.LISTS, self.TABLES]:
             if self.properties[prop] is not None:
-                self._check_app_answers(prop)
+                self._check_iapp_answers(prop)
 
-    def _check_app_answers(self, prop_name):
+    def _check_iapp_answers(self, prop_name):
         '''Load a property as json.
 
         :param prop_name: name of property to load
@@ -100,7 +101,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         '''
 
         try:
-            self.app_answers[prop_name] = json.loads(
+            self.iapp_answers_from_heat[prop_name] = json.loads(
                 self.properties[prop_name]
             )
         except Exception:
@@ -114,47 +115,39 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
 
         service_dict = {
             'name': self.properties[self.NAME],
-            'template': '/Common/{}'.format(
-                self.properties[self.TEMPLATE_NAME]
-            )
+            'template': self.properties[self.TEMPLATE_NAME]
         }
-        service_dict.update(self.app_answers)
+        service_dict.update(self.iapp_answers_from_heat)
         return service_dict
 
+    @f5_common_resources
     def handle_create(self):
         '''Creates the iApp Service from an iApp template.
 
         :raises: ResourceFailure # TODO Change to proper exception
         '''
 
-        self.get_bigip()
         service_dict = self._build_service_dict()
-
-        if self.properties[self.PARTITION]:
-            self.partition_name = self.get_partition_name()
-            service_dict['partition'] = self.partition_name
+        service_dict['partition'] = self.partition_name
 
         try:
-            service = \
-                self.bigip.sys.applicationcollection.servicecollection.service
+            service = self.bigip.sys.applications.services.service
             service.create(**service_dict)
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
+    @f5_common_resources
     def handle_delete(self):
         '''Deletes the iApp Service
 
         :raises: Resource Failure # TODO Change to proper exception
         '''
 
-        self.get_bigip()
-
         try:
-            loaded_service = self.bigip.sys.applicationcollection.\
-                servicecollection.service.load(
-                    name=self.properties[self.NAME],
-                    partition=self.partition_name
-                )
+            loaded_service = self.bigip.sys.applications.services.service.load(
+                name=self.properties[self.NAME],
+                partition=self.partition_name
+            )
             loaded_service.delete()
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='DELETE')

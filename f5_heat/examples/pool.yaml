@@ -61,4 +61,4 @@ resources:
         - member_ip: 128.0.0.1
           member_port: 80
         - member_ip: 129.0.0.1
-          member_port: 80 
+          member_port: 80

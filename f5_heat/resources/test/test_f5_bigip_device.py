@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5.bigip.bigip import BigIP
+from f5.bigip import BigIP
 from f5_heat.resources import f5_bigip_device
 from heat.common import exception
 from heat.common import template_format

@@ -18,7 +18,8 @@ from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
 
-from common.f5_bigip_connection import F5BigIPMixin
+from common.mixins import f5_common_resources
+from common.mixins import F5BigIPMixin
 
 
 class F5LTMPool(resource.Resource, F5BigIPMixin):
@@ -27,11 +28,13 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
     PROPERTIES = (
         NAME,
         BIGIP_SERVER,
+        PARTITION,
         SERVICE_DOWN_ACTION,
         MEMBERS
     ) = (
         'name',
         'bigip_server',
+        'partition',
         'service_down_action',
         'members'
     )
@@ -51,6 +54,11 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
         BIGIP_SERVER: properties.Schema(
             properties.Schema.STRING,
             _('Reference to the BigIP server resource.'),
+            required=True
+        ),
+        PARTITION: properties.Schema(
+            properties.Schema.STRING,
+            _('Reference to partition resource.'),
             required=True
         ),
         SERVICE_DOWN_ACTION: properties.Schema(
@@ -86,50 +94,56 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
 
         members = self.properties[self.MEMBERS]
         for member in members:
-            member_ip = member.get(self.MEMBER_IP)
-            member_port = member.get(self.MEMBER_PORT)
+            member_ip = member[self.MEMBER_IP]
+            member_port = member[self.MEMBER_PORT]
             member_name = '{0}:{1}'.format(member_ip, member_port)
             try:
-                loaded_pool = self.bigip.ltm.poolcollection.pool.load(
-                    name=self.properties[self.NAME]
+                loaded_pool = self.bigip.ltm.pools.pool.load(
+                    name=self.properties[self.NAME],
+                    partition=self.properties[self.PARTITION]
                 )
-                loaded_pool.memberscollection.member.create(
+                loaded_pool.members_s.member.create(
                     name=member_name,
-                    ip=member_ip,
-                    port=member_port
+                    partition=self.properties[self.PARTITION],
+                    address=member_ip
                 )
             except Exception as ex:
                 raise exception.ResourceFailure(ex, None, action='ADD MEMBERS')
 
+    @f5_common_resources
     def handle_create(self):
         '''Create the BigIP Pool resource on the given device.
 
         :rasies: ResourceFailure
         '''
 
-        self.get_bigip()
-        create_kwargs = {'name': self.properties[self.NAME]}
+        create_kwargs = {
+            'name': self.properties[self.NAME],
+            'partition': self.partition_name
+        }
         if self.properties[self.SERVICE_DOWN_ACTION]:
             create_kwargs['service_down_action'] = \
                 self.properties[self.SERVICE_DOWN_ACTION]
+
         try:
-            self.bigip.ltm.poolcollection.pool.create(**create_kwargs)
+            self.bigip.ltm.pools.pool.create(**create_kwargs)
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
         self._assign_members()
         self.resource_id_set(self.physical_resource_name())
 
+    @f5_common_resources
     def handle_delete(self):
         '''Delete the BigIP Pool resource on the given device.
 
         :raises: ResourceFailure
         '''
 
-        self.get_bigip()
         try:
-            loaded_pool = self.bigip.poolcollection.pool.load(
-                self.properties[self.NAME]
+            loaded_pool = self.bigip.ltm.pools.pool.load(
+                name=self.properties[self.NAME],
+                partition=self.partition_name
             )
             loaded_pool.delete()
         except Exception as ex:

@@ -18,8 +18,8 @@ from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
 
-from common.f5_bigip_connection import f5_bigip
-from common.f5_bigip_connection import F5BigIPMixin
+from common.mixins import f5_bigip
+from common.mixins import F5BigIPMixin
 
 
 class F5SysPartition(resource.Resource, F5BigIPMixin):
@@ -48,11 +48,6 @@ class F5SysPartition(resource.Resource, F5BigIPMixin):
             _('Reference to the BigIP Server resource.'),
             required=True
         ),
-        NAME: properties.Schema(
-            properties.Schema.STRING,
-            _('Name of the folder or partition.'),
-            required=True
-        ),
         SUBPATH: properties.Schema(
             properties.Schema.STRING,
             _('Subpath for the folder or parition.'),
@@ -72,31 +67,38 @@ class F5SysPartition(resource.Resource, F5BigIPMixin):
     def handle_create(self):
         '''Create the BigIP Virtual Server resource on the given device.
 
+        If the 'Common' partition was specified, do not create, as it exists
+        on the BigIP by default.
+
         :raises: ResourceFailure exception
         '''
 
-        try:
-            self.bigip.sys.foldercollection.folder.create(
-                name=self.properties[self.NAME],
-                subPath=self.properties[self.SUBPATH]
-            )
-        except Exception as ex:
-            raise exception.ResourceFailure(ex, None, action='CREATE')
+        if self.properties[self.NAME] != 'Common':
+            try:
+                self.bigip.sys.folders.folder.create(
+                    name=self.properties[self.NAME],
+                    subPath=self.properties[self.SUBPATH]
+                )
+            except Exception as ex:
+                raise exception.ResourceFailure(ex, None, action='CREATE')
 
     @f5_bigip
     def handle_delete(self):
         '''Delete the BigIP Virtual Server resource on the given device.
 
+        If the 'Common' partition was specified, do not delete, as it exists
+        on the BigIP by default.
+
         :raises: ResourceFailure exception
         '''
-
-        try:
-            loaded_partition = self.bigip.sys.foldercollection.folder.load(
-                name=self.properties[self.NAME]
-            )
-            loaded_partition.delete()
-        except Exception as ex:
-            raise exception.ResourceFailure(ex, None, action='DELETE')
+        if self.properties[self.NAME] != 'Common':
+            try:
+                loaded_partition = self.bigip.sys.folders.folder.load(
+                    name=self.properties[self.NAME]
+                )
+                loaded_partition.delete()
+            except Exception as ex:
+                raise exception.ResourceFailure(ex, None, action='DELETE')
 
 
 def resource_mapping():

@@ -17,7 +17,7 @@
 def f5_common_resources(func):
     def func_wrapper(self, *args, **kwargs):
         self.get_bigip()
-        self.get_partition_name()
+        self.set_partition_name()
         func(self, *args, **kwargs)
     return func_wrapper
 
@@ -38,7 +38,7 @@ class F5BigIPMixin(object):
         refid = self.properties[self.BIGIP_SERVER]
         self.bigip = self.stack.resource_by_refid(refid).get_bigip()
 
-    def get_partition_name(self):
+    def set_partition_name(self):
         '''Return the partition name from the F5::Sys::Partition resource.
 
         :returns: string partition name

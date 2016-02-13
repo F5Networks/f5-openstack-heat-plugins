@@ -28,7 +28,7 @@ parameters:
     label: Client/Server Nova Flavor
     type: string
     constraints:
-      - custom_constraint: nova.flavor  
+      - custom_constraint: nova.flavor
   key_name:
     description: The public key to be pushed to instances
     label: Key Name
@@ -82,7 +82,7 @@ parameters:
     description: Virtual Server Virtual IP
     label: Virtual Server VIP
     type: string
-    constraints: 
+    constraints:
       - custom_constraint: f5.selfip
   vs_port:
     description: Virtual Server Port
@@ -221,7 +221,7 @@ resources:
       ip: { get_param: vs_vip }
       port: { get_param: vs_port }
       default_pool: { get_param: pool_name }
-      vlan: data_2
+      vlans: [data2_net]
   pool:
     type: F5::LTM::Pool
     depends_on: [bigip, server]
@@ -231,7 +231,7 @@ resources:
       members:
         - member_ip: { get_attr: [server, first_address] }
           member_port: { get_param: pool_member_port }
-  
+
 outputs:
   client_curl_cli:
     value: { get_attr: [client_wait_handle, curl_cli] }

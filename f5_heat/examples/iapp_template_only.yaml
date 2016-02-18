@@ -45,12 +45,19 @@ parameter_groups:
     parameters:
       - iapp_template_name
 resources:
+  partition:
+    type: F5::Sys::Partition
+    depends_on: bigip_rsrc
+    properties:
+      name: Common
+      bigip_server: { get_resource: bigip_rsrc }
   iapp_template:
     type: F5::Sys::iAppTemplate
-    depends_on: bigip_rsrc
+    depends_on: [bigip_rsrc, partition]
     properties:
       name: { get_param: iapp_template_name }
       bigip_server: { get_resource: bigip_rsrc }
+      partition: { get_resource: partition }
       composite_template:
         requires_modules: [ ltm ]
         implementation: |

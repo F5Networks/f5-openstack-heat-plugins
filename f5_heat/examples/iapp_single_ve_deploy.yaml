@@ -63,19 +63,27 @@ resources:
       ip: { get_param: ve_instance1 }
       username: { get_param: bigip_un }
       password: { get_param: bigip_pw }
+  partition:
+    type: F5::Sys::Partition
+    depends_on: bigip1
+    properties:
+      name: Common
+      bigip_server: { get_resource: bigip1 }
   iapp_service:
     type: F5::Sys::iAppService
-    depends_on: iapp_template
+    depends_on: [iapp_template, partition]
     properties:
       name: { get_param: iapp_service_name }
       bigip_server: { get_resource: bigip1 }
+      partition: { get_resource: partition }
       template_name: { get_param: iapp_template_name }
   iapp_template:
     type: F5::Sys::iAppTemplate
-    depends_on: bigip1
+    depends_on: [bigip1, partition]
     properties:
       name: { get_param: iapp_template_name }
       bigip_server: { get_resource: bigip1 }
+      partition: { get_resource: partition }
       composite_template:
         requires_modules: [ ltm ]
         implementation: |

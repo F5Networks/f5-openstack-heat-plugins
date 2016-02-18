@@ -212,12 +212,19 @@ resources:
       ip: { get_param: bigip_fip }
       username: { get_param: bigip_un }
       password: { get_param: bigip_pw }
+  partition:
+    type: F5::Sys::Partition
+    depends_on: bigip
+    properties:
+      name: Common
+      bigip_server: { get_resource: bigip }
   virtual_server:
     type: F5::LTM::VirtualServer
     depends_on: [bigip, pool]
     properties:
       name: { get_param: vs_name }
       bigip_server: { get_resource: bigip }
+      partition: { get_resource: partition }
       ip: { get_param: vs_vip }
       port: { get_param: vs_port }
       default_pool: { get_param: pool_name }
@@ -228,6 +235,7 @@ resources:
     properties:
       name: { get_param: pool_name }
       bigip_server: { get_resource: bigip }
+      partition: { get_resource: partition }
       members:
         - member_ip: { get_attr: [server, first_address] }
           member_port: { get_param: pool_member_port }

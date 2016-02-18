@@ -35,22 +35,29 @@ parameters:
     type: string
     default: admin
     hidden: true
+  partition_name:
+    type: string
+  subpath:
+    type: string
 parameter_groups:
   - label: VE Parameters
     parameters:
       - ve_instance
       - bigip_username
       - bigip_password
-  - label: Pool Parameters
+  - label: Other Parameters
     parameters:
       - iapp_template_name
+      - partition_name
+      - subpath
 resources:
   partition:
     type: F5::Sys::Partition
     depends_on: bigip_rsrc
     properties:
-      name: Common
+      name: { get_param: partition_name }
       bigip_server: { get_resource: bigip_rsrc }
+      subpath: { get_param: subpath }
   iapp_template:
     type: F5::Sys::iAppTemplate
     depends_on: [bigip_rsrc, partition]

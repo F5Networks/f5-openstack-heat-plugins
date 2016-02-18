@@ -1,0 +1,89 @@
+sys application template f5.lab_1 {
+    actions {
+        definition {
+            html-help {
+
+
+This is a placeholder for lab_1 help.
+
+            } 
+            implementation {
+tmsh::log_dest file
+tmsh::log_level crit
+
+
+puts " "
+puts " "
+puts "Starting the Lab 1 template."
+puts " "
+
+puts "The first string input |$::some_variables__string_input_one|"
+puts "the drop-down choice |$::some_variables__drop_down|"
+puts "The multichoice |$::some_variables__multi|"
+puts "The name/value pairs |$::some_variables__name_value_pairs|"
+if { $::some_variables__more_input == "Yes" } {
+    puts "The second string input |$::some_variables__string_input_two|"
+}
+
+puts " "
+puts "Ending the Lab 1 template."
+puts " "
+
+            }
+            presentation {
+include "/Common/f5.apl_common"
+
+section hello_world {
+    message hello "Hello World!"
+}
+section some_variables {
+    string string_input_one
+    choice drop_down { 
+        "choice 1", 
+        "choice 2" 
+    }
+    multichoice multi { 
+        "Option 1", 
+        "Option 2", 
+        "Bonus Option", 
+        "Yet Another Option" 
+    }
+    table name_value_pairs {
+        string name
+        string value
+    }
+    multichoice multi_2 {
+        "Test A",
+        "Test B",
+        "Test C"
+    }
+    table table2 {
+        string city
+        string state
+    }
+    noyes more_input
+    optional ( more_input == "Yes" ) {
+        string string_input_two
+    }
+}
+
+text {
+    hello_world "Greeting the World"
+    hello_world.hello "I say:"
+    
+    some_variables "Some Input Fields"
+    some_variables.string_input_one    "Enter a string value."
+    some_variables.drop_down "Select a value."
+    some_variables.multi "Select one or more values."    
+    some_variables.name_value_pairs    "Enter a list of name/value pairs"    
+    some_variables.name_value_pairs.name "name"    
+    some_variables.name_value_pairs.value "value"
+    some_variables.more_input "Do you want to enter another string?"
+    some_variables.string_input_two "Enter another string."
+}
+
+            }
+            role-acl { admin manager resource-admin }
+        }
+    }
+}

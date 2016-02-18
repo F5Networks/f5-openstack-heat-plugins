@@ -1,0 +1,71 @@
+sys application template f5.lab_2 {
+    actions {
+        definition {
+            html-help {
+
+
+This is a placeholder for lab_2 help.
+
+            } 
+            implementation {
+tmsh::log_dest file
+tmsh::log_level crit
+
+tmsh::include "my_app_utils"
+
+set ADDR_FIELD "addr"
+set PORT_FIELD "port"
+set RATIO_FIELD "ratio"
+set CONNECTION_LIMIT_FIELD "connection_limit"
+set EMPTY_STRING "EMPTY_STRING_NO_VALUE_PRESENT"
+
+puts " "
+puts " "
+puts "Starting the Lab 2 template."
+puts " "
+
+
+if { $::virtual__attach_pool == "Yes" } {
+    set pool_name [tmsh::run_proc my_app_utils:create_pool \
+        $tmsh::app_name none "\{$::pool__servers\}" $::pool__lb ]
+} else {
+    set pool_name none
+}
+
+
+set destination $::virtual__vs_info__ip:$::virtual__vs_info__port
+tmsh::run_proc my_app_utils:create_http_vs $tmsh::app_name \
+    $destination automap $pool_name http $::EMPTY_STRING tcp tcp
+ 
+puts " "
+puts "Ending the Lab 2 template."
+puts " "
+
+            }
+            presentation {
+include "/Common/my_apl_common"
+
+section virtual {
+    ip_and_port vs_info
+    yesno attach_pool
+}
+optional ( virtual.attach_pool == "Yes" ) {
+    section pool {
+        lb_method lb
+        simple_pool_members servers
+    }
+}
+text {
+    virtual "Virtual Server Questions"
+    virtual.vs_info "Enter an IP address and port for the virtual server."
+    virtual.attach_pool "Do you want a pool?"
+    pool "Pool Members"
+    pool.lb "What load balancing method do you want to use?"
+    pool.servers "Enter the IP address and port info for the servers in this pool."
+}
+
+            }
+            role-acl { admin manager resource-admin }
+        }
+    }
+}

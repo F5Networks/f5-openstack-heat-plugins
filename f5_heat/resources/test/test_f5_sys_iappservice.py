@@ -33,11 +33,17 @@ resources:
       ip: 10.0.0.1
       username: admin
       password: admin
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      bigip_server: bigip_rsrc
+      name: Common
   iapp_service:
     type: F5::Sys::iAppService
     properties:
       name: testing_service
       bigip_server: bigip_rsrc
+      partition: partition
       template_name: testing_template
       variables: '{"good": "json"}'
 '''
@@ -97,8 +103,9 @@ resources:
 
 iapp_service_dict = {
     'name': u'testing_service',
-    'template': '/Common/testing_template',
-    'variables': {u'good': u'json'}
+    'template': 'testing_template',
+    'variables': {u'good': u'json'},
+    'partition': 'Common'
 }
 
 
@@ -138,24 +145,30 @@ def F5SysiAppService():
     '''Instantiate the F5SysiAppService resource.'''
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
+    mock_stack = mock.MagicMock()
+    mock_stack.resource_by_refid().get_partition_name.return_value = 'Common'
     return f5_sys_iappservice.F5SysiAppService(
-        "testing_service", rsrc_def, mock.MagicMock()
+        "testing_service", rsrc_def, mock_stack
     )
 
 
 @pytest.fixture
 def CreateServiceSideEffect(F5SysiAppService):
     F5SysiAppService.get_bigip()
-    F5SysiAppService.bigip.iapp.create_service.side_effect = \
-        Exception()
+    F5SysiAppService.bigip.sys.applications.services.service.create.\
+        side_effect = Exception()
     return F5SysiAppService
 
 
 @pytest.fixture
 def DeleteServiceSideEffect(F5SysiAppService):
     F5SysiAppService.get_bigip()
-    F5SysiAppService.bigip.iapp.delete_service.side_effect = \
-        Exception()
+    F5SysiAppService.bigip.sys.applications.services.service.load.\
+        side_effect = exception.ResourceFailure(
+            mock.MagicMock(),
+            None,
+            action='Delete'
+        )
     return F5SysiAppService
 
 # Tests
@@ -164,10 +177,9 @@ def DeleteServiceSideEffect(F5SysiAppService):
 def test_handle_create(F5SysiAppService):
     create_result = F5SysiAppService.handle_create()
     assert create_result is None
-    assert F5SysiAppService.bigip.iapp.create_service.call_args == \
-        mock.call(
-            name=u'testing_service',
-            service=iapp_service_dict
+    assert F5SysiAppService.bigip.sys.applications.services.service.create.\
+        call_args == mock.call(
+            **iapp_service_dict
         )
 
 
@@ -180,8 +192,8 @@ def test_handle_create_error(CreateServiceSideEffect):
 def test_handle_delete(F5SysiAppService):
     delete_result = F5SysiAppService.handle_delete()
     assert delete_result is None
-    assert F5SysiAppService.bigip.iapp.delete_service.call_args == \
-        mock.call(name=u'testing_service')
+    assert F5SysiAppService.bigip.sys.applications.services.service.load.\
+        call_args == mock.call(name=u'testing_service', partition='Common')
 
 
 def test_handle_delete_error(DeleteServiceSideEffect):

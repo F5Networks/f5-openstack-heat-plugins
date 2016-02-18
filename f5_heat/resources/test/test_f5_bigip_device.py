@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5.bigip.bigip import BigIP
+from f5.bigip import BigIP
 from f5_heat.resources import f5_bigip_device
 from heat.common import exception
 from heat.common import template_format
@@ -120,7 +120,6 @@ def test_handle_delete(F5BigIP):
     assert hasattr(F5BigIP, 'bigip')
     delete_result = F5BigIP.handle_delete()
     assert delete_result is None
-    assert not hasattr(F5BigIP, 'bigip')
 
 
 def test_bigip_getter(F5BigIP):

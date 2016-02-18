@@ -60,6 +60,7 @@ resources:
       password: { get_param: bigip_pw }
   test_partition:
     type: F5::Sys::Partition
+    depends_on: bigip_rsrc
     properties:
       name: test_part
       bigip_server: { get_resource: bigip_rsrc }

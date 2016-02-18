@@ -103,7 +103,7 @@ resources:
 
 iapp_service_dict = {
     'name': u'testing_service',
-    'template': '/Common/testing_template',
+    'template': 'testing_template',
     'variables': {u'good': u'json'},
     'partition': 'Common'
 }
@@ -145,8 +145,10 @@ def F5SysiAppService():
     '''Instantiate the F5SysiAppService resource.'''
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
+    mock_stack = mock.MagicMock()
+    mock_stack.resource_by_refid().get_partition_name.return_value = 'Common'
     return f5_sys_iappservice.F5SysiAppService(
-        "testing_service", rsrc_def, mock.MagicMock()
+        "testing_service", rsrc_def, mock_stack
     )
 
 

@@ -34,11 +34,17 @@ resources:
       ip: 10.0.0.1
       username: admin
       password: admin
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      name: Common
+      bigip_server: bigip_rsrc
   vs:
     type: F5::LTM::VirtualServer
     properties:
       name: testing_vs
       bigip_server: bigip_rsrc
+      partition: partition
       ip: 129.0.0.1
       port: 80
       default_pool: test_pool
@@ -54,12 +60,17 @@ resources:
     properties:
       ip: 10.0.0.1
       username: admin
-      password: admin
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      name: Common
+      bigip_server: bigip_rsrc
   vs:
     type: F5::LTM::VirtualServer
     properties:
       name: testing_vs
       bad_prop: bad_prop_name
+      partition: partition
       bigip_server: bigip_rsrc
       ip: 129.0.0.1
       port: 80
@@ -99,8 +110,10 @@ def F5LTMVirtualServer():
     '''Instantiate the F5SysiAppService resource.'''
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
+    mock_stack = mock.MagicMock()
+    mock_stack.resource_by_refid().get_partition_name.return_value = 'Common'
     f5_vs_obj = f5_ltm_virtualserver.F5LTMVirtualServer(
-        'testing_vs', rsrc_def, mock.MagicMock()
+        'testing_vs', rsrc_def, mock_stack
     )
     f5_vs_obj.uuid = test_uuid
     return f5_vs_obj

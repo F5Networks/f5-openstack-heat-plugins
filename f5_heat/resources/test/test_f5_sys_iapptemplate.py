@@ -28,23 +28,29 @@ iapp_composite_template_defn = '''
 heat_template_version: 2015-04-30
 description: Testing iAppTemplate plugin
 resources:
-    bigip_rsrc:
-        type: F5::BigIP::Device
-        properties:
-            ip: 10.0.0.1
-            username: admin
-            password: admin
-    iapp_template:
-        type: F5::Sys::iAppTemplate
-        depends_on: bigip_rsrc
-        properties:
-          name: testing_template
-          bigip_server: bigip_rsrc
-          composite_template:
-            requires_modules: [ ltm ]
-            implementation: hello
-            presentation: hello
-            role-acl: [ admin, user ]
+  bigip_rsrc:
+    type: F5::BigIP::Device
+    properties:
+      ip: 10.0.0.1
+      username: admin
+      password: admin
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      name: Common
+      bigip_server: bigip_rsrc
+  iapp_template:
+    type: F5::Sys::iAppTemplate
+    depends_on: bigip_rsrc
+    properties:
+      name: testing_template
+      bigip_server: bigip_rsrc
+      partition: partition
+      composite_template:
+        requires_modules: [ ltm ]
+        implementation: hello
+        presentation: hello
+        role-acl: [ admin, user ]
 '''
 
 iapp_full_template_defn = '''
@@ -52,29 +58,34 @@ heat_template_version: 2015-04-30
 description: Testing iAppTemplate plugin
 resources:
     bigip_rsrc:
-        type: F5::BigIP::Device
-        properties:
-            ip: 10.0.0.1
-            username: admin
-            password: admin
+      type: F5::BigIP::Device
+      properties:
+        ip: 10.0.0.1
+        username: admin
+    partition:
+      type: F5::Sys::Partition
+      properties:
+        name: Common
+        bigip_server: bigip_rsrc
     iapp_template:
-        type: F5::Sys::iAppTemplate
-        depends_on: bigip_rsrc
-        properties:
-          name: testing_template
-          bigip_server: bigip_rsrc
-          full_template: |
-            sys application template testing_template {
-                actions replace-all-with {
-                    definition {
-                        implementation {hello}
-                        presentation {hello}
-                        role-acl { admin user }
-                    }
-                }
-                requires-modules { ltm }
-                partition Common
+      type: F5::Sys::iAppTemplate
+      depends_on: bigip_rsrc
+      properties:
+        name: testing_template
+        bigip_server: bigip_rsrc
+        partition: partition
+        full_template: |
+          sys application template testing_template {
+            actions replace-all-with {
+              definition {
+                implementation {hello}
+                presentation {hello}
+                role-acl { admin user }
+              }
             }
+            requires-modules { ltm }
+            partition Common
+          }
 '''
 
 
@@ -82,59 +93,70 @@ iapp_composite_and_full_template_defn = '''
 heat_template_version: 2015-04-30
 description: Testing iAppTemplate plugin
 resources:
-    bigip_rsrc:
-        type: F5::BigIP::Device
-        properties:
-            ip: 10.0.0.1
-            username: admin
-            password: admin
-    iapp_template:
-        type: F5::Sys::iAppTemplate
-        depends_on: bigip_rsrc
-        properties:
-          name: testing_template
-          bigip_server: bigip_rsrc
-          full_template: |
-            sys application template testing_template {
-                actions replace-all-with {
-                    definition {
-                        implementation {hello}
-                        presentation {hello}
-                        role-acl {admin user}
-                    }
-                }
-                requires-modules { ltm }
-                partition Common
+  bigip_rsrc:
+    type: F5::BigIP::Device
+    properties:
+      ip: 10.0.0.1
+      username: admin
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      name: Common
+      bigip_server: bigip_rsrc
+  iapp_template:
+    type: F5::Sys::iAppTemplate
+    depends_on: bigip_rsrc
+    properties:
+      name: testing_template
+      partition: partition
+      bigip_server: bigip_rsrc
+      full_template: |
+        sys application template testing_template {
+          actions replace-all-with {
+            definition {
+              implementation {hello}
+              presentation {hello}
+              role-acl {admin user}
             }
-          composite_template:
-            requires_modules: [ ltm ]
-            implementation: hello
-            presentation: hello
-            role-acl: [admin, user]
+          }
+          requires-modules { ltm }
+          partition Common
+        }
+      composite_template:
+        requires_modules: [ ltm ]
+        implementation: hello
+        presentation: hello
+        role-acl: [admin, user]
 '''
 
 bad_iapp_template_defn = '''
 heat_template_version: 2015-04-30
 description: Testing iAppTemplate plugin
 resources:
-    bigip_rsrc:
-        type: F5::BigIP
-        properties:
-            ip: 10.0.0.1
-            username: admin
-            password: admin
-    iapp_template:
-        type: F5::Sys::iAppTemplate
-        depends_on: bigip_rsrc
-        properties:
-          name: testing_template
-          bigip_server: bigip_rsrc
-          composite_template:
-            requires_modules: not_a_list
-            bad_iplementation: |
-              hello
-            presentation: |
-              hello
+  bigip_rsrc:
+    type: F5::BigIP
+    properties:
+      ip: 10.0.0.1
+      username: admin
+      password: admin
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      name: Common
+      bigip_server: bigip_rsrc
+  iapp_template:
+    type: F5::Sys::iAppTemplate
+    depends_on: bigip_rsrc
+    properties:
+      name: testing_template
+      partition: partition
+      bigip_server: bigip_rsrc
+      composite_template:
+        requires_modules: not_a_list
+        bad_iplementation: |
+          hello
+        presentation: |
+          hello
 '''
 
 iapp_actions_dict = {
@@ -185,8 +207,10 @@ def F5SysiAppTemplate():
     '''Instantiate the F5SysiAppTemplate resource.'''
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
+    mock_stack = mock.MagicMock()
+    mock_stack.resource_by_refid().get_partition_name.return_value = 'Common'
     return f5_sys_iapptemplate.F5SysiAppTemplate(
-        "iapp_template", rsrc_def, mock.MagicMock()
+        "iapp_template", rsrc_def, mock_stack
     )
 
 

@@ -62,11 +62,18 @@ resources:
       ip: { get_param: ve_instance }
       username: { get_param: bigip_un }
       password: { get_param: bigip_pw }
-  virtual_server:
-    type: F5::LTM::VirtualServer
+  partition:
+    type: F5::Sys::Partition
     depends_on: bigip_rsrc
     properties:
+      name: Common
       bigip_server: { get_resource: bigip_rsrc }
+  virtual_server:
+    type: F5::LTM::VirtualServer
+    depends_on: [bigip_rsrc, partition]
+    properties:
+      bigip_server: { get_resource: bigip_rsrc }
+      partition: { get_resource: partition }
       name: { get_param: vs_name }
       ip: { get_param: vs_ip }
       port: { get_param: vs_port }

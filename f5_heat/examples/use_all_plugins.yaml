@@ -97,19 +97,33 @@ resources:
       ip: { get_param: ve_instance2 }
       username: { get_param: bigip_un }
       password: { get_param: bigip_pw }
-  virtual_server:
-    type: F5::LTM::VirtualServer
+  partition1:
+    type: F5::Sys::Partition
     depends_on: bigip1
     properties:
+      name: Common
       bigip_server: { get_resource: bigip1 }
+  partition2:
+    type: F5::Sys::Partition
+    depends_on: bigip2
+    properties:
+      name: Common
+      bigip_server: { get_resource: bigip2 }
+  virtual_server:
+    type: F5::LTM::VirtualServer
+    depends_on: [bigip1, partition1]
+    properties:
+      bigip_server: { get_resource: bigip1 }
+      partition: { get_resource: partition1 }
       name: { get_param: vs_name }
       ip: { get_param: vs_ip }
       port: { get_param: vs_port }
   pool1:
     type: F5::LTM::Pool
-    depends_on: bigip1
+    depends_on: [bigip1, partition1]
     properties:
       bigip_server: { get_resource: bigip1 }
+      partition: { get_resource: partition1 }
       name: { get_param: pool1_name }
       members:
         - member_ip: 140.0.0.3
@@ -118,26 +132,29 @@ resources:
           member_port: 80
   pool2:
     type: F5::LTM::Pool
-    depends_on: bigip2
+    depends_on: [bigip2, partition2]
     properties:
       bigip_server: { get_resource: bigip2 }
+      partition: { get_resource: bigip2 }
       name: { get_param: pool2_name }
       members:
         - member_ip: 150.0.0.1
           member_port: 8080
   iapp_service:
     type: F5::Sys::iAppService
-    depends_on: iapp_template
+    depends_on: [iapp_template, partition1]
     properties:
       name: { get_param: iapp_service_name }
       bigip_server: { get_resource: bigip1 }
+      partition: { get_resource: partition1 }
       template_name: { get_param: iapp_template_name }
   iapp_template:
     type: F5::Sys::iAppTemplate
-    depends_on: bigip1
+    depends_on: [bigip1, partition1]
     properties:
       name: { get_param: iapp_template_name }
       bigip_server: { get_resource: bigip1 }
+      partition: { get_resource: partition1 }
       composite_template:
         requires_modules: [ ltm ]
         implementation: |

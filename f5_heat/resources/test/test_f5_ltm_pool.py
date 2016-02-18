@@ -34,11 +34,17 @@ resources:
       ip: 10.0.0.1
       username: admin
       password: admin
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      name: Common
+      bigip_server: bigip_rsrc
   pool:
     type: F5::LTM::Pool
     properties:
       name: testing_pool
       bigip_server: bigip_rsrc
+      partition: partition
       service_down_action: Reject
       members: [{'member_ip': '128.0.0.1', 'member_port': 80},
                {'member_ip': '129.0.0.1', 'member_port': 80}]
@@ -54,10 +60,16 @@ resources:
       ip: 10.0.0.1
       username: admin
       password: admin
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      name: Common
+      bigip_server: bigip_rsrc
   pool:
     type: F5::LTM::Pool
     properties:
       name: testing_pool
+      partition: partition
       bad_prop: bad_prop_name
       bigip_server: bigip_rsrc
       members: [{'member_ip': '128.0.0.1','member_port': 80},
@@ -98,8 +110,10 @@ def F5LTMPool():
     '''Instantiate the F5SysiAppService resource.'''
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
+    mock_stack = mock.MagicMock()
+    mock_stack.resource_by_refid().get_partition_name.return_value = 'Common'
     f5_pool_obj = f5_ltm_pool.F5LTMPool(
-        'testing_pool', rsrc_def, mock.MagicMock()
+        'testing_pool', rsrc_def, mock_stack
     )
     f5_pool_obj.uuid = test_uuid
     return f5_pool_obj

@@ -45,6 +45,5 @@ class F5BigIPMixin(object):
         '''
 
         refid = self.properties[self.PARTITION]
-        self.partition_name = self.stack.resource_by_refid(
-            refid
-        ).get_partition_name()
+        self.partition_name = \
+            self.stack.resource_by_refid(refid).get_partition_name()

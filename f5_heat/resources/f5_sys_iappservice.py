@@ -88,7 +88,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         '''Call super and validate answer properties.'''
         super(F5SysiAppService, self).__init__(name, defn, stack)
 
-        self.iapp_answers_from_heat = {}
+        self.iapp_answers_from_hot = {}
         for prop in [self.VARIABLES, self.LISTS, self.TABLES]:
             if self.properties[prop] is not None:
                 self._check_iapp_answers(prop)
@@ -101,7 +101,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         '''
 
         try:
-            self.iapp_answers_from_heat[prop_name] = json.loads(
+            self.iapp_answers_from_hot[prop_name] = json.loads(
                 self.properties[prop_name]
             )
         except Exception:
@@ -117,7 +117,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
             'name': self.properties[self.NAME],
             'template': self.properties[self.TEMPLATE_NAME]
         }
-        service_dict.update(self.iapp_answers_from_heat)
+        service_dict.update(self.iapp_answers_from_hot)
         return service_dict
 
     @f5_common_resources

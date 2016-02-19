@@ -42,7 +42,40 @@ templates.  An example use of one of the objects is below.
 
 .. code:: yaml
 
-    TODO: Have Paul add his simple example here
+    resources:
+      # The first two resources defined here are requirements for deploying
+      # any object on the BigIP VE. The F5::BigIP::Device allows access and
+      # authentication to the BigIP on which an object will be configured.
+      # The F5::Sys::Partition resource places a particular object in the
+      # partition given. These two requirements will be linked with the obects
+      # we intend to configure (iAppTemplate, iAppService) by calling the
+      # 'get_resource' intrinsic function.
+      bigip:
+        type: F5::BigIP::Device
+        properties:
+          ip: 10.0.0.1 # All properties can be passed in as parameters
+          username: admin
+          password: admin # The password can be passed in as a hidden field
+      partition:
+        type: F5::Sys::Partition
+        properties:
+          name: Common # Put these objects in the existing Common partition
+          bigip_server: { get_resource: bigip } # Create dependency on bigip
+      iapp_template:
+        type: F5::Sys::iAppTemplate
+        properties:
+          name: test_template
+          bigip_server: { get_resource: bigip } # Depends on bigip resource
+          partition: { get_resource: partition} # Depends on partition as well
+          full_template:
+            get_file: iapps/full_template.tmpl
+      iapp_service:
+        type: F5::Sys::iAppService
+        properties:
+          name: test_service
+          bigip_server: { get_resource: bigip }
+          partition: { get_resource: partition }
+          template_name: test_template # Matches name in template resource
 
 API Documentation
 -----------------

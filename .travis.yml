@@ -8,7 +8,6 @@ before_install:
     - sudo apt-get -qq update
     - git config --global user.email "OpenStack_TravisCI@f5.com"
     - git config --global user.name "Travis F5 Openstack"
-    - git fetch --depth=100
     - sudo apt-get -y install build-essential libssl-dev libffi-dev python-dev
     - git clone -b stable/kilo https://github.com/openstack/heat.git ~/heat
 install:

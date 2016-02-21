@@ -8,7 +8,7 @@ f5-openstack-heat-plugins
 
 Introduction
 ------------
-This repository houses all of F5's Openstack Heat resource plugins. F5's
+This repository houses all of F5's OpenStack Heat resource plugins. F5's
 Heat plugins can be used to orchestrate BIG-IP services in your
 OpenStack environment.
 

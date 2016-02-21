@@ -1,6 +1,10 @@
 f5-openstack-heat-plugins
 =========================
-|Build Status|
+.. image:: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins.svg?branch=kilo
+    :target: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins
+
+.. image:: https://readthedocs.org/projects/f5-openstack-heat-plugins/badge/?version=kilo
+    :target: http://f5-openstack-heat-plugins.readthedocs.org/en/latest/?badge=kilo
 
 Introduction
 ------------
@@ -179,6 +183,3 @@ have completed and submitted the `F5 Contributor License
 Agreement <http://f5-openstack-docs.readthedocs.org/en/latest/cla_landing.html>`__
 to Openstack_CLA@f5.com prior to their code submission being included in this
 project.
-
-.. |Build Status| image:: https://travis-ci.com/F5Networks/f5-openstack-heat-plugins.svg?token=9DzDpZ48B74dRXvdFxM2&branch=master
-   :target: https://travis-ci.com/F5Networks/f5-openstack-heat-plugins

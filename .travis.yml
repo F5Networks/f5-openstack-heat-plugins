@@ -13,14 +13,24 @@ before_install:
     - git clone -b stable/kilo https://github.com/openstack/heat.git ~/heat
 install:
     - pip install -r requirements.test.txt
-    - pip install -r ~/f5-common-python/requirements.test.txt
     - pip install -r ~/heat/requirements.txt
 script:
     - flake8 f5_heat/resources/
     - py.test f5_heat/resources/test --cov=f5_heat/resources
+    - python setup.py sdist
     - cd docs
     - make html
     - cd ../
+deploy:
+  provider: pypi
+  user: $PYPI_USER
+  password: $PYPI_PASSWORD
+  server: https://pypi.python.org/pypi
+  on:
+     all_branches: true
+     tags: true
+     python: 2.7
+  skip_cleanup: true
 notifications:
     slack:
       rooms:

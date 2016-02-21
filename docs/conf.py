@@ -22,8 +22,8 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('.'))
 
-from f5_heat import __version__ as VERSION
 from f5_heat import __openstackrelease__ as OPENSTACK_RELEASE
+from f5_heat import __version__ as VERSION
 
 # -- General configuration ------------------------------------------------
 

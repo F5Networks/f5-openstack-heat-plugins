@@ -12,7 +12,7 @@ Releases and Versions
 |release| supports the OpenStack |openstack_release| release.
 
 For more information about F5 Networks's OpenStack versioning and a support
-matrix please see `F5 Networks OpenStack Support Matrix <https://F5Networks.github.io/f5-openstack-docs>`__.
+matrix please see `F5 Networks OpenStack Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`__.
 
 Installation
 ------------
@@ -86,7 +86,7 @@ Contributor License Agreement
 
 Individuals or business entities who contribute to this project must
 have completed and submitted the `F5 Contributor License
-Agreement <http://f5networks.github.io/f5-openstack-docs/cla_landing/index.html>`__
+Agreement <http://f5-openstack-docs.readthedocs.org/en/latest/cla_landing.html>`__
 to Openstack_CLA@f5.com prior to their code submission being included in this
 project.
 

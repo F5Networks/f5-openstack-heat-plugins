@@ -141,14 +141,19 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
         :raises: ResourceFailure
         '''
 
-        try:
-            loaded_pool = self.bigip.ltm.pools.pool.load(
+        if self.bigip.ltm.pools.pool.exists(
                 name=self.properties[self.NAME],
                 partition=self.partition_name
-            )
-            loaded_pool.delete()
-        except Exception as ex:
-            raise exception.ResourceFailure(ex, None, action='DELETE')
+        ):
+            try:
+                loaded_pool = self.bigip.ltm.pools.pool.load(
+                    name=self.properties[self.NAME],
+                    partition=self.partition_name
+                )
+                loaded_pool.delete()
+            except Exception as ex:
+                raise exception.ResourceFailure(ex, None, action='DELETE')
+        return True
 
 
 def resource_mapping():

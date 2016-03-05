@@ -91,14 +91,19 @@ class F5SysPartition(resource.Resource, F5BigIPMixin):
 
         :raises: ResourceFailure exception
         '''
-        if self.properties[self.NAME] != 'Common':
-            try:
-                loaded_partition = self.bigip.sys.folders.folder.load(
-                    name=self.properties[self.NAME]
-                )
-                loaded_partition.delete()
-            except Exception as ex:
-                raise exception.ResourceFailure(ex, None, action='DELETE')
+
+        if self.bigip.sys.folders.folder.exists(
+                name=self.properties[self.NAME]
+        ):
+            if self.properties[self.NAME] != 'Common':
+                try:
+                    loaded_partition = self.bigip.sys.folders.folder.load(
+                        name=self.properties[self.NAME]
+                    )
+                    loaded_partition.delete()
+                except Exception as ex:
+                    raise exception.ResourceFailure(ex, None, action='DELETE')
+        return True
 
 
 def resource_mapping():

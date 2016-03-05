@@ -143,15 +143,20 @@ class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
         :raises: ResourceFailure
         '''
 
-        try:
-            loaded_template = self.bigip.sys.applications.templates.template.\
-                load(
-                    name=self.properties[self.NAME],
-                    partition=self.partition_name
-                )
-            loaded_template.delete()
-        except Exception as ex:
-            raise exception.ResourceFailure(ex, None, action='DELETE')
+        if self.bigip.sys.applications.templates.template.exists(
+                name=self.properties[self.NAME],
+                partition=self.partition_name
+        ):
+            try:
+                loaded_template = self.bigip.sys.applications.templates.template.\
+                    load(
+                        name=self.properties[self.NAME],
+                        partition=self.partition_name
+                    )
+                loaded_template.delete()
+            except Exception as ex:
+                raise exception.ResourceFailure(ex, None, action='DELETE')
+        return True
 
 
 def resource_mapping():

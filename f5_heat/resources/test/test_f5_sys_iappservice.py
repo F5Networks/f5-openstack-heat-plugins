@@ -155,6 +155,24 @@ def F5SysiAppService():
 
 
 @pytest.fixture
+def F5SysiAppServiceExists(F5SysiAppService):
+    F5SysiAppService.get_bigip()
+    mock_exists = mock.MagicMock(return_value=True)
+    F5SysiAppService.bigip.sys.applications.services.service.exists = \
+        mock_exists
+    return F5SysiAppService
+
+
+@pytest.fixture
+def F5SysiAppServiceNoExists(F5SysiAppService):
+    F5SysiAppService.get_bigip()
+    mock_exists = mock.MagicMock(return_value=False)
+    F5SysiAppService.bigip.sys.applications.services.service.exists = \
+        mock_exists
+    return F5SysiAppService
+
+
+@pytest.fixture
 def CreateServiceSideEffect(F5SysiAppService):
     F5SysiAppService.get_bigip()
     F5SysiAppService.bigip.sys.applications.services.service.create.\
@@ -191,11 +209,14 @@ def test_handle_create_error(CreateServiceSideEffect):
         CreateServiceSideEffect.handle_create()
 
 
-def test_handle_delete(F5SysiAppService):
-    delete_result = F5SysiAppService.handle_delete()
-    assert delete_result is None
-    assert F5SysiAppService.bigip.sys.applications.services.service.load.\
+def test_handle_delete(F5SysiAppServiceExists):
+    assert F5SysiAppServiceExists.handle_delete() is True
+    assert F5SysiAppServiceExists.bigip.sys.applications.services.service.load.\
         call_args == mock.call(name=u'testing_service', partition='Common')
+
+
+def test_handle_delete_no_exists(F5SysiAppServiceNoExists):
+    assert F5SysiAppServiceNoExists.handle_delete() is True
 
 
 def test_handle_delete_error(DeleteServiceSideEffect):

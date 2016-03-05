@@ -154,6 +154,26 @@ def F5SysiAppTemplate():
 
 
 @pytest.fixture
+def F5SysiAppTemplateExists(F5SysiAppTemplate):
+    '''Instantiate the F5SysiAppTemplate resource.'''
+    F5SysiAppTemplate.get_bigip()
+    mock_exists = mock.MagicMock(return_value=True)
+    F5SysiAppTemplate.bigip.sys.applications.templates.template.exists = \
+        mock_exists
+    return F5SysiAppTemplate
+
+
+@pytest.fixture
+def F5SysiAppTemplateNoExists(F5SysiAppTemplate):
+    '''Instantiate the F5SysiAppTemplate resource.'''
+    F5SysiAppTemplate.get_bigip()
+    mock_exists = mock.MagicMock(return_value=False)
+    F5SysiAppTemplate.bigip.sys.applications.templates.template.exists = \
+        mock_exists
+    return F5SysiAppTemplate
+
+
+@pytest.fixture
 def CreateTemplateSideEffect(F5SysiAppTemplate):
     F5SysiAppTemplate.get_bigip()
     F5SysiAppTemplate.bigip.sys.applications.templates.template.create.\
@@ -192,11 +212,15 @@ def test_handle_create_error(CreateTemplateSideEffect):
         CreateTemplateSideEffect.handle_create()
 
 
-def test_handle_delete(F5SysiAppTemplate):
-    delete_result = F5SysiAppTemplate.handle_delete()
-    assert delete_result is None
-    assert F5SysiAppTemplate.bigip.sys.applications.templates.template.load.\
+def test_handle_delete(F5SysiAppTemplateExists):
+    delete_result = F5SysiAppTemplateExists.handle_delete()
+    assert delete_result is True
+    assert F5SysiAppTemplateExists.bigip.sys.applications.templates.template.load.\
         call_args == mock.call(name='testing_template', partition='Common')
+
+
+def test_handle_delete_no_exists(F5SysiAppTemplateNoExists):
+    assert F5SysiAppTemplateNoExists.handle_delete() is True
 
 
 def test_handle_delete_error(DeleteTemplateSideEffect):

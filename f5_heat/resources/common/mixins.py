@@ -18,7 +18,7 @@ def f5_common_resources(func):
     def func_wrapper(self, *args, **kwargs):
         self.get_bigip()
         self.set_partition_name()
-        func(self, *args, **kwargs)
+        return func(self, *args, **kwargs)
     return func_wrapper
 
 

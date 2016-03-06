@@ -20,37 +20,24 @@ from heat.engine import resource
 
 from common.mixins import f5_common_resources
 from common.mixins import F5BigIPMixin
-from f5.common.iapp_parser import IappParser
 
 
-class IappTemplateStackValidationFailed(exception.StackValidationFailed):
-    pass
-
-
-class F5SysiAppTemplate(F5BigIPMixin, resource.Resource):
+class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
     '''Manages creation of an iApp resource on the BigIP device.'''
 
     PROPERTIES = (
         NAME,
         BIGIP_SERVER,
         PARTITION,
-        COMPOSITE_TEMPLATE,
-        FULL_TEMPLATE
-    ) = (
-        'name',
-        'bigip_server',
-        'partition',
-        'composite_template',
-        'full_template'
-    )
-
-    _COMPOSITE_TEMPLATE_PROPERITES = (
         REQUIRES_MODULES,
         IMPLEMENTATION,
         PRESENTATION,
         HELP,
         ROLE_ACL
     ) = (
+        'name',
+        'bigip_server',
+        'partition',
         'requires_modules',
         'implementation',
         'presentation',
@@ -74,49 +61,29 @@ class F5SysiAppTemplate(F5BigIPMixin, resource.Resource):
             _('Partition resource reference.'),
             required=True
         ),
-        COMPOSITE_TEMPLATE: properties.Schema(
-            properties.Schema.MAP,
-            _('Parts of the template to create. The necessary minimum is: '
-              'implementation and presentation.'),
-            required=False,
-            schema={
-                REQUIRES_MODULES: properties.Schema(
-                    properties.Schema.LIST,
-                    _('Modules required for this iApp Template.')
-                ),
-                IMPLEMENTATION: properties.Schema(
-                    properties.Schema.STRING,
-                    _('Implementation section of the template.'),
-                    required=True
-                ),
-                PRESENTATION: properties.Schema(
-                    properties.Schema.STRING,
-                    _('Presentation section of the template.'),
-                    required=True
-                ),
-                HELP: properties.Schema(
-                    properties.Schema.STRING,
-                    _('Help section of the template.')
-                ),
-                ROLE_ACL: properties.Schema(
-                    properties.Schema.LIST,
-                    _('Access control list roles as string.')
-                )
-            }
+        REQUIRES_MODULES: properties.Schema(
+            properties.Schema.LIST,
+            _('Modules required for this iApp Template.')
         ),
-        FULL_TEMPLATE: properties.Schema(
+        IMPLEMENTATION: properties.Schema(
             properties.Schema.STRING,
-            _('Full iapp template string.')
+            _('Implementation section of the template.'),
+            required=True
+        ),
+        PRESENTATION: properties.Schema(
+            properties.Schema.STRING,
+            _('Presentation section of the template.'),
+            required=True
+        ),
+        HELP: properties.Schema(
+            properties.Schema.STRING,
+            _('Help section of the template.')
+        ),
+        ROLE_ACL: properties.Schema(
+            properties.Schema.LIST,
+            _('Access control list roles as string.')
         )
     }
-
-    def __init__(self, name, definition, stack):
-        super(F5SysiAppTemplate, self).__init__(name, definition, stack)
-        if self.properties[self.FULL_TEMPLATE]:
-            if self.properties[self.COMPOSITE_TEMPLATE]:
-                message = _('Full template and composite template cannot both '
-                            'be defined in an F5::Sys::iAppTemplate resource.')
-                raise IappTemplateStackValidationFailed(message)
 
     def _add_optional_attr(self, iapp_dict):
         '''When building the iapp dictionary, add optional items.
@@ -125,13 +92,13 @@ class F5SysiAppTemplate(F5BigIPMixin, resource.Resource):
         :returns: possibly modified dictionary
         '''
 
-        if self.properties[self.COMPOSITE_TEMPLATE][self.REQUIRES_MODULES]:
+        if self.properties[self.REQUIRES_MODULES]:
             iapp_dict['requiresModules'] = \
-                self.properties[self.COMPOSITE_TEMPLATE][self.REQUIRES_MODULES]
+                self.properties[self.REQUIRES_MODULES]
 
-        if self.properties[self.COMPOSITE_TEMPLATE][self.ROLE_ACL]:
+        if self.properties[self.ROLE_ACL]:
             iapp_dict['actions']['definition']['roleAcl'] = \
-                self.properties[self.COMPOSITE_TEMPLATE][self.ROLE_ACL]
+                self.properties[self.ROLE_ACL]
 
         return iapp_dict
 
@@ -142,10 +109,8 @@ class F5SysiAppTemplate(F5BigIPMixin, resource.Resource):
         '''
 
         sections = {
-            'implementation': self.properties[
-                self.COMPOSITE_TEMPLATE][self.IMPLEMENTATION] or '',
-            'presentation': self.properties[
-                self.COMPOSITE_TEMPLATE][self.PRESENTATION] or ''
+            'implementation': self.properties[self.IMPLEMENTATION] or '',
+            'presentation': self.properties[self.PRESENTATION] or ''
         }
         definition = {'definition': sections}
         template = {
@@ -162,13 +127,8 @@ class F5SysiAppTemplate(F5BigIPMixin, resource.Resource):
         :raises: ResourceFailure
         '''
 
-        template_dict = {}
-        if self.properties[self.COMPOSITE_TEMPLATE]:
-            template_dict = self._build_iapp_dict()
-            template_dict['partition'] = self.partition_name
-        else:
-            parser = IappParser(self.properties[self.FULL_TEMPLATE])
-            template_dict = parser.parse_template()
+        template_dict = self._build_iapp_dict()
+        template_dict['partition'] = self.partition_name
 
         try:
             template = self.bigip.sys.applications.templates.template
@@ -195,4 +155,4 @@ class F5SysiAppTemplate(F5BigIPMixin, resource.Resource):
 
 
 def resource_mapping():
-    return {'F5::Sys::iAppTemplate': F5SysiAppTemplate}
+    return {'F5::Sys::iAppCompositeTemplate': F5SysiAppCompositeTemplate}

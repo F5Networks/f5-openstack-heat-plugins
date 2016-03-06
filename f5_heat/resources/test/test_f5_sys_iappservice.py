@@ -46,6 +46,7 @@ resources:
       partition: partition
       template_name: testing_template
       variables: '{"good": "json"}'
+      traffic_group: traffic_group
 '''
 
 bad_iapp_service_defn = '''
@@ -105,7 +106,8 @@ iapp_service_dict = {
     'name': u'testing_service',
     'template': 'testing_template',
     'variables': {u'good': u'json'},
-    'partition': 'Common'
+    'partition': 'Common',
+    'trafficGroup': 'traffic_group'
 }
 
 

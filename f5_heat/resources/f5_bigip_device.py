@@ -69,8 +69,10 @@ class F5BigIPDevice(resource.Resource):
         self.resource_id_set(self.physical_resource_name())
 
     def handle_delete(self):
-        '''Delete BigIP resource.'''
-        del self.bigip
+        '''Resource will be delete by resource.delete()'''
+
+        self.bigip = None
+        return True
 
 
 def resource_mapping():

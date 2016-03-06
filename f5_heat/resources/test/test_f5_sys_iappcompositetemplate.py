@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5_heat.resources import f5_sys_iapptemplate
+from f5_heat.resources import f5_sys_iappcompositetemplate
 from heat.common import exception
 from heat.common import template_format
 from heat.engine.hot.template import HOTemplate20150430
@@ -26,7 +26,7 @@ import pytest
 
 iapp_composite_template_defn = '''
 heat_template_version: 2015-04-30
-description: Testing iAppTemplate plugin
+description: Testing iAppCompositeTemplate plugin
 resources:
   bigip_rsrc:
     type: F5::BigIP::Device
@@ -40,94 +40,18 @@ resources:
       name: Common
       bigip_server: bigip_rsrc
   iapp_template:
-    type: F5::Sys::iAppTemplate
+    type: F5::Sys::iAppCompositeTemplate
     depends_on: bigip_rsrc
     properties:
       name: testing_template
       bigip_server: bigip_rsrc
       partition: partition
-      composite_template:
-        requires_modules: [ ltm ]
-        implementation: hello
-        presentation: hello
-        role-acl: [ admin, user ]
+      requires_modules: [ ltm ]
+      implementation: hello
+      presentation: hello
+      role-acl: [ admin, user ]
 '''
 
-iapp_full_template_defn = '''
-heat_template_version: 2015-04-30
-description: Testing iAppTemplate plugin
-resources:
-    bigip_rsrc:
-      type: F5::BigIP::Device
-      properties:
-        ip: 10.0.0.1
-        username: admin
-    partition:
-      type: F5::Sys::Partition
-      properties:
-        name: Common
-        bigip_server: bigip_rsrc
-    iapp_template:
-      type: F5::Sys::iAppTemplate
-      depends_on: bigip_rsrc
-      properties:
-        name: testing_template
-        bigip_server: bigip_rsrc
-        partition: partition
-        full_template: |
-          sys application template testing_template {
-            actions replace-all-with {
-              definition {
-                implementation {hello}
-                presentation {hello}
-                role-acl { admin user }
-              }
-            }
-            requires-modules { ltm }
-            partition Common
-          }
-'''
-
-
-iapp_composite_and_full_template_defn = '''
-heat_template_version: 2015-04-30
-description: Testing iAppTemplate plugin
-resources:
-  bigip_rsrc:
-    type: F5::BigIP::Device
-    properties:
-      ip: 10.0.0.1
-      username: admin
-  partition:
-    type: F5::Sys::Partition
-    properties:
-      name: Common
-      bigip_server: bigip_rsrc
-  iapp_template:
-    type: F5::Sys::iAppTemplate
-    depends_on: bigip_rsrc
-    properties:
-      name: testing_template
-      partition: partition
-      bigip_server: bigip_rsrc
-      full_template: |
-        sys application template testing_template {
-          actions replace-all-with {
-            definition {
-              implementation {hello}
-              presentation {hello}
-              role-acl {admin user}
-            }
-          }
-          requires-modules { ltm }
-          partition Common
-        }
-      composite_template:
-        requires_modules: [ ltm ]
-        implementation: hello
-        presentation: hello
-        role-acl: [admin, user]
-'''
 
 bad_iapp_template_defn = '''
 heat_template_version: 2015-04-30
@@ -151,12 +75,11 @@ resources:
       name: testing_template
       partition: partition
       bigip_server: bigip_rsrc
-      composite_template:
-        requires_modules: not_a_list
-        bad_iplementation: |
-          hello
-        presentation: |
-          hello
+      requires_modules: not_a_list
+      bad_iplementation: |
+        hello
+      presentation: |
+        hello
 '''
 
 iapp_actions_dict = {
@@ -209,7 +132,7 @@ def F5SysiAppTemplate():
     rsrc_def = create_resource_definition(template_dict)
     mock_stack = mock.MagicMock()
     mock_stack.resource_by_refid().get_partition_name.return_value = 'Common'
-    return f5_sys_iapptemplate.F5SysiAppTemplate(
+    return f5_sys_iappcompositetemplate.F5SysiAppCompositeTemplate(
         "iapp_template", rsrc_def, mock_stack
     )
 
@@ -240,47 +163,17 @@ def DeleteTemplateSideEffect(F5SysiAppTemplate):
 # Tests
 
 
-def test_handle_composite_create(F5SysiAppTemplate):
+def test_handle_create(F5SysiAppTemplate):
     create_result = F5SysiAppTemplate.handle_create()
     assert create_result is None
     assert F5SysiAppTemplate.bigip.sys.applications.templates.template.create.\
         call_args == mock.call(**iapp_actions_dict)
 
 
-def test_handle_full_create():
-    template_dict = mock_template(test_templ=iapp_full_template_defn)
-    rsrc_def = create_resource_definition(template_dict)
-    f5_sys_iapptemplate_obj = f5_sys_iapptemplate.F5SysiAppTemplate(
-        'test',
-        rsrc_def,
-        mock.MagicMock()
-    )
-    hc = f5_sys_iapptemplate_obj.handle_create()
-    assert hc is None
-    assert f5_sys_iapptemplate_obj.bigip.sys.applications.templates.template.\
-        create.call_args == mock.call(**iapp_actions_dict)
-
-
 def test_handle_create_error(CreateTemplateSideEffect):
     '''Currently, test exists to satisfy 100% code coverage.'''
     with pytest.raises(exception.ResourceFailure):
         CreateTemplateSideEffect.handle_create()
-
-
-def test_handle_create_full_and_composite_error():
-    template_dict = mock_template(
-        test_templ=iapp_composite_and_full_template_defn
-    )
-    rsrc_def = create_resource_definition(template_dict)
-    with pytest.raises(
-            f5_sys_iapptemplate.IappTemplateStackValidationFailed) as ex:
-        f5_sys_iapptemplate.F5SysiAppTemplate(
-            'test',
-            rsrc_def,
-            mock.MagicMock()
-        )
-    assert 'Full template and composite template cannot both be defined in ' \
-        'an F5::Sys::iAppTemplate resource.' in ex.value.message
 
 
 def test_handle_delete(F5SysiAppTemplate):
@@ -297,19 +190,21 @@ def test_handle_delete_error(DeleteTemplateSideEffect):
 
 
 def test_resource_mapping():
-    rsrc_map = f5_sys_iapptemplate.resource_mapping()
+    rsrc_map = f5_sys_iappcompositetemplate.resource_mapping()
     assert rsrc_map == {
-        'F5::Sys::iAppTemplate': f5_sys_iapptemplate.F5SysiAppTemplate
+        'F5::Sys::iAppCompositeTemplate':
+        f5_sys_iappcompositetemplate.F5SysiAppCompositeTemplate
     }
 
 
 def test_bad_property():
     template_dict = mock_template(test_templ=bad_iapp_template_defn)
     rsrc_def = create_resource_definition(template_dict)
-    f5_sys_iapptemplate_obj = f5_sys_iapptemplate.F5SysiAppTemplate(
-        'test',
-        rsrc_def,
-        mock.MagicMock()
-    )
+    f5_sys_iapptemplate_obj = \
+        f5_sys_iappcompositetemplate.F5SysiAppCompositeTemplate(
+            'test',
+            rsrc_def,
+            mock.MagicMock()
+        )
     with pytest.raises(exception.StackValidationFailed):
         f5_sys_iapptemplate_obj.validate()

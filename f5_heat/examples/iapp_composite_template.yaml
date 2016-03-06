@@ -52,65 +52,64 @@ resources:
       name: Common
       bigip_server: { get_resource: bigip_rsrc }
   iapp_template:
-    type: F5::Sys::iAppTemplate
+    type: F5::Sys::iAppCompositeTemplate
     depends_on: [bigip_rsrc, partition]
     properties:
       name: { get_param: iapp_template_name }
       bigip_server: { get_resource: bigip_rsrc }
       partition: { get_resource: partition }
-      composite_template:
-        requires_modules: [ ltm ]
-        implementation: |
-          #TMSH-VERSION: 11.6.0
-          iapp::template start
-          tmsh::create {
-              ltm pool http_pool
-                  description "A pool of http servers"
-                  load-balancing-mode least-connections-node
-                  members replace-all-with {
-                      129.0.0.1:8000 {
-                          address 129.0.0.1
-                      }
-                      130.0.0.1:8000 {
-                          address 130.0.0.1
-                      }
-                      140.0.0.1:8000 {
-                          address 140.0.0.1
-                      }
-                      150.0.0.1:8000 {
-                          address 150.0.0.1
-                      }
-                  }
-          }
+      requires_modules: [ ltm ]
+      implementation: |
+        #TMSH-VERSION: 11.6.0
+        iapp::template start
+        tmsh::create {
+            ltm pool http_pool
+                description "A pool of http servers"
+                load-balancing-mode least-connections-node
+                members replace-all-with {
+                    129.0.0.1:8000 {
+                        address 129.0.0.1
+                    }
+                    130.0.0.1:8000 {
+                        address 130.0.0.1
+                    }
+                    140.0.0.1:8000 {
+                        address 140.0.0.1
+                    }
+                    150.0.0.1:8000 {
+                        address 150.0.0.1
+                    }
+                }
+        }
 
-          tmsh::create {
-              ltm virtual http_vs
-                  destination 10.15.15.30:80
-                  ip-protocol tcp
-                  mask 255.255.255.255
-                  pool http_pool
-                  profiles replace-all-with {
-                      http { }
-                      tcp { }
-                  }
-                  source 0.0.0.0/0
-                  translate-address enabled
-                  translate-port enabled
-          }
+        tmsh::create {
+            ltm virtual http_vs
+                destination 10.15.15.30:80
+                ip-protocol tcp
+                mask 255.255.255.255
+                pool http_pool
+                profiles replace-all-with {
+                    http { }
+                    tcp { }
+                }
+                source 0.0.0.0/0
+                translate-address enabled
+                translate-port enabled
+        }
 
-          tmsh::create {
-              ltm virtual-address 10.4.4.115
-                  address 10.4.4.115
-                  arp enabled
-                  icmp-echo enabled
-                  mask 255.255.255.255
-                  traffic-group traffic-group-1
-          } 
-          iapp::template stop
-        presentation: |
-          section say_hello {
-              message intro "This template deploys a virtual server and a pool with several members."
-          }
+        tmsh::create {
+            ltm virtual-address 10.4.4.115
+                address 10.4.4.115
+                arp enabled
+                icmp-echo enabled
+                mask 255.255.255.255
+                traffic-group traffic-group-1
+        } 
+        iapp::template stop
+      presentation: |
+        section say_hello {
+            message intro "This template deploys a virtual server and a pool with several members."
+        }
   bigip_rsrc:
     type: F5::BigIP::Device
     properties:

@@ -86,6 +86,7 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
         )
     }
 
+    @f5_common_resources
     def _assign_members(self):
         '''Assign members to the pool.
 
@@ -100,11 +101,11 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
             try:
                 loaded_pool = self.bigip.ltm.pools.pool.load(
                     name=self.properties[self.NAME],
-                    partition=self.properties[self.PARTITION]
+                    partition=self.partition_name
                 )
                 loaded_pool.members_s.member.create(
                     name=member_name,
-                    partition=self.properties[self.PARTITION],
+                    partition=self.partition_name,
                     address=member_ip
                 )
             except Exception as ex:

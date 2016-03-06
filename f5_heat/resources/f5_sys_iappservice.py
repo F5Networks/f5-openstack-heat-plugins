@@ -37,6 +37,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         BIGIP_SERVER,
         PARTITION,
         TEMPLATE_NAME,
+        TRAFFIC_GROUP,
         VARIABLES,
         LISTS,
         TABLES
@@ -45,6 +46,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         'bigip_server',
         'partition',
         'template_name',
+        'traffic_group',
         'variables',
         'lists',
         'tables'
@@ -69,6 +71,10 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
             properties.Schema.STRING,
             _('Template to use when creating the service.'),
             required=True
+        ),
+        TRAFFIC_GROUP: properties.Schema(
+            properties.Schema.STRING,
+            _('Traffic group for this service.')
         ),
         VARIABLES: properties.Schema(
             properties.Schema.STRING,
@@ -117,6 +123,9 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
             'name': self.properties[self.NAME],
             'template': self.properties[self.TEMPLATE_NAME]
         }
+
+        if self.properties[self.TRAFFIC_GROUP]:
+            service_dict['trafficGroup'] = self.properties[self.TRAFFIC_GROUP]
         service_dict.update(self.iapp_answers_from_hot)
         return service_dict
 
@@ -143,14 +152,20 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         :raises: Resource Failure # TODO Change to proper exception
         '''
 
-        try:
-            loaded_service = self.bigip.sys.applications.services.service.load(
+        if self.bigip.sys.applications.services.service.exists(
                 name=self.properties[self.NAME],
                 partition=self.partition_name
-            )
-            loaded_service.delete()
-        except Exception as ex:
-            raise exception.ResourceFailure(ex, None, action='DELETE')
+        ):
+            try:
+                loaded_service = \
+                    self.bigip.sys.applications.services.service.load(
+                        name=self.properties[self.NAME],
+                        partition=self.partition_name
+                    )
+                loaded_service.delete()
+            except Exception as ex:
+                raise exception.ResourceFailure(ex, None, action='DELETE')
+        return True
 
 
 def resource_mapping():

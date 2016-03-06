@@ -1,0 +1,2 @@
+resource_registry:
+  Iapp::Client::CurlHTTPS: file:///Users/breaux/Documents/f5-openstack-heat-plugins/f5_heat/examples/iapp_client.yaml

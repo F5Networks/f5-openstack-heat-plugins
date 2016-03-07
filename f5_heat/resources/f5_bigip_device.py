@@ -52,6 +52,7 @@ class F5BigIPDevice(resource.Resource):
 
     def __init__(self, name, definition, stack):
         super(F5BigIPDevice, self).__init__(name, definition, stack)
+        self.bigip = None
         try:
             self.bigip = BigIP(
                 self.properties['ip'],

@@ -116,15 +116,19 @@ class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
 
         :raises: ResourceFailure exception
         '''
-
-        try:
-            loaded_pool = self.bigip.ltm.virtuals.virtual.load(
+        if self.bigip.ltm.virtuals.virtual.exists(
                 name=self.properties[self.NAME],
                 partition=self.partition_name
-            )
-            loaded_pool.delete()
-        except Exception as ex:
-            raise exception.ResourceFailure(ex, None, action='DELETE')
+        ):
+            try:
+                loaded_pool = self.bigip.ltm.virtuals.virtual.load(
+                    name=self.properties[self.NAME],
+                    partition=self.partition_name
+                )
+                loaded_pool.delete()
+            except Exception as ex:
+                raise exception.ResourceFailure(ex, None, action='DELETE')
+        return True
 
 
 def resource_mapping():

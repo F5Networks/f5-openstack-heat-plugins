@@ -119,7 +119,7 @@ def test_handle_create(F5BigIP):
 def test_handle_delete(F5BigIP):
     assert hasattr(F5BigIP, 'bigip')
     delete_result = F5BigIP.handle_delete()
-    assert delete_result is None
+    assert delete_result is True
 
 
 def test_bigip_getter(F5BigIP):

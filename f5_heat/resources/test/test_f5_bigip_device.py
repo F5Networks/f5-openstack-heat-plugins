@@ -15,6 +15,7 @@
 
 from f5.bigip import BigIP
 from f5_heat.resources import f5_bigip_device
+from f5_heat.resources.f5_bigip_device import BigIPConnectionFailed
 from heat.common import exception
 from heat.common import template_format
 from heat.engine.hot.template import HOTemplate20150430
@@ -91,6 +92,21 @@ def F5BigIP():
     return f5_bigip_obj
 
 
+@pytest.fixture
+def F5BigIPSideEffect(F5BigIP):
+    mock_refresh = mock.MagicMock()
+    F5BigIP.bigip.refresh = mock_refresh
+    return F5BigIP
+
+
+@pytest.fixture
+def F5BigIPHTTPError(F5BigIP):
+    '''Instantiate the F5BigIP resource.'''
+    mock_refresh = mock.MagicMock(side_effect=BigIPConnectionFailed)
+    F5BigIP.bigip.refresh = mock_refresh
+    return F5BigIP
+
+
 # Tests
 
 @mock.patch.object(
@@ -109,11 +125,16 @@ def test__init__error(mocked_bigip):
         )
 
 
-def test_handle_create(F5BigIP):
-    # Set uuid on resource object because stack is mocked out
-    create_result = F5BigIP.handle_create()
+def test_handle_create(F5BigIPSideEffect):
+    create_result = F5BigIPSideEffect.handle_create()
     assert create_result is None
-    assert F5BigIP.resource_id is not None
+    assert F5BigIPSideEffect.resource_id is not None
+
+
+def test_handle_create_http_error(F5BigIPHTTPError):
+    with pytest.raises(BigIPConnectionFailed) as ex:
+        F5BigIPHTTPError.handle_create()
+    assert ex.value.message == 'Failed to connect to BigIP with message: '
 
 
 def test_handle_delete(F5BigIP):

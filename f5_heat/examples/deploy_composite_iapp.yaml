@@ -15,7 +15,7 @@
 
 heat_template_version: 2015-04-30
 
-description: Template using all F5 resource types
+description: Deploy composite iapp template and service
 
 parameters:
   ve_instance1:
@@ -38,11 +38,6 @@ parameters:
     type: string
     label: Name of iApp Service
     default: iapp_service_resource
-  test_var:
-    type: string
-    description: SSH key pair
-    constraints:
-      - custom_constraint: nova.server
 
 parameter_groups:
   - label: VE Parameters
@@ -54,7 +49,6 @@ parameter_groups:
     parameters:
       - iapp_template_name
       - iapp_service_name
-      - test_var
 
 resources:
   bigip1:

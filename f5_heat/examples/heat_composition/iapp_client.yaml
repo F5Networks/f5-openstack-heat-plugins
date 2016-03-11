@@ -36,6 +36,10 @@ parameters:
     type: string
     constraints:
       - custom_constraint: neutron.network
+  vs_vip:
+    description: Virtual IP Address for Virtual Server
+    label: VS VIP
+    type: string
 resources:
   client_data_port:
     type: OS::Neutron::Port
@@ -66,10 +70,11 @@ resources:
       user_data:
         str_replace:
           params:
+            __vs_vip__: { get_param: vs_vip }
             __wc_notify__: { get_attr: ['client_wait_handle', 'curl_cli'] }
           template: |
             #!/bin/bash -ex
-            curl -k https://10.15.15.131
+            curl -k https://__vs_vip__
             __wc_notify__ --data-binary '{"status": "SUCCESS"}'
   client_wait_condition:
     type: OS::Heat::WaitCondition

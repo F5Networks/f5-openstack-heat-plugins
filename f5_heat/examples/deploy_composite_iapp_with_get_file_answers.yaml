@@ -16,7 +16,7 @@
 
 heat_template_version: 2015-04-30
 
-description: Test creation of an iapp template and service.
+description: Deploy iapp template and service using the get_file function to retrieve iapp service answers
 
 parameters:
   iapp_template_name:
@@ -31,7 +31,6 @@ parameters:
     type: string
     label: VE Instance IP
     description: IP of existing VE
-    default: 10.190.6.7
   bigip_un:
     type: string
     label: BigIP Login Username
@@ -39,7 +38,6 @@ parameters:
   bigip_pw:
     type: string
     label: BigIP Login Password
-    default: admin
     hidden: true
 parameter_groups:
   - label: VE Parameters
@@ -89,7 +87,7 @@ resources:
             {
               "name": "some_variables__string_input_one",
               "encrypted": "no",
-              "value": "Paulw"
+              "value": "testing"
             },
             {
               "name": "some_variables__string_input_two",
@@ -108,19 +106,19 @@ resources:
               "rows": [
                 {
                   "row": [
-                    "Paul",
+                    "John",
                     "31"
                   ]
                 },
                 {
                   "row": [
-                    "Cy",
+                    "Mark",
                     "2"
                   ]
                 },
                 {
                   "row": [
-                    "Lauren",
+                    "Jane",
                     "30"
                   ]
                 }
@@ -135,7 +133,7 @@ resources:
               "rows": [
                 {
                   "row": [
-                    "Metairie",
+                    "Baton Rouge",
                     "LA"
                   ]
                 },

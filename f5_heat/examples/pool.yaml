@@ -26,7 +26,6 @@ parameters:
     type: string
     label: VE Instance IP
     description: IP of existing VE
-    default: 10.190.6.7
   bigip_un:
     type: string
     label: BigIP Login Username
@@ -34,7 +33,6 @@ parameters:
   bigip_pw:
     type: string
     label: BigIP Login Password
-    default: admin
     hidden: true
 parameter_groups:
   - label: VE Parameters
@@ -63,9 +61,9 @@ resources:
     properties:
       name: { get_param: pool_name }
       bigip_server: { get_resource: bigip_rsrc }
-      partition { get_resource: partition }
+      partition: { get_resource: partition }
       members:
-        - member_ip: 128.0.0.1
+        - member_ip: 129.0.0.2
           member_port: 80
-        - member_ip: 129.0.0.1
+        - member_ip: 130.0.0.2
           member_port: 80

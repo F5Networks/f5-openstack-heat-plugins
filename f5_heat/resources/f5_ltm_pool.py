@@ -103,7 +103,7 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
                     name=self.properties[self.NAME],
                     partition=self.partition_name
                 )
-                loaded_pool.members_s.member.create(
+                loaded_pool.members_s.members.create(
                     name=member_name,
                     partition=self.partition_name,
                     address=member_ip
@@ -131,7 +131,8 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
-        self._assign_members()
+        if self.properties[self.MEMBERS]:
+            self._assign_members()
         self.resource_id_set(self.physical_resource_name())
 
     @f5_common_resources

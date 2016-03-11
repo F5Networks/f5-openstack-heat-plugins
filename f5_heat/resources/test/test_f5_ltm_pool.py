@@ -145,7 +145,7 @@ def CreatePoolSideEffect(F5LTMPool):
 @pytest.fixture
 def AssignMembersSideEffect(F5LTMPool):
     F5LTMPool.get_bigip()
-    F5LTMPool.bigip.ltm.pools.pool.load().members_s.member.create.side_effect = \
+    F5LTMPool.bigip.ltm.pools.pool.load().members_s.members.create.side_effect = \
         exception.ResourceFailure(mock.MagicMock(), None, action='ADD MEMBERS')
     return F5LTMPool
 

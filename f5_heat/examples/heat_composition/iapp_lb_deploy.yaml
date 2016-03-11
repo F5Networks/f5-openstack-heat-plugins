@@ -82,7 +82,6 @@ parameters:
     description: Virtual Server Virtual IP
     label: Virtual Server VIP
     type: string
-    default: 10.15.15.131
   vs_port:
     description: Virtual Server Port
     label: Virtual Server Port
@@ -131,6 +130,7 @@ resources:
       external_network: { get_param: external_network }
       client_server_sec_group: { get_param: client_server_sec_group }
       client_network: { get_param: client_network }
+      vs_vip: { get_param: vs_vip }
   server_wait_condition:
     type: OS::Heat::WaitCondition
     properties:
@@ -206,9 +206,9 @@ resources:
         str_replace:
           params:
             __partition__: Common
-            __pool_name__: test_pool
-            __vs_name__: test_vs
-            __vip__: 10.15.15.131
+            __pool_name__: { get_param: pool_name }
+            __vs_name__: { get_param: vs_name }
+            __vip__: { get_param: vs_vip }
             __vs_port__: { get_param: vs_port }
             __rs_port__: { get_param: pool_member_port }
             __rs_ip__: { get_attr: [server, first_address] }

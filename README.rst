@@ -35,6 +35,10 @@ Ubuntu
 .. code:: shell
 
    $ pip install f5-openstack-heat-plugins
+   # Link (or copy) plugins to the Heat plugin directory
+   # The common Heat plugin directory is shown below, but it may differ
+   # depending on your Heat installation
+   $ ln -s /usr/lib/python/dist-packages/f5_heat /usr/lib/heat/f5_heat
    $ service heat-engine restart
 
 RedHat/CentOS
@@ -42,6 +46,10 @@ RedHat/CentOS
 .. code:: shell
 
    $ pip install f5-openstack-heat-plugins
+   # Link (or copy) plugins to the Heat plugin directory
+   # The common Heat plugin directory is shown below, but it may differ
+   # depending on your Heat installation
+   $ ln -s /usr/lib/python/site-packages/f5_heat /usr/lib/heat/f5_heat
    $ systemctl restart openstack-heat-engine.service
 
 Usage

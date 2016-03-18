@@ -18,7 +18,8 @@ from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
 
-from common.f5_bigip_connection import F5BigIPMixin
+from common.mixins import f5_common_resources
+from common.mixins import F5BigIPMixin
 
 
 class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
@@ -27,15 +28,19 @@ class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
     PROPERTIES = (
         NAME,
         BIGIP_SERVER,
+        PARTITION,
         IP,
         PORT,
-        DEFAULT_POOL
+        DEFAULT_POOL,
+        VLANS
     ) = (
         'name',
         'bigip_server',
+        'partition',
         'ip',
         'port',
-        'default_pool'
+        'default_pool',
+        'vlans'
     )
 
     properties_schema = {
@@ -47,6 +52,11 @@ class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
         BIGIP_SERVER: properties.Schema(
             properties.Schema.STRING,
             _('Reference to the BigIP Server resource.'),
+            required=True
+        ),
+        PARTITION: properties.Schema(
+            properties.Schema.STRING,
+            _('Reference to the partition resources.'),
             required=True
         ),
         IP: properties.Schema(
@@ -62,38 +72,63 @@ class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
         DEFAULT_POOL: properties.Schema(
             properties.Schema.STRING,
             _('The pool to be associated with this virtual server.'),
+        ),
+        VLANS: properties.Schema(
+            properties.Schema.LIST,
+            _('VLAN to use for this virtual server.')
         )
     }
 
+    @f5_common_resources
     def handle_create(self):
         '''Create the BigIP Virtual Server resource on the given device.
 
         :raises: ResourceFailure exception
         '''
 
-        self.get_bigip()
+        destination = '/{0}/{1}:{2}'.format(
+            self.partition_name,
+            self.properties[self.IP],
+            self.properties[self.PORT]
+        )
+        create_kwargs = {
+            'name': self.properties[self.NAME],
+            'partition': self.partition_name,
+            'destination': destination,
+            'sourceAddressTranslation': {'type': 'automap'}
+        }
+
+        if self.properties[self.DEFAULT_POOL]:
+            create_kwargs['pool'] = self.properties[self.DEFAULT_POOL]
+
+        if self.properties[self.VLANS]:
+            create_kwargs['vlans'] = self.properties[self.VLANS]
+            create_kwargs['vlansEnabled'] = True
 
         try:
-            self.bigip.virtual_server.create(
-                name=self.properties[self.NAME],
-                ip_address=self.properties[self.IP],
-                port=self.properties[self.PORT]
-            )
+            self.bigip.ltm.virtuals.virtual.create(**create_kwargs)
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
+    @f5_common_resources
     def handle_delete(self):
         '''Delete the BigIP Virtual Server resource on the given device.
 
         :raises: ResourceFailure exception
         '''
-
-        self.get_bigip()
-
-        try:
-            self.bigip.virtual_server.delete(name=self.properties[self.NAME])
-        except Exception as ex:
-            raise exception.ResourceFailure(ex, None, action='DELETE')
+        if self.bigip.ltm.virtuals.virtual.exists(
+                name=self.properties[self.NAME],
+                partition=self.partition_name
+        ):
+            try:
+                loaded_pool = self.bigip.ltm.virtuals.virtual.load(
+                    name=self.properties[self.NAME],
+                    partition=self.partition_name
+                )
+                loaded_pool.delete()
+            except Exception as ex:
+                raise exception.ResourceFailure(ex, None, action='DELETE')
+        return True
 
 
 def resource_mapping():

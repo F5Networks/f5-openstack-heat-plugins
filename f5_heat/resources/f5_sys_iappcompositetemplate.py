@@ -18,26 +18,31 @@ from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
 
-from common.f5_bigip_connection import F5BigIPMixin
+from common.mixins import f5_common_resources
+from common.mixins import F5BigIPMixin
 
 
-class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
+class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
     '''Manages creation of an iApp resource on the BigIP device.'''
 
     PROPERTIES = (
         NAME,
         BIGIP_SERVER,
+        PARTITION,
         REQUIRES_MODULES,
         IMPLEMENTATION,
         PRESENTATION,
-        HELP
+        HELP,
+        ROLE_ACL
     ) = (
         'name',
         'bigip_server',
+        'partition',
         'requires_modules',
         'implementation',
         'presentation',
-        'help'
+        'help',
+        'role-acl'
     )
 
     properties_schema = {
@@ -49,6 +54,11 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
         BIGIP_SERVER: properties.Schema(
             properties.Schema.STRING,
             _('BigIP resource reference.'),
+            required=True
+        ),
+        PARTITION: properties.Schema(
+            properties.Schema.STRING,
+            _('Partition resource reference.'),
             required=True
         ),
         REQUIRES_MODULES: properties.Schema(
@@ -67,11 +77,32 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
         ),
         HELP: properties.Schema(
             properties.Schema.STRING,
-            _('Help section of the template.'),
+            _('Help section of the template.')
+        ),
+        ROLE_ACL: properties.Schema(
+            properties.Schema.LIST,
+            _('Access control list roles as string.')
         )
     }
 
-    def build_iapp_dict(self):
+    def _add_optional_attr(self, iapp_dict):
+        '''When building the iapp dictionary, add optional items.
+
+        :param iapp_dict: dictionary for iapp template
+        :returns: possibly modified dictionary
+        '''
+
+        if self.properties[self.REQUIRES_MODULES]:
+            iapp_dict['requiresModules'] = \
+                self.properties[self.REQUIRES_MODULES]
+
+        if self.properties[self.ROLE_ACL]:
+            iapp_dict['actions']['definition']['roleAcl'] = \
+                self.properties[self.ROLE_ACL]
+
+        return iapp_dict
+
+    def _build_iapp_dict(self):
         '''Build dictionary for posting to BigIP.
 
         :returns: dictionary of template information
@@ -85,44 +116,48 @@ class F5SysiAppTemplate(resource.Resource, F5BigIPMixin):
         template = {
             'name': self.properties[self.NAME],
             'actions': definition,
-            'requiresModules': self.properties[self.REQUIRES_MODULES]
         }
-        return template
 
+        return self._add_optional_attr(template)
+
+    @f5_common_resources
     def handle_create(self):
         '''Create the template on the BigIP.
 
         :raises: ResourceFailure
         '''
 
-        template_dict = self.build_iapp_dict()
-        self.get_bigip()
+        template_dict = self._build_iapp_dict()
+        template_dict['partition'] = self.partition_name
 
         try:
-            self.bigip.iapp.create_template(
-                name=self.properties[self.NAME],
-                template=template_dict
-            )
+            template = self.bigip.sys.applications.templates.template
+            template.create(**template_dict)
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
+    @f5_common_resources
     def handle_delete(self):
         '''Delete the iApp Template on the BigIP.
 
         :raises: ResourceFailure
         '''
 
-        self.get_bigip()
-
-        self.get_bigip()
-
-        try:
-            self.bigip.iapp.delete_template(
-                self.properties[self.NAME]
-            )
-        except Exception as ex:
-            raise exception.ResourceFailure(ex, None, action='DELETE')
+        if self.bigip.sys.applications.templates.template.exists(
+                name=self.properties[self.NAME],
+                partition=self.partition_name
+        ):
+            try:
+                loaded_template = self.bigip.sys.applications.templates.template.\
+                    load(
+                        name=self.properties[self.NAME],
+                        partition=self.partition_name
+                    )
+                loaded_template.delete()
+            except Exception as ex:
+                raise exception.ResourceFailure(ex, None, action='DELETE')
+        return True
 
 
 def resource_mapping():
-    return {'F5::Sys::iAppTemplate': F5SysiAppTemplate}
+    return {'F5::Sys::iAppCompositeTemplate': F5SysiAppCompositeTemplate}

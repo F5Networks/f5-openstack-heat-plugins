@@ -13,10 +13,15 @@
 # limitations under the License.
 #
 
-from f5.bigip.bigip import BigIP
+from f5.bigip import BigIP
 from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
+from requests import HTTPError
+
+
+class BigIPConnectionFailed(HTTPError):
+    pass
 
 
 class F5BigIPDevice(resource.Resource):
@@ -52,6 +57,7 @@ class F5BigIPDevice(resource.Resource):
 
     def __init__(self, name, definition, stack):
         super(F5BigIPDevice, self).__init__(name, definition, stack)
+
         try:
             self.bigip = BigIP(
                 self.properties['ip'],
@@ -65,12 +71,25 @@ class F5BigIPDevice(resource.Resource):
         return self.bigip
 
     def handle_create(self):
-        '''Create the BigIP resource.'''
+        '''Create the BigIP resource.
+
+        Let's refresh the bigip object to ensure the connection is good.
+        '''
+
+        try:
+            self.bigip.refresh()
+        except HTTPError as ex:
+            raise BigIPConnectionFailed(
+                'Failed to connect to BigIP with message: {}'.format(ex)
+            )
+
         self.resource_id_set(self.physical_resource_name())
 
     def handle_delete(self):
-        '''Delete BigIP resource.'''
-        del self.bigip
+        '''Resource will be delete by resource.delete()'''
+
+        self.bigip = None
+        return True
 
 
 def resource_mapping():

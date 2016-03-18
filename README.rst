@@ -1,10 +1,14 @@
 f5-openstack-heat-plugins
 =========================
-|Build Status|
+.. image:: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins.svg?branch=kilo
+    :target: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins
+
+.. image:: https://readthedocs.org/projects/f5-openstack-heat-plugins/badge/?version=kilo
+    :target: http://f5-openstack-heat-plugins.readthedocs.org/en/latest/?badge=kilo
 
 Introduction
 ------------
-This repository houses all of F5's Openstack Heat resource plugins. F5's
+This repository houses all of F5's OpenStack Heat resource plugins. F5's
 Heat plugins can be used to orchestrate BIG-IP services in your
 OpenStack environment.
 
@@ -22,11 +26,18 @@ running on in order to use templates that refer the the F5 plugins.  After
 installing the plugins the Heat engine must be restarted for them to take
 effect.
 
+*Note: If you are installing a pre-release version of the package with pip
+you will need to use the --pre option.*
+
 Ubuntu
 ~~~~~~
 .. code:: shell
 
    $ pip install f5-openstack-heat-plugins
+   # Link (or copy) plugins to the Heat plugin directory
+   # The common Heat plugin directory is shown below, but it may differ
+   # depending on your Heat installation
+   $ ln -s /usr/lib/python/dist-packages/f5_heat /usr/lib/heat/f5_heat
    $ service heat-engine restart
 
 RedHat/CentOS
@@ -34,6 +45,10 @@ RedHat/CentOS
 .. code:: shell
 
    $ pip install f5-openstack-heat-plugins
+   # Link (or copy) plugins to the Heat plugin directory
+   # The common Heat plugin directory is shown below, but it may differ
+   # depending on your Heat installation
+   $ ln -s /usr/lib/python/site-packages/f5_heat /usr/lib/heat/f5_heat
    $ systemctl restart openstack-heat-engine.service
 
 Usage
@@ -43,7 +58,40 @@ templates.  An example use of one of the objects is below.
 
 .. code:: yaml
 
-    TODO: Have Paul add his simple example here
+    resources:
+      # The first two resources defined here are requirements for deploying
+      # any object on the BigIP VE. The F5::BigIP::Device allows access and
+      # authentication to the BigIP on which an object will be configured.
+      # The F5::Sys::Partition resource places a particular object in the
+      # partition given. These two requirements will be linked with the obects
+      # we intend to configure (iAppTemplate, iAppService) by calling the
+      # 'get_resource' intrinsic function.
+      bigip:
+        type: F5::BigIP::Device
+        properties:
+          ip: 10.0.0.1 # All properties can be passed in as parameters
+          username: admin
+          password: admin # The password can be passed in as a hidden field
+      partition:
+        type: F5::Sys::Partition
+        properties:
+          name: Common # Put these objects in the existing Common partition
+          bigip_server: { get_resource: bigip } # Create dependency on bigip
+      iapp_template:
+        type: F5::Sys::iAppTemplate
+        properties:
+          name: test_template
+          bigip_server: { get_resource: bigip } # Depends on bigip resource
+          partition: { get_resource: partition} # Depends on partition as well
+          full_template:
+            get_file: iapps/full_template.tmpl
+      iapp_service:
+        type: F5::Sys::iAppService
+        properties:
+          name: test_service
+          bigip_server: { get_resource: bigip }
+          partition: { get_resource: partition }
+          template_name: test_template # Matches name in template resource
 
 Documentation
 -------------
@@ -143,6 +191,3 @@ have completed and submitted the `F5 Contributor License
 Agreement <http://f5-openstack-docs.readthedocs.org/en/latest/cla_landing.html>`__
 to Openstack_CLA@f5.com prior to their code submission being included in this
 project.
-
-.. |Build Status| image:: https://travis-ci.com/F5Networks/f5-openstack-heat-plugins.svg?token=9DzDpZ48B74dRXvdFxM2&branch=master
-   :target: https://travis-ci.com/F5Networks/f5-openstack-heat-plugins

@@ -34,11 +34,17 @@ resources:
       ip: 10.0.0.1
       username: admin
       password: admin
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      name: Common
+      bigip_server: bigip_rsrc
   pool:
     type: F5::LTM::Pool
     properties:
       name: testing_pool
       bigip_server: bigip_rsrc
+      partition: partition
       service_down_action: Reject
       members: [{'member_ip': '128.0.0.1', 'member_port': 80},
                {'member_ip': '129.0.0.1', 'member_port': 80}]
@@ -54,10 +60,16 @@ resources:
       ip: 10.0.0.1
       username: admin
       password: admin
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      name: Common
+      bigip_server: bigip_rsrc
   pool:
     type: F5::LTM::Pool
     properties:
       name: testing_pool
+      partition: partition
       bad_prop: bad_prop_name
       bigip_server: bigip_rsrc
       members: [{'member_ip': '128.0.0.1','member_port': 80},
@@ -98,40 +110,62 @@ def F5LTMPool():
     '''Instantiate the F5SysiAppService resource.'''
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
+    mock_stack = mock.MagicMock()
+    mock_stack.resource_by_refid().get_partition_name.return_value = 'Common'
     f5_pool_obj = f5_ltm_pool.F5LTMPool(
-        'testing_pool', rsrc_def, mock.MagicMock()
+        'testing_pool', rsrc_def, mock_stack
     )
     f5_pool_obj.uuid = test_uuid
     return f5_pool_obj
 
 
 @pytest.fixture
+def F5LTMPoolExists(F5LTMPool):
+    F5LTMPool.get_bigip()
+    mock_exists = mock.MagicMock(return_value=True)
+    F5LTMPool.bigip.ltm.pools.pool.exists.side_effect = mock_exists
+    return F5LTMPool
+
+
+@pytest.fixture
+def F5LTMPoolNoExists(F5LTMPool):
+    F5LTMPool.get_bigip()
+    mock_exists = mock.MagicMock(return_value=False)
+    F5LTMPool.bigip.ltm.pools.pool.exists.side_effect = mock_exists
+    return F5LTMPool
+
+
+@pytest.fixture
 def CreatePoolSideEffect(F5LTMPool):
     F5LTMPool.get_bigip()
-    F5LTMPool.bigip.pool.create.side_effect = Exception()
+    F5LTMPool.bigip.ltm.pools.pool.create.side_effect = Exception()
     return F5LTMPool
 
 
 @pytest.fixture
 def AssignMembersSideEffect(F5LTMPool):
     F5LTMPool.get_bigip()
-    F5LTMPool.bigip.pool.add_member.side_effect = Exception()
+    F5LTMPool.bigip.ltm.pools.pool.load().members_s.members.create.side_effect = \
+        exception.ResourceFailure(mock.MagicMock(), None, action='ADD MEMBERS')
     return F5LTMPool
 
 
 @pytest.fixture
 def DeletePoolSideEffect(F5LTMPool):
     F5LTMPool.get_bigip()
-    F5LTMPool.bigip.pool.delete.side_effect = Exception()
+    F5LTMPool.bigip.ltm.pools.pool.load().delete.side_effect = \
+        exception.ResourceFailure(mock.MagicMock(), None, action='DELETE')
     return F5LTMPool
 
 
 def test_handle_create(F5LTMPool):
     create_result = F5LTMPool.handle_create()
     assert create_result is None
-    assert F5LTMPool.bigip.pool.create.call_args == \
+    assert F5LTMPool.bigip.ltm.pools.pool.create.call_args == \
         mock.call(
-            u'testing_pool'
+            name=u'testing_pool',
+            partition=u'Common',
+            service_down_action='Reject'
         )
 
 
@@ -147,11 +181,14 @@ def test_handle_create_assign_members_error(AssignMembersSideEffect):
         AssignMembersSideEffect.handle_create()
 
 
-def test_handle_delete(F5LTMPool):
-    assert F5LTMPool.handle_delete() is None
-    assert F5LTMPool.bigip.pool.delete.call_args == mock.call(
-        u'testing_pool'
-    )
+def test_handle_delete(F5LTMPoolExists):
+    assert F5LTMPoolExists.handle_delete() is True
+    assert F5LTMPoolExists.bigip.ltm.pools.pool.load.call_args == \
+        mock.call(name='testing_pool', partition='Common')
+
+
+def test_handle_delete_no_exists(F5LTMPoolNoExists):
+    assert F5LTMPoolNoExists.handle_delete() is True
 
 
 def test_handle_delete_error(DeletePoolSideEffect):

@@ -34,13 +34,21 @@ resources:
       ip: 10.0.0.1
       username: admin
       password: admin
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      name: Common
+      bigip_server: bigip_rsrc
   vs:
     type: F5::LTM::VirtualServer
     properties:
       name: testing_vs
       bigip_server: bigip_rsrc
+      partition: partition
       ip: 129.0.0.1
       port: 80
+      default_pool: test_pool
+      vlans: [ test_vlan ]
 '''
 
 bad_vs_defn = '''
@@ -52,12 +60,17 @@ resources:
     properties:
       ip: 10.0.0.1
       username: admin
-      password: admin
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      name: Common
+      bigip_server: bigip_rsrc
   vs:
     type: F5::LTM::VirtualServer
     properties:
       name: testing_vs
       bad_prop: bad_prop_name
+      partition: partition
       bigip_server: bigip_rsrc
       ip: 129.0.0.1
       port: 80
@@ -97,35 +110,59 @@ def F5LTMVirtualServer():
     '''Instantiate the F5SysiAppService resource.'''
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
+    mock_stack = mock.MagicMock()
+    mock_stack.resource_by_refid().get_partition_name.return_value = 'Common'
     f5_vs_obj = f5_ltm_virtualserver.F5LTMVirtualServer(
-        'testing_vs', rsrc_def, mock.MagicMock()
+        'testing_vs', rsrc_def, mock_stack
     )
     f5_vs_obj.uuid = test_uuid
     return f5_vs_obj
 
 
 @pytest.fixture
+def F5LTMVirtualServerExists(F5LTMVirtualServer):
+    F5LTMVirtualServer.get_bigip()
+    mock_exists = mock.MagicMock(return_value=True)
+    F5LTMVirtualServer.bigip.ltm.virtuals.virtual.exists = mock_exists
+    return F5LTMVirtualServer
+
+
+@pytest.fixture
+def F5LTMVirtualServerNoExists(F5LTMVirtualServer):
+    F5LTMVirtualServer.get_bigip()
+    mock_exists = mock.MagicMock(return_value=False)
+    F5LTMVirtualServer.bigip.ltm.virtuals.virtual.exists = mock_exists
+    return F5LTMVirtualServer
+
+
+@pytest.fixture
 def CreateVirtualServerSideEffect(F5LTMVirtualServer):
     F5LTMVirtualServer.get_bigip()
-    F5LTMVirtualServer.bigip.virtual_server.create.side_effect = Exception()
+    F5LTMVirtualServer.bigip.ltm.virtuals.virtual.create.side_effect = \
+        exception.ResourceFailure(mock.MagicMock(), None, action='CREATE')
     return F5LTMVirtualServer
 
 
 @pytest.fixture
 def DeleteVirtualServerSideEffect(F5LTMVirtualServer):
     F5LTMVirtualServer.get_bigip()
-    F5LTMVirtualServer.bigip.virtual_server.delete.side_effect = Exception()
+    F5LTMVirtualServer.bigip.ltm.virtuals.virtual.load.side_effect = \
+        exception.ResourceFailure(mock.MagicMock(), None, action='DELETE')
     return F5LTMVirtualServer
 
 
 def test_handle_create(F5LTMVirtualServer):
     create_result = F5LTMVirtualServer.handle_create()
     assert create_result is None
-    assert F5LTMVirtualServer.bigip.virtual_server.create.call_args == \
+    assert F5LTMVirtualServer.bigip.ltm.virtuals.virtual.create.call_args == \
         mock.call(
             name=u'testing_vs',
-            ip_address=u'129.0.0.1',
-            port=80
+            partition='Common',
+            vlans=[u'test_vlan'],
+            pool=u'test_pool',
+            sourceAddressTranslation={'type': 'automap'},
+            destination='/Common/129.0.0.1:80',
+            vlansEnabled=True
         )
 
 
@@ -135,12 +172,17 @@ def test_handle_create_error(CreateVirtualServerSideEffect):
         CreateVirtualServerSideEffect.handle_create()
 
 
-def test_handle_delete(F5LTMVirtualServer):
-    assert None == F5LTMVirtualServer.handle_delete()
-    assert F5LTMVirtualServer.bigip.virtual_server.delete.call_args == \
+def test_handle_delete(F5LTMVirtualServerExists):
+    assert F5LTMVirtualServerExists.handle_delete() is True
+    assert F5LTMVirtualServerExists.bigip.ltm.virtuals.virtual.load.call_args == \
         mock.call(
-            name=u'testing_vs'
+            name=u'testing_vs',
+            partition='Common'
         )
+
+
+def test_handle_delete_no_exists(F5LTMVirtualServerNoExists):
+    assert F5LTMVirtualServerNoExists.handle_delete() is True
 
 
 def test_handle_delete_error(DeleteVirtualServerSideEffect):

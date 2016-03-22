@@ -1,0 +1,92 @@
+heat_template_version: 2015-04-30
+
+description: Deploy composite iapp template and service
+
+parameters:
+  bigip_ip:
+    type: string
+    label: IP of Second VE Instance
+  bigip_un:
+    type: string
+    label: Username of BigIP Login
+  bigip_pw:
+    type: string
+    label: Password of BigIP Login
+    hidden: True
+
+parameter_groups:
+  - label: VE Parameters
+    parameters:
+      - bigip_ip
+      - bigip_un
+      - bigip_pw
+
+resources:
+  bigip1:
+    type: F5::BigIP::Device
+    properties:
+      ip: { get_param: bigip_ip }
+      username: { get_param: bigip_un }
+      password: { get_param: bigip_pw }
+  iapp_service:
+    type: F5::Sys::iAppService
+    depends_on: iapp_template
+    properties:
+      name: test_service
+      bigip_server: { get_resource: bigip1 }
+      partition: { get_resource: partition }
+      template_name: test_template
+  partition:
+    type: F5::Sys::Partition
+    depends_on: bigip1
+    properties:
+      name: Common
+      bigip_server: { get_resource: bigip1 }
+  iapp_template:
+    type: F5::Sys::iAppCompositeTemplate
+    depends_on: bigip1
+    properties:
+      name: test_template
+      bigip_server: { get_resource: bigip1 }
+      partition: { get_resource: partition }
+      requires_modules: [ ltm ]
+      implementation: |
+        #TMSH-VERSION: 11.6.0
+        iapp::template start
+        tmsh::create {
+          ltm pool http_pool
+          description "A pool of http servers"
+          load-balancing-mode least-connections-node
+          members replace-all-with {
+              129.0.0.1:8000 {
+                  address 129.0.0.1
+              }
+          }
+        }
+        tmsh::create {
+           ltm virtual http_vs
+           destination 10.15.15.30:80
+           ip-protocol tcp
+           mask 255.255.255.255
+           pool http_pool
+           profiles replace-all-with {
+               http { }
+               tcp { }
+           }
+           source 0.0.0.0/0
+           translate-address enabled
+           translate-port enabled
+        }
+        tmsh::create {
+           ltm virtual-address 10.4.4.115
+           address 10.4.4.115
+           arp enabled
+           icmp-echo enabled
+           mask 255.255.255.255
+           traffic-group traffic-group-1
+        }
+        iapp::template stop
+      presentation: |
+        section say_hello {
+          message intro "This template deploys a virtual server and a pool with several members."
+        }

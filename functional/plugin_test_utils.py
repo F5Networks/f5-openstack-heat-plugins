@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-import pytest
 import time
 
 from heatclient.v1.client import Client as HeatClient
@@ -25,24 +24,7 @@ HEAT_ENDPOINT = 'http://10.190.4.147:8004/v1/e7ef9afb6d734598bff419214e718c45'
 PASSWORD = 'changeme'
 TENANT_NAME = 'admin'
 USERNAME = 'admin'
-
 TESTSTACKNAME = 'func_test_stack'
-
-
-@pytest.fixture
-def HeatStack(request):
-    def manage_stack(stack_template):
-        def teardown():
-            utils.delete_stack(hc, TESTSTACKNAME)
-
-        request.addfinalizer(teardown)
-
-        hc = utils.get_heat_client()
-        stack = utils.create_stack(
-            hc, stack_name=TESTSTACKNAME, template=stack_template
-        )
-        return hc, stack
-    return manage_stack
 
 
 def get_keystone_token():
@@ -96,12 +78,13 @@ def wait_until_status(
 def create_stack(heat_client, **kwargs):
     name = kwargs['stack_name']
     template = kwargs['template']
+    parameters = kwargs.get('parameters', {})
     heat_client.stacks.create(
         stack_name=name,
         template=template,
         files={},
         disable_rollback=True,
-        parameters={},
+        parameters=parameters,
         environment={},
         tags=None,
         environment_files=None
@@ -117,3 +100,11 @@ def delete_stack(heat_client, stack_name):
         except Exception as ex:
             if 'could not be found' in str(ex):
                 break
+
+
+def ensure_failed_stack(HeatStack, template, fail_msg):
+    hc, stack = HeatStack(template)
+    assert wait_until_status(hc, stack.id, 'create_failed') is True
+    failed_stack = get_stack(hc, stack.id)
+    assert fail_msg in failed_stack.stack_status_reason
+    return hc, stack

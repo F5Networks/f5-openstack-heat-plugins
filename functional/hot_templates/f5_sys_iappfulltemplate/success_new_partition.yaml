@@ -1,0 +1,75 @@
+heat_template_version: 2015-04-30
+description: testing stack creation in python
+parameters:
+  bigip_un:
+    type: string
+  bigip_pw:
+    type: string
+  bigip_ip:
+    type: string
+  partition_name:
+    type: string
+    default: test_partition
+
+resources:
+  bigip_rsrc:
+    type: F5::BigIP::Device
+    properties:
+      username: { get_param: bigip_un }
+      password: { get_param: bigip_pw }
+      ip: { get_param: bigip_ip }
+  partition:
+    type: F5::Sys::Partition
+    properties:
+      name: { get_param: partition_name }
+      bigip_server: { get_resource: bigip_rsrc }
+  iapp_templ:
+    type: F5::Sys::iAppFullTemplate
+    properties:
+      bigip_server: { get_resource: bigip_rsrc }
+      partition: { get_resource: partition }
+      full_template:
+        str_replace:
+          params:
+            __partition__: { get_param: partition_name }
+          template: |
+            sys application template thanks_world {
+              actions replace-all-with {
+                definition {
+                  html-help {
+                    <!-- insert html help text -->
+                  }
+                  implementation {
+                    # insert tmsh script
+                    puts "string_input_one = $::vars__string_input_one"
+                    puts "make_a_choice = $::vars__make_a_choice"
+                    puts "make_an_mc = $::vars__make_a_multi_choice"
+                  }
+                  macro {
+                  }
+                  presentation {
+                    # insert apl script
+                    section hello {
+                        message say_hello "Just saying hello"
+                    }
+
+                    section vars {
+                        string string_input_one
+                        choice make_choice default "Neither" {"A", "B"}
+                        multichoice make_multi_choice default {"No"} {"One"}
+                    }
+
+                    text {
+                        vars.string_input_one "Enter your name."
+                        vars.make_choice "Make a choice between A and B."
+                        vars.make_multi_choice "Make a multiple choice."
+                    }
+                  }
+                  role-acl none
+                  run-as none
+                }
+              }
+              partition __partition__
+              description none
+              requires-modules none
+            }

@@ -108,3 +108,9 @@ def ensure_failed_stack(HeatStack, template, fail_msg):
     failed_stack = get_stack(hc, stack.id)
     assert fail_msg in failed_stack.stack_status_reason
     return hc, stack
+
+def get_template_file(hot_dir, filename):
+    file = open('hot_templates/{0}/{1}'.format(hot_dir, filename))
+    template_str = file.read()
+    file.close()
+    return template_str

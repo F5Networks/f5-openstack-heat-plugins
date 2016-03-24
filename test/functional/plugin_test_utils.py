@@ -95,12 +95,17 @@ def create_stack(heat_client, **kwargs):
 
 def delete_stack(heat_client, stack_name):
     heat_client.stacks.delete(stack_name)
-    while True:
+    max_tries = 10
+    interval = 5
+    count = 0
+    while count <= max_tries:
+        time.sleep(interval)
         try:
             get_stack_status(heat_client, stack_name)
         except Exception as ex:
             if 'could not be found' in str(ex):
                 break
+        count += 1
 
 
 def ensure_failed_stack(HeatStack, template, fail_msg):

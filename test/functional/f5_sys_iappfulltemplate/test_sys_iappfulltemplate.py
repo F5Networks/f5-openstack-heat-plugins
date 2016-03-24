@@ -13,37 +13,35 @@
 # limitations under the License.
 #
 
-import plugin_test_utils as utils
+import functional.plugin_test_utils as utils
 
+import os
 import pytest
 
-
-PLUGIN = 'f5_sys_iappfulltemplate'
+TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def test_create_complete(HeatStack, BigIP):
-    test_template = utils.get_template_file(
-        PLUGIN, 'success_common_partition.yaml'
+    hc, stack = HeatStack(
+        os.path.join(TEST_DIR, 'success_common_partition.yaml')
     )
-    hc, stack = HeatStack(test_template)
-    assert utils.wait_until_status(hc, stack.id, 'create_complete') is True
+    assert hc.wait_until_status(stack.id, 'create_complete') is True
     assert BigIP.sys.applications.templates.template.exists(
         name='thanks_world', partition='Common') is True
 
 
 def test_create_complete_new_partition(HeatStack, BigIP):
-    new_part_template = utils.get_template_file(
-        PLUGIN, 'success_new_partition.yaml'
+    hc, stack = HeatStack(
+        os.path.join(TEST_DIR, 'success_new_partition.yaml')
     )
-    hc, stack = HeatStack(new_part_template)
-    assert utils.wait_until_status(hc, stack.id, 'create_complete') is True
+    assert hc.wait_until_status(stack.id, 'create_complete') is True
     assert BigIP.sys.applications.templates.template.exists(
         name='thanks_world', partition='test_partition') is True
 
 
 def itest_create_failed_literal_partition(HeatStack, BigIP):
     literal_partition_template = utils.get_template_file(
-        PLUGIN, 'literal_partition.yaml'
+        os.path.join(TEST_DIR, 'literal_partition.yaml')
     )
     msg = ''
     hc, stack = utils.ensure_failed_stack(
@@ -53,11 +51,8 @@ def itest_create_failed_literal_partition(HeatStack, BigIP):
 
 
 def test_create_failed_bad_iapp_parsing(HeatStackNoTeardown, BigIP):
-    bad_iapp_template = utils.get_template_file(
-        PLUGIN, 'bad_iapp.yaml'
-    )
     with pytest.raises(Exception) as ex:
-        HeatStackNoTeardown(bad_iapp_template)
+        HeatStackNoTeardown(os.path.join(TEST_DIR, 'bad_iapp.yaml'))
     assert BigIP.sys.applications.templates.template.exists(
         name='thanks_world', partition='Common') is False
     assert 'NonextantSectionException' in ex.value.message

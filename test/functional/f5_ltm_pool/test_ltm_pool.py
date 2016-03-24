@@ -13,17 +13,15 @@
 # limitations under the License.
 #
 
-import plugin_test_utils as utils
-
+import os
 import pytest
 
-PLUGIN = 'f5_ltm_pool'
+TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def test_create_complete(HeatStack, BigIP):
-    test_template = utils.get_template_file(PLUGIN, 'success.yaml')
-    hc, stack = HeatStack(test_template)
-    assert utils.wait_until_status(hc, stack.id, 'create_complete') is True
+    hc, stack = HeatStack(os.path.join(TEST_DIR, 'success.yaml'))
+    assert hc.wait_until_status(stack.id, 'create_complete') is True
     assert BigIP.ltm.pools.pool.exists(
         name='test_pool', partition='Common'
     ) is True
@@ -41,9 +39,8 @@ def test_create_complete(HeatStack, BigIP):
 # Test causes other tests to fail because the test_partition cannot be deleted
 # This will be fixed in Issue #25 in f5-openstack-heat-plugins
 def itest_create_complete_new_partition(HeatStack, BigIP):
-    new_part_template = utils.get_template_file(PLUGIN, 'new_partition.yaml')
-    hc, stack = HeatStack(new_part_template)
-    assert utils.wait_until_status(hc, stack.id, 'create_complete') is True
+    hc, stack = HeatStack(os.path.join(TEST_DIR, 'new_partition.yaml'))
+    assert hc.wait_until_status(stack.id, 'create_complete') is True
     assert BigIP.ltm.pools.pool.exists(
         name='test_pool', partition='test_partition'
     ) is True
@@ -51,20 +48,18 @@ def itest_create_complete_new_partition(HeatStack, BigIP):
 
 # Copying this with a new template, which has no pool members
 def test_create_complete_new_partition(HeatStack, BigIP):
-    new_part_template = utils.get_template_file(
-        PLUGIN, 'new_partition_no_members.yaml'
+    hc, stack = HeatStack(
+        os.path.join(TEST_DIR, 'new_partition_no_members.yaml')
     )
-    hc, stack = HeatStack(new_part_template)
-    assert utils.wait_until_status(hc, stack.id, 'create_complete') is True
+    assert hc.wait_until_status(stack.id, 'create_complete') is True
     assert BigIP.ltm.pools.pool.exists(
         name='test_pool', partition='test_partition'
     ) is True
 
 
 def test_create_failed_bad_members(HeatStackNoTeardown, BigIP):
-    bad_member_template = utils.get_template_file(PLUGIN, 'bad_members.yaml')
     with pytest.raises(Exception) as ex:
-        HeatStackNoTeardown(bad_member_template)
+        HeatStackNoTeardown(os.path.join(TEST_DIR, 'bad_members.yaml'))
     assert 'Property member_port not assigned' in ex.value.message
     assert BigIP.ltm.pools.pool.exists(
         name='test_pool', partition='Common'

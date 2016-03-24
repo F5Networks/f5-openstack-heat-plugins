@@ -1,5 +1,5 @@
 # These packages are required when testing the module
-f5-sdk>=0.1.2
+-e .
 hacking
 pytest
 pytest-cov

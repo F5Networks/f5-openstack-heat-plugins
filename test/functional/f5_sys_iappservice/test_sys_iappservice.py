@@ -13,26 +13,21 @@
 # limitations under the License.
 #
 
-import plugin_test_utils as utils
+import os
 
-import pytest
-
-
-PLUGIN = 'f5_sys_iappservice'
+TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def test_create_complete(HeatStack, BigIP):
-    test_templ = utils.get_template_file(PLUGIN, 'success.yaml')
-    hc, stack = HeatStack(test_templ)
-    assert utils.wait_until_status(hc, stack.id, 'create_complete') is True
+    hc, stack = HeatStack(os.path.join(TEST_DIR, 'success.yaml'))
+    assert hc.wait_until_status(stack.id, 'create_complete') is True
     assert BigIP.sys.applications.services.service.exists(
         name='test_service', partition='Common') is True
 
 
 def test_create_complete_no_answers(HeatStack, BigIP):
-    no_answer_templ = utils.get_template_file(PLUGIN, 'success_no_answers.yaml')
-    hc, stack = HeatStack(no_answer_templ)
-    assert utils.wait_until_status(hc, stack.id, 'create_complete') is True
+    hc, stack = HeatStack(os.path.join(TEST_DIR, 'success_no_answers.yaml'))
+    assert hc.wait_until_status(stack.id, 'create_complete') is True
     assert BigIP.sys.applications.services.service.exists(
         name='test_service', partition='Common') is True
     assert BigIP.sys.applications.templates.template.exists(
@@ -40,11 +35,8 @@ def test_create_complete_no_answers(HeatStack, BigIP):
 
 
 def test_create_complete_new_partition(HeatStack, BigIP):
-    new_partition_templ = utils.get_template_file(
-        PLUGIN, 'success_new_partition.yaml'
-    )
-    hc, stack = HeatStack(new_partition_templ)
-    assert utils.wait_until_status(hc, stack.id, 'create_complete') is True
+    hc, stack = HeatStack(os.path.join(TEST_DIR, 'success_new_partition.yaml'))
+    assert hc.wait_until_status(stack.id, 'create_complete') is True
     assert BigIP.sys.applications.services.service.exists(
         name='test_service', partition='test_partition') is True
     assert BigIP.sys.applications.templates.template.exists(
@@ -55,11 +47,12 @@ def test_create_complete_new_partition(HeatStack, BigIP):
 # The stack deployed here depends on several pre-existing Openstack resources
 # A client image is used (ubuntu), a server image with a node server
 # pre-installed and networks.
-def test_create_complete_lb_deploy(HeatStackNoTeardown, BigIP):
-    lb_deploy_templ = utils.get_template_file(PLUGIN, 'lb_deploy.yaml')
-    hc, stack = HeatStackNoTeardown(lb_deploy_templ)
-    assert utils.wait_until_status(
-        hc, stack.id, 'create_complete', max_tries=10, interval=15
+def itest_create_complete_lb_deploy(HeatStackNoTeardown, BigIP):
+    hc, stack = HeatStackNoTeardown(
+        os.path.join(TEST_DIR, 'lb_deploy.yaml')
+    )
+    assert hc.wait_until_status(
+        stack.id, 'create_complete', max_tries=10, interval=15
     ) is True
     assert BigIP.sys.applications.services.service.exists(
         name='lb_service', partition='Common'
@@ -70,8 +63,10 @@ def test_create_complete_lb_deploy(HeatStackNoTeardown, BigIP):
     assert BigIP.ltm.virtuals.virtual.exists(
         name='virtual_server1', partition='Common'
     ) is True
-    assert BigIP.ltm.pools.pool.exists(name='pool1', partition='Common') is True
-    utils.delete_stack(hc, utils.TESTSTACKNAME)
+    assert BigIP.ltm.pools.pool.exists(
+        name='pool1', partition='Common'
+    ) is True
+    hc.delete_stack()
     assert BigIP.sys.applications.services.service.exists(
         name='lb_service', partition='Common'
     ) is False
@@ -82,4 +77,4 @@ def test_create_complete_lb_deploy(HeatStackNoTeardown, BigIP):
         name='virtual_server1', partition='Common'
     ) is False
     assert BigIP.ltm.pools.pool.exists(name='pool1', partition='Common') is \
-           False
+        False

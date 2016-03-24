@@ -134,8 +134,8 @@ Unit Tests
 ~~~~~~~~~~
 We use pytest for our unit tests.
 
-#. If you haven't already, install the required test packages and the
-   requirements.txt in your virtual environment.
+#. If you haven't already, install requirements.unit.test.txt in your virtual
+   environment.
 
 .. code:: shell
 
@@ -145,10 +145,37 @@ We use pytest for our unit tests.
 #. Run the tests and produce a coverage report. The ``--cov-report=html`` will create a ``htmlcov/`` directory that you can view in your browser to see the missing lines of code.
 
 .. code:: shell
+       $ pip install -r requirements.unit.test.txt
 
-   $ py.test --cov ./icontrol --cov-report=html
-   $ open htmlcov/index.html
+#. | Run the tests and produce a coverage report. The
+     ``--cov-report=html`` will
+   | create a ``htmlcov/`` directory that you can view in your browser
+     to see the
+   | missing lines of code.
+       py.test --cov f5_heat/resources/test --cov-report=html
+       open htmlcov/index.html
 
+Functional Tests
+~~~~~~~~~~~~~~~~
+Pytest is also used for functional tests
+
+#. If you haven't already, install requirements.func.test.txt in your virtual
+   environment.
+
+   .. code:: shell
+
+       $ pip install -r requirements.func.test.txt
+
+#. | Currently, you must modify ``test/functional/test_variables.py`` file to
+     provide the proper credentials to Openstack. See that file for more info
+     on what is needed. Also remember not to include this file in your pull
+     request, since it may contiain sensitive information.
+
+#. | Run the functional tests and pass in arguments to connect to the F5® Device.
+
+   .. code:: shell
+
+       py.test test/functional/ --bigip=<bigip_ip> --bigip-username=<web_login_username> --bigip-passwword=<web_login_password>
 
 Style Checks
 ~~~~~~~~~~~~

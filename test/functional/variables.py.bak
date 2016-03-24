@@ -13,17 +13,8 @@
 # limitations under the License.
 #
 
-
-def ensure_failed_stack(HeatStack, template, fail_msg):
-    hc, stack = HeatStack(template)
-    assert hc.wait_until_status(stack.id, 'create_failed') is True
-    failed_stack = hc.get_stack(stack.id)
-    assert fail_msg in failed_stack.stack_status_reason
-    return hc, stack
-
-
-def get_template_file(template_file):
-    file = open(template_file)
-    template_str = file.read()
-    file.close()
-    return template_str
+AUTH_URL = 'http://10.190.4.147:5000/v2.0'
+HEAT_ENDPOINT = 'http://10.190.4.147:8004/v1/e7ef9afb6d734598bff419214e718c45'
+PASSWORD = 'changeme'
+TENANT_NAME = 'admin'
+USERNAME = 'admin'

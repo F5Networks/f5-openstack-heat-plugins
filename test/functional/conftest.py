@@ -14,7 +14,8 @@
 #
 
 from f5.bigip import BigIP as BigIPSDK
-import plugin_test_utils as utils
+import heat_client_utils as hc_utils
+import plugin_test_utils as plugin_utils
 
 import pytest
 
@@ -22,9 +23,9 @@ import pytest
 def pytest_addoption(parser):
     parser.addoption('--bigip', action='store',
                      help='BIG-IP hostname or IP address')
-    parser.addoption('--username', action='store',
+    parser.addoption('--bigip-username', action='store',
                      help='BIG-IP username')
-    parser.addoption('--password', action='store',
+    parser.addoption('--bigip-password', action='store',
                      help='BIG-IP password')
 
 
@@ -35,38 +36,34 @@ def opt_bigip(request):
 
 @pytest.fixture
 def opt_bigip_un(request):
-    return request.config.getoption('--username')
+    return request.config.getoption('--bigip-username')
 
 
 @pytest.fixture
 def opt_bigip_pw(request):
-    return request.config.getoption('--password')
+    return request.config.getoption('--bigip-password')
 
 
-def create_stack(bigip_ip, bigip_un, bigip_pw, template):
-    hc = utils.get_heat_client()
-    stack = utils.create_stack(
-        hc,
-        stack_name=utils.TESTSTACKNAME,
-        template=template,
-        parameters={
-            'bigip_ip': bigip_ip,
-            'bigip_un': bigip_un,
-            'bigip_pw': bigip_pw
-        }
+def create_stack(bigip_ip, bigip_un, bigip_pw, template, parameters={}):
+    hc = hc_utils.HeatClientMgr()
+    parameters.update(
+        {'bigip_ip': bigip_ip, 'bigip_un': bigip_un, 'bigip_pw': bigip_pw}
     )
+    stack = hc.create_stack(template=template, parameters=parameters)
     return hc, stack
 
 
 @pytest.fixture
 def HeatStack(opt_bigip, opt_bigip_un, opt_bigip_pw, request):
     '''Heat stack fixture for creating/deleting a heat stack.'''
-    def manage_stack(stack_template):
+    def manage_stack(template_file, parameters={}):
         def teardown():
-            utils.delete_stack(hc, utils.TESTSTACKNAME)
+            hc.delete_stack()
         request.addfinalizer(teardown)
+
+        template = plugin_utils.get_template_file(template_file)
         hc, stack = create_stack(
-            opt_bigip, opt_bigip_un, opt_bigip_pw, stack_template
+            opt_bigip, opt_bigip_un, opt_bigip_pw, template, parameters
         )
         return hc, stack
     return manage_stack
@@ -75,10 +72,12 @@ def HeatStack(opt_bigip, opt_bigip_un, opt_bigip_pw, request):
 @pytest.fixture
 def HeatStackNoTeardown(opt_bigip, opt_bigip_un, opt_bigip_pw, request):
     '''Heat stack fixture for creating/deleting a heat stack.'''
-    def manage_stack(stack_template):
+    def manage_stack(template_file):
+        template = plugin_utils.get_template_file(template_file)
         hc, stack = create_stack(
-            opt_bigip, opt_bigip_un, opt_bigip_pw, stack_template
+            opt_bigip, opt_bigip_un, opt_bigip_pw, template
         )
+
         return hc, stack
     return manage_stack
 
@@ -86,15 +85,14 @@ def HeatStackNoTeardown(opt_bigip, opt_bigip_un, opt_bigip_pw, request):
 @pytest.fixture
 def HeatStackNoParams(request):
     '''Heat stack fixture which gives no params to create_stack.'''
-    def manage_stack(stack_template):
+    def manage_stack(template_file):
         def teardown():
-            utils.delete_stack(hc, utils.TESTSTACKNAME)
-
+            hc.delete_stack()
         request.addfinalizer(teardown)
-        hc = utils.get_heat_client()
-        stack = utils.create_stack(
-            hc, stack_name=utils.TESTSTACKNAME, template=stack_template
-        )
+
+        template = plugin_utils.get_template_file(template_file)
+        hc = hc_utils.HeatClientMgr()
+        stack = hc.create_stack(template=template)
         return hc, stack
     return manage_stack
 

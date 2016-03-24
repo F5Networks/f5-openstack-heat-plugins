@@ -13,10 +13,8 @@
 # limitations under the License.
 #
 
-# Enter the specifics of your own stack here
-
-AUTH_URL = 'http://<keystone_ip>:5000/v2.0'
-HEAT_ENDPOINT = 'http://<heat_endpoint_ip>:8004/v1/<tenant_id>'
-PASSWORD = '<os_user_password>'
-TENANT_NAME = '<os_tenant_name>'
-USERNAME = '<os_username>'
+AUTH_URL = 'http://10.190.4.147:5000/v2.0'
+HEAT_ENDPOINT = 'http://10.190.4.147:8004/v1/e7ef9afb6d734598bff419214e718c45'
+PASSWORD = 'changeme'
+TENANT_NAME = 'admin'
+USERNAME = 'admin'

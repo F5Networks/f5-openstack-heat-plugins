@@ -13,17 +13,18 @@
 # limitations under the License.
 #
 
+from test_variables import AUTH_URL
+from test_variables import HEAT_ENDPOINT
+from test_variables import PASSWORD
+from test_variables import TENANT_NAME
+from test_variables import USERNAME
+
 import time
 
 from heatclient.v1.client import Client as HeatClient
 from keystoneclient.v2_0 import client as KeystoneClient
 
 
-AUTH_URL = 'http://10.190.4.147:5000/v2.0'
-HEAT_ENDPOINT = 'http://10.190.4.147:8004/v1/e7ef9afb6d734598bff419214e718c45'
-PASSWORD = 'changeme'
-TENANT_NAME = 'admin'
-USERNAME = 'admin'
 TESTSTACKNAME = 'func_test_stack'
 
 

@@ -43,17 +43,16 @@ def opt_bigip_pw(request):
     return request.config.getoption('--password')
 
 
-def create_stack(bigip_ip, bigip_un, bigip_pw, template):
+def create_stack(bigip_ip, bigip_un, bigip_pw, template, parameters={}):
     hc = utils.get_heat_client()
+    parameters.update(
+        {'bigip_ip': bigip_ip, 'bigip_un': bigip_un, 'bigip_pw': bigip_pw}
+    )
     stack = utils.create_stack(
         hc,
         stack_name=utils.TESTSTACKNAME,
         template=template,
-        parameters={
-            'bigip_ip': bigip_ip,
-            'bigip_un': bigip_un,
-            'bigip_pw': bigip_pw
-        }
+        parameters=parameters
     )
     return hc, stack
 
@@ -61,12 +60,12 @@ def create_stack(bigip_ip, bigip_un, bigip_pw, template):
 @pytest.fixture
 def HeatStack(opt_bigip, opt_bigip_un, opt_bigip_pw, request):
     '''Heat stack fixture for creating/deleting a heat stack.'''
-    def manage_stack(stack_template):
+    def manage_stack(stack_template, parameters={}):
         def teardown():
             utils.delete_stack(hc, utils.TESTSTACKNAME)
         request.addfinalizer(teardown)
         hc, stack = create_stack(
-            opt_bigip, opt_bigip_un, opt_bigip_pw, stack_template
+            opt_bigip, opt_bigip_un, opt_bigip_pw, stack_template, parameters
         )
         return hc, stack
     return manage_stack

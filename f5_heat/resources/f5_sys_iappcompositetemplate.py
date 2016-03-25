@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +25,7 @@ from common.mixins import F5BigIPMixin
 
 
 class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
-    '''Manages creation of an iApp resource on the BigIP device.'''
+    '''Manages creation of an iApp® resource on the BIG-IP® device.'''
 
     PROPERTIES = (
         NAME,
@@ -86,9 +88,9 @@ class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
     }
 
     def _add_optional_attr(self, iapp_dict):
-        '''When building the iapp dictionary, add optional items.
+        '''When building the iApp® dictionary, add optional items.
 
-        :param iapp_dict: dictionary for iapp template
+        :param iapp_dict: dictionary for iApp® template
         :returns: possibly modified dictionary
         '''
 
@@ -103,7 +105,7 @@ class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
         return iapp_dict
 
     def _build_iapp_dict(self):
-        '''Build dictionary for posting to BigIP.
+        '''Build dictionary for posting to BIG-IP®.
 
         :returns: dictionary of template information
         '''
@@ -122,7 +124,7 @@ class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
 
     @f5_common_resources
     def handle_create(self):
-        '''Create the template on the BigIP.
+        '''Create the template on the BIG-IP®.
 
         :raises: ResourceFailure
         '''
@@ -138,7 +140,7 @@ class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
 
     @f5_common_resources
     def handle_delete(self):
-        '''Delete the iApp Template on the BigIP.
+        '''Delete the iApp® Template on the BIG-IP®.
 
         :raises: ResourceFailure
         '''

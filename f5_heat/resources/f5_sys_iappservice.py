@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +32,7 @@ LOG = logging.getLogger(__name__)
 
 
 class F5SysiAppService(resource.Resource, F5BigIPMixin):
-    '''Manages creation of an iApp resource on the BigIP device.'''
+    '''Manages creation of an iApp® resource on the BIG-IP®.'''
 
     PROPERTIES = (
         NAME,
@@ -131,7 +133,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
 
     @f5_common_resources
     def handle_create(self):
-        '''Creates the iApp Service from an iApp template.
+        '''Creates the iApp® Service from an iApp® template.
 
         :raises: ResourceFailure # TODO Change to proper exception
         '''
@@ -147,7 +149,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
 
     @f5_common_resources
     def handle_delete(self):
-        '''Deletes the iApp Service
+        '''Deletes the iApp® Service
 
         :raises: Resource Failure # TODO Change to proper exception
         '''

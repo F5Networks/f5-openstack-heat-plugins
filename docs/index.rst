@@ -1,18 +1,18 @@
-F5 OpenStack Heat Plugins Documentation
-=======================================
+F5® OpenStack Heat Plugins
+==========================
 
-Introduction
-------------
-This repository houses all of F5's `Openstack Heat <https://wiki.openstack.org/wiki/Heat>`__
-resource plugins. F5's Heat plugins can be used to orchestrate BIG-IP services
+Overview
+--------
+This repository houses all of F5®'s `Openstack Heat <https://wiki.openstack.org/wiki/Heat>`__
+resource plugins. F5®'s Heat plugins can be used to orchestrate BIG-IP® services
 in your OpenStack environment.
 
 Releases and Versions
 ---------------------
 |release| supports the OpenStack |openstack_release| release.
 
-For more information about F5 Networks's OpenStack versioning and a support
-matrix please see `F5 Networks OpenStack Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`__.
+For more information about F5 Networks®' OpenStack versioning and a support
+matrix, please see `F5 Networks®  OpenStack Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`__.
 
 Installation
 ------------
@@ -26,10 +26,10 @@ already expecting to find new plugins. The Heat configuration file in
 default locations the Heat engine seraches for new plugins. In the steps below
 we will link the plugins to a location where Heat is expecting new plugins to
 be. Please remember that your installation may differ (sometimes greatly) from
-the what we show below.
+ what we show below.
 
-*Note: If you are installing a pre-release version of the package with pip
-you will need to use the --pre option.*
+.. note::
+    If you are installing a pre-release version of the package with pip, you will need to use the ``--pre`` option.
 
 Ubuntu
 ~~~~~~
@@ -57,15 +57,14 @@ RedHat/CentOS
 
 Usage
 -----
-Once the plugins are installed the F5 objects can be used when creating Heat
-templates.  An example use of one of the objects is below.
+Once the plugins are installed, you can use the F5® objects when creating Heat templates (example below).
 
 .. code:: yaml
 
     resources:
       # The first two resources defined here are requirements for deploying
-      # any object on the BigIP VE. The F5::BigIP::Device allows access and
-      # authentication to the BigIP on which an object will be configured.
+      # any object on the BIG-IP® VE. The F5::BigIP::Device allows access and
+      # authentication to the BIG-IP® on which an object will be configured.
       # The F5::Sys::Partition resource places a particular object in the
       # partition given. These two requirements will be linked with the obects
       # we intend to configure (iAppTemplate, iAppService) by calling the
@@ -97,6 +96,7 @@ templates.  An example use of one of the objects is below.
           partition: { get_resource: partition }
           template_name: test_template # Matches name in template resource
 
+
 API Documentation
 -----------------
 .. toctree::
@@ -111,11 +111,7 @@ Copyright 2015-2016 F5 Networks Inc.
 
 Support
 -------
-Maintenance and support of the unmodified F5 code is provided only to customers
-who have an existing support contract, purchased separately subject to F5’s
-support policies available at http://www.f5.com/about/guidelines-policies/ and
-http://askf5.com.  F5 will not provide maintenance and support services of
-modified F5 code or code that does not have an existing support contract.
+See `SUPPORT.md <https://github.com/F5Networks/f5-openstack-heat-plugins/blob/master/SUPPORT.md>`_.
 
 License
 -------
@@ -138,7 +134,7 @@ Contributor License Agreement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Individuals or business entities who contribute to this project must
-have completed and submitted the `F5 Contributor License
+have completed and submitted the `F5® Contributor License
 Agreement <http://f5-openstack-docs.readthedocs.org/en/latest/cla_landing.html>`__
 to Openstack_CLA@f5.com prior to their code submission being included in this
 project.

@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +30,7 @@ class IappFullTemplateValidationFailed(exception.StackValidationFailed):
 
 
 class F5SysiAppFullTemplate(F5BigIPMixin, resource.Resource):
-    '''Manages creation of an iApp resource on the BigIP device.'''
+    '''Manages creation of an iApp® resource on the BIG-IP®.'''
 
     PROPERTIES = (
         BIGIP_SERVER,
@@ -82,7 +84,7 @@ class F5SysiAppFullTemplate(F5BigIPMixin, resource.Resource):
 
     @f5_common_resources
     def handle_create(self):
-        '''Create the template on the BigIP.
+        '''Create the template on the BIG-IP®.
 
         :raises: ResourceFailure
         '''
@@ -96,7 +98,7 @@ class F5SysiAppFullTemplate(F5BigIPMixin, resource.Resource):
 
     @f5_common_resources
     def handle_delete(self):
-        '''Delete the iApp Template on the BigIP.
+        '''Delete the iApp® Template on the BIG-IP®.
 
         :raises: ResourceFailure
         '''

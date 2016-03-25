@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,10 +32,10 @@ def f5_bigip(func):
 
 
 class F5BigIPMixin(object):
-    '''This class is to be subclassed by an F5 Heat Resource Plugin.'''
+    '''This class is to be subclassed by an F5® Heat Resource Plugin.'''
 
     def get_bigip(self):
-        '''Retrieve the BigIP connection from the F5::BigIP resource.'''
+        '''Retrieve the BIG-IP® connection from the F5::BigIP resource.'''
 
         refid = self.properties[self.BIGIP_SERVER]
         self.bigip = self.stack.resource_by_refid(refid).get_bigip()

@@ -8,16 +8,15 @@ f5-openstack-heat-plugins
 
 Introduction
 ------------
-This repository houses all of F5's OpenStack Heat resource plugins. F5's
-Heat plugins can be used to orchestrate BIG-IP services in your
-OpenStack environment.
+This repository houses all of F5®'s OpenStack Heat resource plugins. F5®'s
+Heat plugins can be used to orchestrate BIG-IP®  services in your OpenStack environment.
 
 Releases and Versions
 ---------------------
 This branch supports the OpenStack Kilo release.
 
-For more information about F5 Networks's OpenStack versioning and a support
-matrix please see `F5 Networks OpenStack Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`__.
+For more information about F5® Networks's OpenStack versioning and a support
+matrix please see `F5® Networks OpenStack Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`__.
 
 Installation
 ------------
@@ -31,7 +30,7 @@ already expecting to find new plugins. The Heat configuration file in
 default locations the Heat engine seraches for new plugins. In the steps below
 we will link the plugins to a location where Heat is expecting new plugins to
 be. Please remember that your installation may differ (sometimes greatly) from
-the what we show below.
+ what we show below.
 
 *Note: If you are installing a pre-release version of the package with pip
 you will need to use the --pre option.*
@@ -102,10 +101,10 @@ templates.  An example use of one of the objects is below.
           partition: { get_resource: partition }
           template_name: test_template # Matches name in template resource
 
+
 Documentation
 -------------
-Project documentation can be found on
-`Read The Docs <https://f5-openstack-heat-plugins.readthedocs.org>`__.
+Project documentation can be found on `Read The Docs <https://f5-openstack-heat-plugins.readthedocs.org>`_.
 
 Filing Issues
 -------------
@@ -115,7 +114,7 @@ you found and how you found it.
 
 Contributing
 ------------
-See `Contributing <CONTRIBUTING.md>`__
+See `Contributing <CONTRIBUTING.md>`_.
 
 Build
 -----
@@ -123,47 +122,42 @@ To make a PyPI package...
 
 .. code:: bash
 
-    python setup.py sdist
+    $ python setup.py sdist
+
 
 Test
 ----
-Before you open a pull request, your code must have passing
-`pytest <http://pytest.org>`__ unit tests. In addition, you should
-include a set of functional tests written to use a real BIG-IP device
-for testing. Information on how to run our set of tests is included
-below.
+Before you open a pull request, your code must have passing `pytest <http://pytest.org>`__ unit tests. In addition, you should include a set of functional tests written to use a real BIG-IP®  device
+for testing. Information on how to run our set of tests is included below.
 
 Unit Tests
 ~~~~~~~~~~
-We use pytest for our unit tests
+We use pytest for our unit tests.
 
 #. If you haven't already, install the required test packages and the
    requirements.txt in your virtual environment.
 
-   .. code:: shell
+.. code:: shell
 
-       $ pip install hacking pytest pytest-cov
-       $ pip install -r requirements.txt
+   $ pip install hacking pytest pytest-cov
+   $ pip install -r requirements.txt
 
-#. | Run the tests and produce a coverage repor. The
-     ``--cov-report=html`` will
-   | create a ``htmlcov/`` directory that you can view in your browser
-     to see the
-   | missing lines of code.
-
-   .. code:: shell
-
-       py.test --cov ./icontrol --cov-report=html
-       open htmlcov/index.html
-
-Style Checks
-~~~~~~~~~~~~
-We use the hacking module for our style checks (installed as part of
-step 1 in the Unit Test section).
+#. Run the tests and produce a coverage report. The ``--cov-report=html`` will create a ``htmlcov/`` directory that you can view in your browser to see the missing lines of code.
 
 .. code:: shell
 
-    flake8 ./
+   $ py.test --cov ./icontrol --cov-report=html
+   $ open htmlcov/index.html
+
+
+Style Checks
+~~~~~~~~~~~~
+We use the hacking module for our style checks (installed as part of step 1 in the Unit Test section).
+
+.. code:: shell
+
+    $ flake8 ./
+
 
 Contact
 -------
@@ -196,7 +190,7 @@ permissions and limitations under the License.
 Contributor License Agreement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Individuals or business entities who contribute to this project must
-have completed and submitted the `F5 Contributor License
+have completed and submitted the `F5® Contributor License
 Agreement <http://f5-openstack-docs.readthedocs.org/en/latest/cla_landing.html>`__
 to Openstack_CLA@f5.com prior to their code submission being included in this
 project.

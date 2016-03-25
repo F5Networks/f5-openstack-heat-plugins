@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +25,7 @@ from common.mixins import F5BigIPMixin
 
 
 class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
-    '''Manages creation of an F5 Virtual Server Resource.'''
+    '''Manages creation of an F5® Virtual Server Resource.'''
 
     PROPERTIES = (
         NAME,

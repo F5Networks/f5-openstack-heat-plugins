@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +25,7 @@ from common.mixins import F5BigIPMixin
 
 
 class F5SysPartition(resource.Resource, F5BigIPMixin):
-    '''Manages creation of an F5 Virtual Server Resource.'''
+    '''Manages creation of an F5® Virtual Server Resource.'''
 
     PROPERTIES = (
         NAME,
@@ -65,10 +67,10 @@ class F5SysPartition(resource.Resource, F5BigIPMixin):
 
     @f5_bigip
     def handle_create(self):
-        '''Create the BigIP Virtual Server resource on the given device.
+        '''Create the BIG-IP® Virtual Server resource on the given device.
 
         If the 'Common' partition was specified, do not create, as it exists
-        on the BigIP by default.
+        on the BIG-IP® by default.
 
         :raises: ResourceFailure exception
         '''
@@ -84,10 +86,10 @@ class F5SysPartition(resource.Resource, F5BigIPMixin):
 
     @f5_bigip
     def handle_delete(self):
-        '''Delete the BigIP Virtual Server resource on the given device.
+        '''Delete the BIG-IP® Virtual Server resource on the given device.
 
         If the 'Common' partition was specified, do not delete, as it exists
-        on the BigIP by default.
+        on the BIG-IP® by default.
 
         :raises: ResourceFailure exception
         '''

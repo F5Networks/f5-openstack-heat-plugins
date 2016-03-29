@@ -21,10 +21,17 @@ matrix please see `F5 Networks OpenStack Support Matrix <http://f5-openstack-doc
 
 Installation
 ------------
-The heat plugins must be installed on the machine that the Heat engine is
-running on in order to use templates that refer the the F5 plugins.  After
-installing the plugins the Heat engine must be restarted for them to take
-effect.
+The Heat plugins must be installed on the machine where the Heat engine
+service is running in your stack. 'sudo' access on this machine may be needed.
+The Python tool 'pip' is being used to install. Once the plugins are installed,
+you must either tell the Heat engine service where to find the installed
+plugins or link (or copy) the plugins to a location where the Heat engine is
+already expecting to find new plugins. The Heat configuration file in
+'/etc/heat/heat.conf' has an option called 'plugin_dirs', which defines the
+default locations the Heat engine seraches for new plugins. In the steps below
+we will link the plugins to a location where Heat is expecting new plugins to
+be. Please remember that your installation may differ (sometimes greatly) from
+the what we show below.
 
 *Note: If you are installing a pre-release version of the package with pip
 you will need to use the --pre option.*
@@ -33,22 +40,24 @@ Ubuntu
 ~~~~~~
 .. code:: shell
 
+   $ apt-get install python-pip
    $ pip install f5-openstack-heat-plugins
    # Link (or copy) plugins to the Heat plugin directory
-   # The common Heat plugin directory is shown below, but it may differ
-   # depending on your Heat installation
-   $ ln -s /usr/lib/python/dist-packages/f5_heat /usr/lib/heat/f5_heat
+   # This directory may not exist
+   $ mkdir -p /usr/lib/heat
+   $ ln -s /usr/lib/python2.7/dist-packages/f5_heat /usr/lib/heat/f5_heat
    $ service heat-engine restart
 
 RedHat/CentOS
 ~~~~~~~~~~~~~
 .. code:: shell
 
+   $ yum install python-pip
    $ pip install f5-openstack-heat-plugins
    # Link (or copy) plugins to the Heat plugin directory
-   # The common Heat plugin directory is shown below, but it may differ
-   # depending on your Heat installation
-   $ ln -s /usr/lib/python/site-packages/f5_heat /usr/lib/heat/f5_heat
+   # This directory may not exist
+   $ mkdir -p /usr/lib/heat
+   $ ln -s /usr/lib/python2.7/site-packages/f5_heat /usr/lib/heat/f5_heat
    $ systemctl restart openstack-heat-engine.service
 
 Usage

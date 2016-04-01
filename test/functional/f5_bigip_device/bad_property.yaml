@@ -1,0 +1,9 @@
+heat_template_version: 2015-04-30
+resources:
+  bigip_rsrc:
+    type: F5::BigIP::Device
+    properties:
+      username: admin
+      password: admin
+      ip: ip_doesnt_matter
+      bad_extra_prop: cooldeal

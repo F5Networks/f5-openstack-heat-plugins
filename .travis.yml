@@ -11,7 +11,7 @@ before_install:
     - sudo apt-get -y install build-essential libssl-dev libffi-dev python-dev
     - git clone -b stable/kilo https://github.com/openstack/heat.git ~/heat
 install:
-    - pip install -r requirements.test.txt
+    - pip install -r requirements.unit.test.txt
     - pip install -r ~/heat/requirements.txt
 script:
     - flake8 f5_heat/resources/

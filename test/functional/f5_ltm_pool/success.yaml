@@ -1,0 +1,52 @@
+heat_template_version: 2015-04-30
+
+description: Test of creating a pool on an existing VE server
+
+parameters:
+  pool_name:
+    type: string
+    label: Pool Name
+    default: test_pool
+  bigip_ip:
+    type: string
+    label: VE Instance IP
+    description: IP of existing VE
+  bigip_un:
+    type: string
+    label: BigIP Login Username
+  bigip_pw:
+    type: string
+    label: BigIP Login Password
+parameter_groups:
+  - label: VE Parameters
+    parameters:
+      - bigip_ip
+      - bigip_un
+      - bigip_pw
+  - label: Pool Parameters
+    parameters:
+      - pool_name
+resources:
+  bigip_rsrc:
+    type: F5::BigIP::Device
+    properties:
+      ip: { get_param: bigip_ip }
+      username: { get_param: bigip_un }
+      password: { get_param: bigip_pw }
+  partition:
+    type: F5::Sys::Partition
+    depends_on: bigip_rsrc
+    properties:
+      name: Common
+      bigip_server: { get_resource: bigip_rsrc }
+  ve_pool:
+    type: F5::LTM::Pool
+    properties:
+      name: { get_param: pool_name }
+      bigip_server: { get_resource: bigip_rsrc }
+      partition: { get_resource: partition }
+      members:
+        - member_ip: 129.0.0.2
+          member_port: 80
+        - member_ip: 130.0.0.2
+          member_port: 80

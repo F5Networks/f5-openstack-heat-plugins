@@ -9,7 +9,7 @@ before_install:
     - git config --global user.email "OpenStack_TravisCI@f5.com"
     - git config --global user.name "Travis F5 Openstack"
     - sudo apt-get -y install build-essential libssl-dev libffi-dev python-dev
-    - git clone -b stable/kilo https://github.com/openstack/heat.git ~/heat
+    - apt-get install -y heat-engine
 install:
     - pip install -r requirements.unit.test.txt
     - pip install -r ~/heat/requirements.txt
@@ -17,9 +17,7 @@ script:
     - flake8 f5_heat/resources/
     - py.test f5_heat/resources/test --cov=f5_heat/resources
     - python setup.py sdist
-    - cd docs
-    - make html
-    - cd ../
+    - sphinx-build -W docs/ docs/_build/
 deploy:
   provider: pypi
   user: $PYPI_USER

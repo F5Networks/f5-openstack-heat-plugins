@@ -1,10 +1,6 @@
 f5-openstack-heat-plugins
 =========================
-.. image:: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins.svg?branch=kilo
-    :target: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins
-
-.. image:: https://readthedocs.org/projects/f5-openstack-heat-plugins/badge/?version=kilo
-    :target: http://f5-openstack-heat-plugins.readthedocs.org/en/latest/?badge=kilo
+|travis build| |docs build| |slack badge|
 
 Introduction
 ------------
@@ -20,24 +16,13 @@ matrix please see `F5® Networks OpenStack Support Matrix <http://f5-openstack-d
 
 Installation
 ------------
-The Heat plugins must be installed on the machine where the Heat engine
-service is running in your stack. 'sudo' access on this machine may be needed.
-The Python tool 'pip' is being used to install. Once the plugins are installed,
-you must either tell the Heat engine service where to find the installed
-plugins or link (or copy) the plugins to a location where the Heat engine is
-already expecting to find new plugins. The Heat configuration file in
-'/etc/heat/heat.conf' has an option called 'plugin_dirs', which defines the
-default locations the Heat engine seraches for new plugins. In the steps below
-we will link the plugins to a location where Heat is expecting new plugins to
-be. Please remember that your installation may differ (sometimes greatly) from
- what we show below.
+The Heat plugins must be installed on the machine where the Heat engine service is running in your stack. ``sudo`` access on this machine may be needed. The Python tool ``pip`` is being used to install. Once the plugins are installed, you must either tell the Heat engine service where to find the installed plugins or link (or copy) the plugins to a location where the Heat engine is already expecting to find new plugins. The Heat configuration file in */etc/heat/heat.conf* has an option called ``plugin_dirs``, which defines the default locations the Heat engine seraches for new plugins. In the steps below we will link the plugins to a location where Heat is expecting new plugins to be. Please remember that your installation may differ (sometimes greatly) from what we show below.
 
-*Note: If you are installing a pre-release version of the package with pip
-you will need to use the --pre option.*
+**NOTE:** If you are installing a pre-release version of the package with pip you will need to use the ``--pre`` option.
 
 Ubuntu
 ~~~~~~
-.. code:: shell
+.. code-block:: shell
 
    $ apt-get install python-pip
    $ pip install f5-openstack-heat-plugins
@@ -49,7 +34,7 @@ Ubuntu
 
 RedHat/CentOS
 ~~~~~~~~~~~~~
-.. code:: shell
+.. code-block:: shell
 
    $ yum install python-pip
    $ pip install f5-openstack-heat-plugins
@@ -61,10 +46,9 @@ RedHat/CentOS
 
 Usage
 -----
-Once the plugins are installed the F5 objects can be used when creating Heat
-templates.  An example use of one of the objects is below.
+Once the plugins are installed the F5 objects can be used when creating Heat templates. An example use of one of the objects is below.
 
-.. code:: yaml
+.. code-block:: yaml
 
     resources:
       # The first two resources defined here are requirements for deploying
@@ -108,9 +92,7 @@ Project documentation can be found on `Read The Docs <https://f5-openstack-heat-
 
 Filing Issues
 -------------
-If you find an issue we would love to hear about it. Please let us know by
-filing an issue in this repository and tell us as much as you can about what
-you found and how you found it.
+If you find an issue we would love to hear about it. Please let us know by filing an issue in this repository and tell us as much as you can about what you found and how you found it.
 
 Contributing
 ------------
@@ -127,8 +109,7 @@ To make a PyPI package...
 
 Test
 ----
-Before you open a pull request, your code must have passing `pytest <http://pytest.org>`__ unit tests. In addition, you should include a set of functional tests written to use a real BIG-IP®  device
-for testing. Information on how to run our set of tests is included below.
+Before you open a pull request, your code must have passing `pytest <http://pytest.org>`__ unit tests. In addition, you should include a set of functional tests written to use a real BIG-IP®  device for testing. Information on how to run our set of tests is included below.
 
 Unit Tests
 ~~~~~~~~~~
@@ -185,11 +166,6 @@ We use the hacking module for our style checks (installed as part of step 1 in t
 
     $ flake8 ./
 
-
-Contact
--------
-f5_openstack_heat@f5.com
-
 Copyright
 ---------
 Copyright 2015-2016 F5 Networks Inc.
@@ -221,3 +197,14 @@ have completed and submitted the `F5® Contributor License
 Agreement <http://f5-openstack-docs.readthedocs.org/en/latest/cla_landing.html>`__
 to Openstack_CLA@f5.com prior to their code submission being included in this
 project.
+
+
+.. |travis build| image:: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins.svg?branch=kilo
+    :target: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins
+
+.. |docs build| image:: https://readthedocs.org/projects/f5-openstack-heat-plugins/badge/?version=kilo
+    :target: http://f5-openstack-heat-plugins.readthedocs.org/en/latest/?badge=kilo
+
+.. |slack badge| image:: https://f5-openstack-slack.herokuapp.com/badge.svg
+    :target: https://f5-openstack-slack.herokuapp.com/
+    :alt: Slack

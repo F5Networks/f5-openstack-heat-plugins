@@ -1,6 +1,10 @@
 F5® OpenStack Heat Plugins
 ==========================
 
+.. raw:: html
+
+    <script async defer src="https://f5-openstack-slack.herokuapp.com/slackin.js"></script>
+
 Overview
 --------
 This repository houses all of F5®'s `Openstack Heat <https://wiki.openstack.org/wiki/Heat>`__
@@ -11,29 +15,19 @@ Releases and Versions
 ---------------------
 |release| supports the OpenStack |openstack_release| release.
 
-For more information about F5 Networks®' OpenStack versioning and a support
-matrix, please see `F5 Networks®  OpenStack Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`__.
+For more information about F5 Networks®' OpenStack versioning and a support matrix, please see `F5 Networks®  OpenStack Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`__.
 
 Installation
 ------------
-The Heat plugins must be installed on the machine where the Heat engine
-service is running in your stack. 'sudo' access on this machine may be needed.
-The Python tool 'pip' is being used to install. Once the plugins are installed,
-you must either tell the Heat engine service where to find the installed
-plugins or link (or copy) the plugins to a location where the Heat engine is
-already expecting to find new plugins. The Heat configuration file in
-'/etc/heat/heat.conf' has an option called 'plugin_dirs', which defines the
-default locations the Heat engine seraches for new plugins. In the steps below
-we will link the plugins to a location where Heat is expecting new plugins to
-be. Please remember that your installation may differ (sometimes greatly) from
- what we show below.
+The Heat plugins must be installed on the machine where the Heat engine service is running in your stack. ``sudo`` access on this machine may be needed. The Python tool ``pip`` is being used to install. Once the plugins are installed, you must either tell the Heat engine service where to find the installed plugins or link (or copy) the plugins to a location where the Heat engine is already expecting to find new plugins. The Heat configuration file in */etc/heat/heat.conf* has an option called ``plugin_dirs``, which defines the default locations the Heat engine seraches for new plugins. In the steps below we will link the plugins to a location where Heat is expecting new plugins to be. Please remember that your installation may differ (sometimes greatly) from what we show below.
 
 .. note::
+
     If you are installing a pre-release version of the package with pip, you will need to use the ``--pre`` option.
 
 Ubuntu
 ~~~~~~
-.. code:: shell
+.. code-block:: shell
 
    $ apt-get install python-pip
    $ pip install f5-openstack-heat-plugins
@@ -45,7 +39,7 @@ Ubuntu
 
 RedHat/CentOS
 ~~~~~~~~~~~~~
-.. code:: shell
+.. code-block:: shell
 
    $ yum install python-pip
    $ pip install f5-openstack-heat-plugins
@@ -59,7 +53,7 @@ Usage
 -----
 Once the plugins are installed, you can use the F5® objects when creating Heat templates (example below).
 
-.. code:: yaml
+.. code-block:: yaml
 
     resources:
       # The first two resources defined here are requirements for deploying

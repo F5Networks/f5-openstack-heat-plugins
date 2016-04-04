@@ -8,6 +8,8 @@ before_install:
     - sudo apt-get -qq update
     - git config --global user.email "OpenStack_TravisCI@f5.com"
     - git config --global user.name "Travis F5 Openstack"
+    - sudo apt-get install ubuntu-cloud-keyring
+    - echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu" "trusty-updates/juno main" > /etc/apt/sources.list.d/cloudarchive-kilo.list
     - sudo apt-get -y install build-essential libssl-dev libffi-dev python-dev heat-engine
 install:
     - pip install -r requirements.unit.test.txt

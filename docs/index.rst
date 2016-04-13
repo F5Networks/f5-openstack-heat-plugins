@@ -13,124 +13,152 @@ in your OpenStack environment.
 
 Releases and Versions
 ---------------------
-|release| supports the OpenStack |openstack_release| release.
+The current release, v |release|, supports the OpenStack |openstack| release.
 
-For more information about F5 Networks®' OpenStack versioning and a support matrix, please see `F5 Networks®  OpenStack Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`__.
+Please see `F5® OpenStack Releases, Versioning, and Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`_ for additional information about F5®'s OpenStack plugins, versioning, and BIG-IP® compatibility.
+
+Before You Begin
+----------------
+
+Before you begin, please note the following:
+
+* The F5® Heat plugins must be installed on the same machine as the Heat engine service in your stack.
+* You may need to use ``sudo`` to execute some of the installation and/or configuration commands.
+* You will need to install the Python tool ``pip`` on your machine.
+
+    .. code-block:: shell
+
+        $ apt-get install python-pip \\ Ubuntu
+        $ yum install python-pip \\ CentOS
+
+* If you are installing a pre-release version of the package with pip, you will need to use the ``--pre`` option.
 
 Installation
 ------------
-The Heat plugins must be installed on the machine where the Heat engine service is running in your stack. ``sudo`` access on this machine may be needed. The Python tool ``pip`` is being used to install. Once the plugins are installed, you must either tell the Heat engine service where to find the installed plugins or link (or copy) the plugins to a location where the Heat engine is already expecting to find new plugins. The Heat configuration file in */etc/heat/heat.conf* has an option called ``plugin_dirs``, which defines the default locations the Heat engine seraches for new plugins. In the steps below we will link the plugins to a location where Heat is expecting new plugins to be. Please remember that your installation may differ (sometimes greatly) from what we show below.
 
 .. note::
 
-    If you are installing a pre-release version of the package with pip, you will need to use the ``--pre`` option.
+    Once the plugins are installed, you will need to tell the Heat engine service where to find them. We recommend that you either install the plugins, or link them, to a location where the Heat engine already expects to find them. The default location for Heat plugins is :file:`/usr/lib/heat`.
+
+    If you wish to install the plugins in a different location, update the
+    ``plugin_dirs`` section of the Heat configuration file - :file:`/etc/heat/heat.conf` - accordingly.
+
+    Please remember that your installation may differ (sometimes greatly) from what we show below.
 
 Ubuntu
 ~~~~~~
-.. code-block:: shell
 
-   $ apt-get install python-pip
-   $ pip install f5-openstack-heat-plugins
-   # Link (or copy) plugins to the Heat plugin directory
-   # This directory may not exist
-   $ mkdir -p /usr/lib/heat
-   $ ln -s /usr/lib/python2.7/dist-packages/f5_heat /usr/lib/heat/f5_heat
-   $ service heat-engine restart
+1. Install the F5® Heat plugins.
+
+    .. code-block:: shell
+
+        $ pip install f5-openstack-heat-plugins
+
+2. Make the Heat plugins directory (**NOTE:** this may already exist).
+
+    .. code-block:: shell
+
+        $ mkdir -p /usr/lib/heat
+
+3. Create a link to the F5® plugins in the Heat plugins directory.
+
+    .. code-block:: shell
+
+        $ ln -s /usr/lib/python2.7/dist-packages/f5_heat /usr/lib/heat/f5_heat
+
+4. Restart the Heat engine service.
+
+    .. code-block:: shell
+
+        $ service heat-engine restart
+
+
 
 RedHat/CentOS
 ~~~~~~~~~~~~~
-.. code-block:: shell
 
-   $ yum install python-pip
-   $ pip install f5-openstack-heat-plugins
-   # Link (or copy) plugins to the Heat plugin directory
-   # This directory may not exist
-   $ mkdir -p /usr/lib/heat
-   $ ln -s /usr/lib/python2.7/site-packages/f5_heat /usr/lib/heat/f5_heat
-   $ systemctl restart openstack-heat-engine.service
+.. include:: index.rst
+    :start-line: 50
+    :end-line: 62
+
+3. Create a link to the F5® plugins in the Heat plugins directory.
+
+    .. code-block:: shell
+
+        $ ln -s /usr/lib/python2.7/site-packages/f5_heat /usr/lib/heat/f5_heat
+
+4. Restart the Heat engine service.
+
+    .. code-block:: shell
+
+        $ systemctl restart openstack-heat-engine.service
+
 
 Usage
 -----
-Once the plugins are installed, you can use the F5® objects when creating Heat templates (example below).
+The objects defined by the F5® Heat plugins can be used in Heat templates to orchestrate F5® services in an OpenStack cloud. The sample Heat template below does the following:
 
-.. code-block:: yaml
+* identifies the BIG-IP® we want to configure
+* provides login credentials for an admin user on the BIG-IP®
+* identifies the partition on the BIG-IP® where the objects we want to create should be placed
+* identifies an iApp® template to use to deploy/manage BIG-IP® services
 
-    resources:
-      # The first two resources defined here are requirements for deploying
-      # any object on the BIG-IP® VE. The F5::BigIP::Device allows access and
-      # authentication to the BIG-IP® on which an object will be configured.
-      # The F5::Sys::Partition resource places a particular object in the
-      # partition given. These two requirements will be linked with the obects
-      # we intend to configure (iAppTemplate, iAppService) by calling the
-      # 'get_resource' intrinsic function.
-      bigip:
-        type: F5::BigIP::Device
-        properties:
-          ip: 10.0.0.1 # All properties can be passed in as parameters
-          username: admin
-          password: admin # The password can be passed in as a hidden field
-      partition:
-        type: F5::Sys::Partition
-        properties:
-          name: Common # Put these objects in the existing Common partition
-          bigip_server: { get_resource: bigip } # Create dependency on bigip
-      iapp_template:
-        type: F5::Sys::iAppTemplate
-        properties:
-          name: test_template
-          bigip_server: { get_resource: bigip } # Depends on bigip resource
-          partition: { get_resource: partition} # Depends on partition as well
-          full_template:
-            get_file: iapps/full_template.tmpl
-      iapp_service:
-        type: F5::Sys::iAppService
-        properties:
-          name: test_service
-          bigip_server: { get_resource: bigip }
-          partition: { get_resource: partition }
-          template_name: test_template # Matches name in template resource
+The first two resources defined here are required to deploy any object on BIG-IP® VE.
 
+* :py:mod:`F5BigIPDevice` identifies and authenticates to the BIG-IP®
+* :py:mod:`F5SysPartition` identifies the partition on the BIG-IP® in which objects will be placed (``Common`` is the default partition).
+
+These two requirements will be linked with the obects we intend to configure (iAppTemplate, iAppService) by calling the 'get_resource' intrinsic function.
+
+.. topic:: Sample Heat template using objects defined by the F5® Heat plugins.
+
+    .. code-block:: yaml
+        :linenos:
+        :emphasize-lines: 12, 14, 18, 19, 24, 25, 34
+
+        resources:
+          bigip:
+            type: F5::BigIP::Device
+            properties:
+              ip: 10.0.0.1 # All properties can be passed in as parameters
+              username: admin
+              password: admin # The password can be passed in as a hidden field
+          partition:
+            type: F5::Sys::Partition
+            properties:
+              name: Common # Put these objects in the existing Common partition
+              bigip_server: { get_resource: bigip } # Create dependency on bigip
+          iapp_template:
+            type: F5::Sys::iAppTemplate
+            properties:
+              name: test_template
+              bigip_server: { get_resource: bigip } # Depends on bigip resource
+              partition: { get_resource: partition} # Depends on partition as well
+              full_template:
+                get_file: iapps/full_template.tmpl
+          iapp_service:
+            type: F5::Sys::iAppService
+            properties:
+              name: test_service
+              bigip_server: { get_resource: bigip }
+              partition: { get_resource: partition }
+              template_name: test_template # Must match the name in iapp_template resource
+
+
+.. tip::
+
+    See the `F5® Heat templates <https://github.com/F5Networks/f5-openstack-heat>`_ repo on GitHub for additional examples, or peruse the `documentation <http://f5-openstack-heat.readthedocs.org/en/latest/>`_.
 
 API Documentation
 -----------------
+.. warning::
+
+    The API documentation is under development. Check back often to see what modules have been updated.
+
 .. toctree::
    :maxdepth: 4
 
    apidoc/modules.rst
 
-
-Copyright
----------
-Copyright 2015-2016 F5 Networks Inc.
-
-Support
--------
-See `SUPPORT.md <https://github.com/F5Networks/f5-openstack-heat-plugins/blob/master/SUPPORT.md>`_.
-
-License
--------
-Apache V2.0
-~~~~~~~~~~~
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
-the License for the specific language governing permissions and limitations
-under the License.
-
-Contributor License Agreement
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Individuals or business entities who contribute to this project must
-have completed and submitted the `F5® Contributor License
-Agreement <http://f5-openstack-docs.readthedocs.org/en/latest/cla_landing.html>`__
-to Openstack_CLA@f5.com prior to their code submission being included in this
-project.
 
 

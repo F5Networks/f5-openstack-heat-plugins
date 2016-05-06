@@ -1,4 +1,5 @@
 # These packages are required when testing the module
+git+ssh://git@bldr-git.int.lineratesystems.com/tools/pytest-symbols.git
 -e .
 hacking
 pytest

@@ -65,7 +65,7 @@ author = u'F5 Networks'
 # built documents.
 #
 # The short X.Y version.
-version = "Liberty"
+version = "8.0.1"
 # The full version, including alpha/beta/rc tags.
 release = "8.0.1"
 

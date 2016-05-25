@@ -16,66 +16,53 @@
 from f5.bigip import BigIP as BigIPSDK
 import heat_client_utils as hc_utils
 import plugin_test_utils as plugin_utils
-
 import pytest
+from pytest import symbols as symbols_data
 
 
-def pytest_addoption(parser):
-    parser.addoption('--bigip', action='store',
-                     help='BIG-IP hostname or IP address')
-    parser.addoption('--bigip-username', action='store',
-                     help='BIG-IP username')
-    parser.addoption('--bigip-password', action='store',
-                     help='BIG-IP password')
-
-
-@pytest.fixture
-def opt_bigip(request):
-    return request.config.getoption('--bigip')
-
-
-@pytest.fixture
-def opt_bigip_un(request):
-    return request.config.getoption('--bigip-username')
-
-
-@pytest.fixture
-def opt_bigip_pw(request):
-    return request.config.getoption('--bigip-password')
-
-
-def create_stack(bigip_ip, bigip_un, bigip_pw, template, parameters={}):
-    hc = hc_utils.HeatClientMgr()
-    parameters.update(
-        {'bigip_ip': bigip_ip, 'bigip_un': bigip_un, 'bigip_pw': bigip_pw}
+def create_stack(template, parameters={}):
+    hc = hc_utils.HeatClientMgr(
+        symbols_data.username,
+        symbols_data.tenant_password,
+        symbols_data.tenant_name,
+        symbols_data.auth_url,
+        symbols_data.teststackname,
+        symbols_data.heat_endpoint
     )
+    parameters.update(
+        {'bigip_ip': symbols_data.bigip_ip,
+         'bigip_un': symbols_data.bigip_username,
+         'bigip_pw': symbols_data.bigip_password}
+    )
+
     stack = hc.create_stack(template=template, parameters=parameters)
     return hc, stack
 
 
 @pytest.fixture
-def HeatStack(opt_bigip, opt_bigip_un, opt_bigip_pw, request):
+def HeatStack(request):
     '''Heat stack fixture for creating/deleting a heat stack.'''
     def manage_stack(template_file, parameters={}):
+        template = plugin_utils.get_template_file(template_file)
+        hc, stack = create_stack(
+            template, parameters
+        )
+
         def teardown():
             hc.delete_stack()
         request.addfinalizer(teardown)
 
-        template = plugin_utils.get_template_file(template_file)
-        hc, stack = create_stack(
-            opt_bigip, opt_bigip_un, opt_bigip_pw, template, parameters
-        )
         return hc, stack
     return manage_stack
 
 
 @pytest.fixture
-def HeatStackNoTeardown(opt_bigip, opt_bigip_un, opt_bigip_pw, request):
+def HeatStackNoTeardown(request):
     '''Heat stack fixture for creating/deleting a heat stack.'''
     def manage_stack(template_file):
         template = plugin_utils.get_template_file(template_file)
         hc, stack = create_stack(
-            opt_bigip, opt_bigip_un, opt_bigip_pw, template
+            template
         )
 
         return hc, stack
@@ -83,21 +70,34 @@ def HeatStackNoTeardown(opt_bigip, opt_bigip_un, opt_bigip_pw, request):
 
 
 @pytest.fixture
-def HeatStackNoParams(request):
+def HeatStackNoParams(request, symbols):
     '''Heat stack fixture which gives no params to create_stack.'''
     def manage_stack(template_file):
+
+        template = plugin_utils.get_template_file(template_file)
+        hc = hc_utils.HeatClientMgr(
+            symbols_data.username,
+            symbols_data.tenant_password,
+            symbols_data.tenant_name,
+            symbols_data.auth_url,
+            symbols_data.teststackname,
+            symbols_data.heat_endpoint
+        )
+        stack = hc.create_stack(template=template)
+
         def teardown():
             hc.delete_stack()
         request.addfinalizer(teardown)
 
-        template = plugin_utils.get_template_file(template_file)
-        hc = hc_utils.HeatClientMgr()
-        stack = hc.create_stack(template=template)
         return hc, stack
     return manage_stack
 
 
 @pytest.fixture
-def BigIP(opt_bigip, opt_bigip_un, opt_bigip_pw):
+def BigIP():
     '''BigIP fixture.'''
-    return BigIPSDK(opt_bigip, opt_bigip_un, opt_bigip_pw)
+    return BigIPSDK(
+        symbols_data.bigip_ip,
+        symbols_data.bigip_username,
+        symbols_data.bigip_password
+    )

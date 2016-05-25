@@ -14,11 +14,12 @@
 #
 
 import os
+
 import pytest
+from pytest import symbols as symbols_data
 
 import functional.heat_client_utils as hc_utils
 import functional.plugin_test_utils as utils
-
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -43,10 +44,18 @@ def test_create_failed_bad_password(HeatStack):
 
 
 def test_create_bad_property():
+
     bad_property_template = utils.get_template_file(
         os.path.join(TEST_DIR, 'bad_property.yaml')
     )
     with pytest.raises(Exception) as ex:
-        hc = hc_utils.HeatClientMgr()
+        hc = hc_utils.HeatClientMgr(
+            symbols_data.username,
+            symbols_data.tenant_password,
+            symbols_data.tenant_name,
+            symbols_data.auth_url,
+            symbols_data.teststackname,
+            symbols_data.heat_endpoint
+        )
         hc.create_stack(template=bad_property_template)
     assert 'Unknown Property bad_extra_prop' in ex.value.message

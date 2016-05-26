@@ -123,7 +123,7 @@ def F5LTMVirtualServer():
 def F5LTMVirtualServerExists(F5LTMVirtualServer):
     F5LTMVirtualServer.get_bigip()
     mock_exists = mock.MagicMock(return_value=True)
-    F5LTMVirtualServer.bigip.ltm.virtuals.virtual.exists = mock_exists
+    F5LTMVirtualServer.bigip.tm.ltm.virtuals.virtual.exists = mock_exists
     return F5LTMVirtualServer
 
 
@@ -131,14 +131,14 @@ def F5LTMVirtualServerExists(F5LTMVirtualServer):
 def F5LTMVirtualServerNoExists(F5LTMVirtualServer):
     F5LTMVirtualServer.get_bigip()
     mock_exists = mock.MagicMock(return_value=False)
-    F5LTMVirtualServer.bigip.ltm.virtuals.virtual.exists = mock_exists
+    F5LTMVirtualServer.bigip.tm.ltm.virtuals.virtual.exists = mock_exists
     return F5LTMVirtualServer
 
 
 @pytest.fixture
 def CreateVirtualServerSideEffect(F5LTMVirtualServer):
     F5LTMVirtualServer.get_bigip()
-    F5LTMVirtualServer.bigip.ltm.virtuals.virtual.create.side_effect = \
+    F5LTMVirtualServer.bigip.tm.ltm.virtuals.virtual.create.side_effect = \
         exception.ResourceFailure(mock.MagicMock(), None, action='CREATE')
     return F5LTMVirtualServer
 
@@ -146,7 +146,7 @@ def CreateVirtualServerSideEffect(F5LTMVirtualServer):
 @pytest.fixture
 def DeleteVirtualServerSideEffect(F5LTMVirtualServer):
     F5LTMVirtualServer.get_bigip()
-    F5LTMVirtualServer.bigip.ltm.virtuals.virtual.load.side_effect = \
+    F5LTMVirtualServer.bigip.tm.ltm.virtuals.virtual.load.side_effect = \
         exception.ResourceFailure(mock.MagicMock(), None, action='DELETE')
     return F5LTMVirtualServer
 
@@ -154,8 +154,8 @@ def DeleteVirtualServerSideEffect(F5LTMVirtualServer):
 def test_handle_create(F5LTMVirtualServer):
     create_result = F5LTMVirtualServer.handle_create()
     assert create_result is None
-    assert F5LTMVirtualServer.bigip.ltm.virtuals.virtual.create.call_args == \
-        mock.call(
+    assert F5LTMVirtualServer.bigip.tm.ltm.virtuals.virtual.create.call_args \
+        == mock.call(
             name=u'testing_vs',
             partition='Common',
             vlans=[u'test_vlan'],
@@ -174,8 +174,8 @@ def test_handle_create_error(CreateVirtualServerSideEffect):
 
 def test_handle_delete(F5LTMVirtualServerExists):
     assert F5LTMVirtualServerExists.handle_delete() is True
-    assert F5LTMVirtualServerExists.bigip.ltm.virtuals.virtual.load.call_args == \
-        mock.call(
+    assert F5LTMVirtualServerExists.bigip.tm.ltm.virtuals.virtual.load.\
+        call_args == mock.call(
             name=u'testing_vs',
             partition='Common'
         )

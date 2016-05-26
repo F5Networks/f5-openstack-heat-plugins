@@ -104,14 +104,14 @@ def F5SysPartition():
 @pytest.fixture
 def CreatePartitionSideEffect(F5SysPartition):
     F5SysPartition.get_bigip()
-    F5SysPartition.bigip.sys.folders.folder.create.side_effect = Exception()
+    F5SysPartition.bigip.tm.sys.folders.folder.create.side_effect = Exception()
     return F5SysPartition
 
 
 @pytest.fixture
 def DeletePartitionSideEffect(F5SysPartition):
     F5SysPartition.get_bigip()
-    F5SysPartition.bigip.sys.folders.folder.load.\
+    F5SysPartition.bigip.tm.sys.folders.folder.load.\
         side_effect = exception.ResourceFailure(
             mock.MagicMock(),
             None,
@@ -125,7 +125,7 @@ def DeletePartitionSideEffect(F5SysPartition):
 def test_handle_create(F5SysPartition):
     create_result = F5SysPartition.handle_create()
     assert create_result is None
-    assert F5SysPartition.bigip.sys.folders.folder.create.\
+    assert F5SysPartition.bigip.tm.sys.folders.folder.create.\
         call_args == mock.call(
             **partition_dict
         )
@@ -140,7 +140,7 @@ def test_handle_create_error(CreatePartitionSideEffect):
 def test_handle_delete(F5SysPartition):
     delete_result = F5SysPartition.handle_delete()
     assert delete_result is None
-    assert F5SysPartition.bigip.sys.folders.folder.load.\
+    assert F5SysPartition.bigip.tm.sys.folders.folder.load.\
         call_args == mock.call(name=u'partition_test')
 
 

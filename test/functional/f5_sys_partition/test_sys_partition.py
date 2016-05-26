@@ -30,9 +30,9 @@ def test_create_complete_new_partition(HeatStackNoTeardown, BigIP):
         os.path.join(TEST_DIR, 'new_partition.yaml')
     )
     assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.sys.folders.folder.exists(name='test_partition') is True
+    assert BigIP.tm.sys.folders.folder.exists(name='test_partition') is True
     hc.delete_stack()
-    assert BigIP.sys.folders.folder.exists(name='test_partition') is False
+    assert BigIP.tm.sys.folders.folder.exists(name='test_partition') is False
 
 
 def test_create_failed_bad_subpath(HeatStack, BigIP):
@@ -40,4 +40,4 @@ def test_create_failed_bad_subpath(HeatStack, BigIP):
     utils.ensure_failed_stack(
         HeatStack, os.path.join(TEST_DIR, 'bad_subpath.yaml'), msg
     )
-    assert BigIP.sys.folders.folder.exists(name='test_partition') is False
+    assert BigIP.tm.sys.folders.folder.exists(name='test_partition') is False

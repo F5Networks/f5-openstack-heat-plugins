@@ -14,12 +14,9 @@
 #
 
 import os
-
 import pytest
-from pytest import symbols as symbols_data
 
-import functional.heat_client_utils as hc_utils
-import functional.plugin_test_utils as utils
+from heatclient.exc import HTTPException
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -30,32 +27,20 @@ def test_create_complete(HeatStack):
 
 
 def test_create_failed_bad_ip(HeatStackNoParams):
+    with pytest.raises(HTTPException) as ex:
+        HeatStackNoParams(os.path.join(TEST_DIR, 'bad_ip.yaml'))
     msg = 'Failed to establish a new connection'
-    utils.ensure_failed_stack(
-        HeatStackNoParams, os.path.join(TEST_DIR, 'bad_ip.yaml'), msg
-    )
+    assert msg in ex.value.message
 
 
 def test_create_failed_bad_password(HeatStack):
+    with pytest.raises(HTTPException) as ex:
+        HeatStack(os.path.join(TEST_DIR, 'bad_password.yaml'))
     msg = 'F5 Authorization Required for uri'
-    utils.ensure_failed_stack(
-        HeatStack, os.path.join(TEST_DIR, 'bad_password.yaml'), msg
-    )
+    assert msg in ex.value.message
 
 
-def test_create_bad_property():
-
-    bad_property_template = utils.get_template_file(
-        os.path.join(TEST_DIR, 'bad_property.yaml')
-    )
-    with pytest.raises(Exception) as ex:
-        hc = hc_utils.HeatClientMgr(
-            symbols_data.username,
-            symbols_data.tenant_password,
-            symbols_data.tenant_name,
-            symbols_data.auth_url,
-            symbols_data.teststackname,
-            symbols_data.heat_endpoint
-        )
-        hc.create_stack(template=bad_property_template)
+def test_create_bad_property(HeatStack):
+    with pytest.raises(HTTPException) as ex:
+        HeatStack(os.path.join(TEST_DIR, 'bad_property.yaml'))
     assert 'Unknown Property bad_extra_prop' in ex.value.message

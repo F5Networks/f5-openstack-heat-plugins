@@ -1,7 +1,6 @@
 # These packages are required when testing the module
-git+https://github.com/F5Networks/pytest-symbols.git
-git+https://github.com/F5Networks/f5-common-python.git@development
 -e .
+git+https://github.com/F5Networks/pytest-symbols.git
 hacking
 pytest
 pytest-cov

@@ -22,10 +22,10 @@ TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 def test_create_complete(HeatStack, BigIP):
     hc, stack = HeatStack(os.path.join(TEST_DIR, 'success.yaml'))
     assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.ltm.pools.pool.exists(
+    assert BigIP.tm.ltm.pools.pool.exists(
         name='test_pool', partition='Common'
     ) is True
-    loaded_pool = BigIP.ltm.pools.pool.load(
+    loaded_pool = BigIP.tm.ltm.pools.pool.load(
         name='test_pool', partition='Common'
     )
     assert loaded_pool.members_s.members.exists(
@@ -41,7 +41,7 @@ def test_create_complete(HeatStack, BigIP):
 def itest_create_complete_new_partition(HeatStack, BigIP):
     hc, stack = HeatStack(os.path.join(TEST_DIR, 'new_partition.yaml'))
     assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.ltm.pools.pool.exists(
+    assert BigIP.tm.ltm.pools.pool.exists(
         name='test_pool', partition='test_partition'
     ) is True
 
@@ -52,7 +52,7 @@ def test_create_complete_new_partition(HeatStack, BigIP):
         os.path.join(TEST_DIR, 'new_partition_no_members.yaml')
     )
     assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.ltm.pools.pool.exists(
+    assert BigIP.tm.ltm.pools.pool.exists(
         name='test_pool', partition='test_partition'
     ) is True
 
@@ -61,6 +61,6 @@ def test_create_failed_bad_members(HeatStackNoTeardown, BigIP):
     with pytest.raises(Exception) as ex:
         HeatStackNoTeardown(os.path.join(TEST_DIR, 'bad_members.yaml'))
     assert 'Property member_port not assigned' in ex.value.message
-    assert BigIP.ltm.pools.pool.exists(
+    assert BigIP.tm.ltm.pools.pool.exists(
         name='test_pool', partition='Common'
     ) is False

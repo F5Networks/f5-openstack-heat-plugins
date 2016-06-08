@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from f5.bigip import BigIP
+from f5.bigip import ManagementRoot
 from heat.common.i18n import _
 from heat.engine import properties
 from heat.engine import resource
@@ -61,7 +61,7 @@ class F5BigIPDevice(resource.Resource):
         super(F5BigIPDevice, self).__init__(name, definition, stack)
 
         try:
-            self.bigip = BigIP(
+            self.bigip = ManagementRoot(
                 self.properties['ip'],
                 self.properties['username'],
                 self.properties['password']
@@ -79,7 +79,7 @@ class F5BigIPDevice(resource.Resource):
         '''
 
         try:
-            self.bigip.refresh()
+            self.bigip.tm.refresh()
         except HTTPError as ex:
             raise BigIPConnectionFailed(
                 'Failed to connect to BigIP with message: {}'.format(ex)

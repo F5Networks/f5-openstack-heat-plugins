@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5.bigip import BigIP as BigIPSDK
+from f5.bigip import ManagementRoot
 import heat_client_utils as hc_utils
 import plugin_test_utils as plugin_utils
 import pytest
@@ -96,7 +96,7 @@ def HeatStackNoParams(request, symbols):
 @pytest.fixture
 def BigIP():
     '''BigIP fixture.'''
-    return BigIPSDK(
+    return ManagementRoot(
         symbols_data.bigip_ip,
         symbols_data.bigip_username,
         symbols_data.bigip_password

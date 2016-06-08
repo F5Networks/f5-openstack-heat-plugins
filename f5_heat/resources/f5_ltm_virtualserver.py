@@ -108,7 +108,7 @@ class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
             create_kwargs['vlansEnabled'] = True
 
         try:
-            self.bigip.ltm.virtuals.virtual.create(**create_kwargs)
+            self.bigip.tm.ltm.virtuals.virtual.create(**create_kwargs)
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
@@ -118,12 +118,12 @@ class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
 
         :raises: ResourceFailure exception
         '''
-        if self.bigip.ltm.virtuals.virtual.exists(
+        if self.bigip.tm.ltm.virtuals.virtual.exists(
                 name=self.properties[self.NAME],
                 partition=self.partition_name
         ):
             try:
-                loaded_pool = self.bigip.ltm.virtuals.virtual.load(
+                loaded_pool = self.bigip.tm.ltm.virtuals.virtual.load(
                     name=self.properties[self.NAME],
                     partition=self.partition_name
                 )

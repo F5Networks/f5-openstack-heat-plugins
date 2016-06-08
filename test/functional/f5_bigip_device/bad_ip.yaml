@@ -3,6 +3,6 @@ resources:
   bigip_rsrc:
     type: F5::BigIP::Device
     properties:
-      username: admin
-      password: admin
+      username: test_un
+      password: test_pw
       ip: 127.0.0.1

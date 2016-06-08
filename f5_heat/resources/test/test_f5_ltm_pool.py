@@ -126,7 +126,7 @@ def F5LTMPool():
 def F5LTMPoolExists(F5LTMPool):
     F5LTMPool.get_bigip()
     mock_exists = mock.MagicMock(return_value=True)
-    F5LTMPool.bigip.ltm.pools.pool.exists.side_effect = mock_exists
+    F5LTMPool.bigip.tm.ltm.pools.pool.exists.side_effect = mock_exists
     return F5LTMPool
 
 
@@ -134,29 +134,30 @@ def F5LTMPoolExists(F5LTMPool):
 def F5LTMPoolNoExists(F5LTMPool):
     F5LTMPool.get_bigip()
     mock_exists = mock.MagicMock(return_value=False)
-    F5LTMPool.bigip.ltm.pools.pool.exists.side_effect = mock_exists
+    F5LTMPool.bigip.tm.ltm.pools.pool.exists.side_effect = mock_exists
     return F5LTMPool
 
 
 @pytest.fixture
 def CreatePoolSideEffect(F5LTMPool):
     F5LTMPool.get_bigip()
-    F5LTMPool.bigip.ltm.pools.pool.create.side_effect = Exception()
+    F5LTMPool.bigip.tm.ltm.pools.pool.create.side_effect = Exception()
     return F5LTMPool
 
 
 @pytest.fixture
 def AssignMembersSideEffect(F5LTMPool):
     F5LTMPool.get_bigip()
-    F5LTMPool.bigip.ltm.pools.pool.load().members_s.members.create.side_effect = \
-        exception.ResourceFailure(mock.MagicMock(), None, action='ADD MEMBERS')
+    F5LTMPool.bigip.tm.ltm.pools.pool.load().members_s.members.create.\
+        side_effect = exception.ResourceFailure(
+        mock.MagicMock(), None, action='ADD MEMBERS')
     return F5LTMPool
 
 
 @pytest.fixture
 def DeletePoolSideEffect(F5LTMPool):
     F5LTMPool.get_bigip()
-    F5LTMPool.bigip.ltm.pools.pool.load().delete.side_effect = \
+    F5LTMPool.bigip.tm.ltm.pools.pool.load().delete.side_effect = \
         exception.ResourceFailure(mock.MagicMock(), None, action='DELETE')
     return F5LTMPool
 
@@ -164,7 +165,7 @@ def DeletePoolSideEffect(F5LTMPool):
 def test_handle_create(F5LTMPool):
     create_result = F5LTMPool.handle_create()
     assert create_result is None
-    assert F5LTMPool.bigip.ltm.pools.pool.create.call_args == \
+    assert F5LTMPool.bigip.tm.ltm.pools.pool.create.call_args == \
         mock.call(
             name=u'testing_pool',
             partition=u'Common',
@@ -186,7 +187,7 @@ def test_handle_create_assign_members_error(AssignMembersSideEffect):
 
 def test_handle_delete(F5LTMPoolExists):
     assert F5LTMPoolExists.handle_delete() is True
-    assert F5LTMPoolExists.bigip.ltm.pools.pool.load.call_args == \
+    assert F5LTMPoolExists.bigip.tm.ltm.pools.pool.load.call_args == \
         mock.call(name='testing_pool', partition='Common')
 
 

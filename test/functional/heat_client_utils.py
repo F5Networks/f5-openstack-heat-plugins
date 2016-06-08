@@ -52,7 +52,7 @@ class HeatClientMgr(object):
             self,
             stack_id,
             expected_status='create_complete',
-            max_tries=10,
+            max_tries=30,
             interval=2):
         '''Wait until user-defined status is reached.'''
         count = 0

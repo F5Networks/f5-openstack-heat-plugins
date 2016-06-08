@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5.bigip import BigIP
+from f5.bigip import ManagementRoot
 from f5_heat.resources import f5_bigip_device
 from f5_heat.resources.f5_bigip_device import BigIPConnectionFailed
 from heat.common import exception
@@ -80,7 +80,8 @@ def create_resource_definition(templ_dict):
 
 
 @pytest.fixture
-def F5BigIP():
+@mock.patch('f5_heat.resources.f5_bigip_device.ManagementRoot')
+def F5BigIP(mock_mr):
     '''Instantiate the F5BigIP resource.'''
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
@@ -95,7 +96,7 @@ def F5BigIP():
 @pytest.fixture
 def F5BigIPSideEffect(F5BigIP):
     mock_refresh = mock.MagicMock()
-    F5BigIP.bigip.refresh = mock_refresh
+    F5BigIP.bigip.tm.refresh = mock_refresh
     return F5BigIP
 
 
@@ -103,14 +104,14 @@ def F5BigIPSideEffect(F5BigIP):
 def F5BigIPHTTPError(F5BigIP):
     '''Instantiate the F5BigIP resource.'''
     mock_refresh = mock.MagicMock(side_effect=BigIPConnectionFailed)
-    F5BigIP.bigip.refresh = mock_refresh
+    F5BigIP.bigip.tm.refresh = mock_refresh
     return F5BigIP
 
 
 # Tests
 
 @mock.patch.object(
-    f5_bigip_device.BigIP,
+    f5_bigip_device.ManagementRoot,
     '__init__',
     side_effect=Exception()
 )
@@ -143,12 +144,24 @@ def test_handle_delete(F5BigIP):
     assert delete_result is True
 
 
-def test_bigip_getter(F5BigIP):
-    bigip = F5BigIP.get_bigip()
-    assert isinstance(bigip, BigIP)
+@mock.patch(
+    'f5_heat.resources.f5_bigip_device.ManagementRoot.__init__',
+    return_value=None
+)
+def test_bigip_getter(mock_mr_init):
+    template_dict = mock_template(test_templ=bad_f5_bigip_defn)
+    rsrc_def = create_resource_definition(template_dict)
+    f5_bigip_obj = f5_bigip_device.F5BigIPDevice(
+        'test',
+        rsrc_def,
+        mock.MagicMock()
+    )
+    bigip = f5_bigip_obj.get_bigip()
+    assert isinstance(bigip, ManagementRoot)
 
 
-def test_bad_property():
+@mock.patch('f5_heat.resources.f5_bigip_device.ManagementRoot')
+def test_bad_property(mock_mr):
     template_dict = mock_template(test_templ=bad_f5_bigip_defn)
     rsrc_def = create_resource_definition(template_dict)
     f5_bigip_obj = f5_bigip_device.F5BigIPDevice(

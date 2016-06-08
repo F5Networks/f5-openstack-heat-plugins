@@ -142,7 +142,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         service_dict['partition'] = self.partition_name
 
         try:
-            service = self.bigip.sys.applications.services.service
+            service = self.bigip.tm.sys.applications.services.service
             service.create(**service_dict)
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
@@ -154,13 +154,13 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
         :raises: Resource Failure # TODO Change to proper exception
         '''
 
-        if self.bigip.sys.applications.services.service.exists(
+        if self.bigip.tm.sys.applications.services.service.exists(
                 name=self.properties[self.NAME],
                 partition=self.partition_name
         ):
             try:
                 loaded_service = \
-                    self.bigip.sys.applications.services.service.load(
+                    self.bigip.tm.sys.applications.services.service.load(
                         name=self.properties[self.NAME],
                         partition=self.partition_name
                     )

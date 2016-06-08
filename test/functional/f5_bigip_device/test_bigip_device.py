@@ -29,8 +29,16 @@ def test_create_complete(HeatStack):
 def test_create_failed_bad_ip(HeatStackNoParams):
     with pytest.raises(HTTPException) as ex:
         HeatStackNoParams(os.path.join(TEST_DIR, 'bad_ip.yaml'))
-    msg = 'Failed to establish a new connection'
-    assert msg in ex.value.message
+    # The below messages could exist depending in the testers version of the
+    # openstack heat engine. The suffix of the variable signifies the engine
+    # version
+    msg_engine_2015_1_2 = 'Failed to initialize BigIP object'
+    msg_engine_2015_1_3 = 'Failed to establish a new connection'
+    if msg_engine_2015_1_2 not in ex.value.message and \
+            msg_engine_2015_1_3 not in ex.value.message:
+        pytest.fail('Neither of the following messages were found in the '
+                    'exception from the Heat engine to the client: %s\n\n%s' %
+                    (msg_engine_2015_1_2, msg_engine_2015_1_3))
 
 
 def test_create_failed_bad_password(HeatStack):

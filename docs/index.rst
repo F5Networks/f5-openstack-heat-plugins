@@ -1,3 +1,5 @@
+.. _home:
+
 F5® OpenStack Heat Plugins
 ==========================
 

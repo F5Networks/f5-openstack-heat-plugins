@@ -16,9 +16,7 @@
 import os
 import pytest
 
-import functional.heat_client_utils as hc_utils
-import functional.plugin_test_utils as utils
-
+from heatclient.exc import HTTPException
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -29,24 +27,28 @@ def test_create_complete(HeatStack):
 
 
 def test_create_failed_bad_ip(HeatStackNoParams):
-    msg = 'Failed to establish a new connection'
-    utils.ensure_failed_stack(
-        HeatStackNoParams, os.path.join(TEST_DIR, 'bad_ip.yaml'), msg
-    )
+    with pytest.raises(HTTPException) as ex:
+        HeatStackNoParams(os.path.join(TEST_DIR, 'bad_ip.yaml'))
+    # The below messages could exist depending in the testers version of the
+    # openstack heat engine. The suffix of the variable signifies the engine
+    # version
+    msg_engine_2015_1_2 = 'Failed to initialize BigIP object'
+    msg_engine_2015_1_3 = 'Failed to establish a new connection'
+    if msg_engine_2015_1_2 not in ex.value.message and \
+            msg_engine_2015_1_3 not in ex.value.message:
+        pytest.fail('Neither of the following messages were found in the '
+                    'exception from the Heat engine to the client: %s\n\n%s' %
+                    (msg_engine_2015_1_2, msg_engine_2015_1_3))
 
 
 def test_create_failed_bad_password(HeatStack):
+    with pytest.raises(HTTPException) as ex:
+        HeatStack(os.path.join(TEST_DIR, 'bad_password.yaml'))
     msg = 'F5 Authorization Required for uri'
-    utils.ensure_failed_stack(
-        HeatStack, os.path.join(TEST_DIR, 'bad_password.yaml'), msg
-    )
+    assert msg in ex.value.message
 
 
-def test_create_bad_property():
-    bad_property_template = utils.get_template_file(
-        os.path.join(TEST_DIR, 'bad_property.yaml')
-    )
-    with pytest.raises(Exception) as ex:
-        hc = hc_utils.HeatClientMgr()
-        hc.create_stack(template=bad_property_template)
+def test_create_bad_property(HeatStack):
+    with pytest.raises(HTTPException) as ex:
+        HeatStack(os.path.join(TEST_DIR, 'bad_property.yaml'))
     assert 'Unknown Property bad_extra_prop' in ex.value.message

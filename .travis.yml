@@ -13,6 +13,7 @@ before_install:
 install:
     - pip install -r requirements.unit.test.txt
     - pip install -r ~/heat/requirements.txt
+    - pip install -r requirements.docs.txt
 script:
     - flake8 f5_heat/resources/
     - py.test f5_heat/resources/test --cov=f5_heat/resources

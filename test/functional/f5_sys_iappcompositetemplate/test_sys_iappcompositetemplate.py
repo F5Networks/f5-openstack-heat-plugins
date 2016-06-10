@@ -22,20 +22,20 @@ TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 def test_create_complete(HeatStack, BigIP):
     hc, stack = HeatStack(os.path.join(TEST_DIR, 'success.yaml'))
     assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.sys.applications.templates.template.exists(
+    assert BigIP.tm.sys.applications.templates.template.exists(
         name='test_template', partition='Common') is True
 
 
 def test_create_complete_new_partition(HeatStack, BigIP):
     hc, stack = HeatStack(os.path.join(TEST_DIR, 'new_partition.yaml'))
     assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.sys.applications.templates.template.exists(
+    assert BigIP.tm.sys.applications.templates.template.exists(
         name='test_template', partition='test_partition') is True
 
 
 def test_create_failed_no_implementation(HeatStackNoTeardown, BigIP):
     with pytest.raises(Exception) as ex:
         HeatStackNoTeardown(os.path.join(TEST_DIR, 'no_implementation.yaml'))
-    assert BigIP.sys.applications.templates.template.exists(
+    assert BigIP.tm.sys.applications.templates.template.exists(
         name='test_template', partition='Common') is False
     assert 'Property implementation not assigned' in ex.value.message

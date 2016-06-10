@@ -26,7 +26,7 @@ def test_create_complete(HeatStack, BigIP):
         os.path.join(TEST_DIR, 'success_common_partition.yaml')
     )
     assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.sys.applications.templates.template.exists(
+    assert BigIP.tm.sys.applications.templates.template.exists(
         name='thanks_world', partition='Common') is True
 
 
@@ -35,7 +35,7 @@ def test_create_complete_new_partition(HeatStack, BigIP):
         os.path.join(TEST_DIR, 'success_new_partition.yaml')
     )
     assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.sys.applications.templates.template.exists(
+    assert BigIP.tm.sys.applications.templates.template.exists(
         name='thanks_world', partition='test_partition') is True
 
 
@@ -53,6 +53,6 @@ def itest_create_failed_literal_partition(HeatStack, BigIP):
 def test_create_failed_bad_iapp_parsing(HeatStackNoTeardown, BigIP):
     with pytest.raises(Exception) as ex:
         HeatStackNoTeardown(os.path.join(TEST_DIR, 'bad_iapp.yaml'))
-    assert BigIP.sys.applications.templates.template.exists(
+    assert BigIP.tm.sys.applications.templates.template.exists(
         name='thanks_world', partition='Common') is False
     assert 'NonextantSectionException' in ex.value.message

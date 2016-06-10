@@ -21,7 +21,7 @@ TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 def test_create_complete(HeatStack, BigIP):
     hc, stack = HeatStack(os.path.join(TEST_DIR, 'success.yaml'))
     assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.ltm.virtuals.virtual.exists(
+    assert BigIP.tm.ltm.virtuals.virtual.exists(
         name='test_vs', partition='Common'
     ) is True
 
@@ -29,7 +29,7 @@ def test_create_complete(HeatStack, BigIP):
 def test_create_complete_new_partition(HeatStack, BigIP):
     hc, stack = HeatStack(os.path.join(TEST_DIR, 'new_partition.yaml'))
     assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.ltm.virtuals.virtual.exists(
+    assert BigIP.tm.ltm.virtuals.virtual.exists(
         name='test_vs', partition='test_partition'
     ) is True
-    assert BigIP.sys.folders.folder.exists(name='test_partition') is True
+    assert BigIP.tm.sys.folders.folder.exists(name='test_partition') is True

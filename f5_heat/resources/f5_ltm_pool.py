@@ -101,7 +101,7 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
             member_port = member[self.MEMBER_PORT]
             member_name = '{0}:{1}'.format(member_ip, member_port)
             try:
-                loaded_pool = self.bigip.ltm.pools.pool.load(
+                loaded_pool = self.bigip.tm.ltm.pools.pool.load(
                     name=self.properties[self.NAME],
                     partition=self.partition_name
                 )
@@ -129,7 +129,7 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
                 self.properties[self.SERVICE_DOWN_ACTION]
 
         try:
-            self.bigip.ltm.pools.pool.create(**create_kwargs)
+            self.bigip.tm.ltm.pools.pool.create(**create_kwargs)
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
@@ -144,12 +144,12 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
         :raises: ResourceFailure
         '''
 
-        if self.bigip.ltm.pools.pool.exists(
+        if self.bigip.tm.ltm.pools.pool.exists(
                 name=self.properties[self.NAME],
                 partition=self.partition_name
         ):
             try:
-                loaded_pool = self.bigip.ltm.pools.pool.load(
+                loaded_pool = self.bigip.tm.ltm.pools.pool.load(
                     name=self.properties[self.NAME],
                     partition=self.partition_name
                 )

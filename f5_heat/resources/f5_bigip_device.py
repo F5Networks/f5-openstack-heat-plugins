@@ -57,40 +57,30 @@ class F5BigIPDevice(resource.Resource):
         )
     }
 
-    def __init__(self, name, definition, stack):
-        super(F5BigIPDevice, self).__init__(name, definition, stack)
-
-        try:
-            self.bigip = ManagementRoot(
-                self.properties['ip'],
-                self.properties['username'],
-                self.properties['password']
-            )
-        except Exception as ex:
-            raise Exception('Failed to initialize BigIP object: {}'.format(ex))
-
     def get_bigip(self):
-        return self.bigip
+        return ManagementRoot(
+            self.properties[self.IP],
+            self.properties[self.USERNAME],
+            self.properties[self.PASSWORD]
+        )
 
     def handle_create(self):
         '''Create the BigIP resource.
 
-        Let's refresh the bigip object to ensure the connection is good.
+        Attempt to initialize a bigip connection to test connectivity
         '''
 
         try:
-            self.bigip.tm.refresh()
+            self.get_bigip()
         except HTTPError as ex:
-            raise BigIPConnectionFailed(
-                'Failed to connect to BigIP with message: {}'.format(ex)
-            )
+            msg = _('Failed to connect to BIG-IP device with message: %s') % ex
+            raise BigIPConnectionFailed(msg)
 
         self.resource_id_set(self.physical_resource_name())
 
     def handle_delete(self):
         '''Resource will be delete by resource.delete()'''
 
-        self.bigip = None
         return True
 
 

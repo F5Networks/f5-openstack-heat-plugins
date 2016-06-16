@@ -13,31 +13,52 @@
 # limitations under the License.
 #
 
-import functional.plugin_test_utils as utils
 
 import os
+from pytest import symbols
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def test_create_complete(HeatStack):
-    hc, stack = HeatStack(os.path.join(TEST_DIR, 'success.yaml'))
-    assert hc.wait_until_status(stack.id, 'create_complete') is True
-
-
-def test_create_complete_new_partition(HeatStackNoTeardown, BigIP):
-    hc, stack = HeatStackNoTeardown(
-        os.path.join(TEST_DIR, 'new_partition.yaml')
+    HeatStack(
+        os.path.join(TEST_DIR, 'success.yaml'),
+        'success_test',
+        parameters={
+            'bigip_ip': symbols.bigip_ip,
+            'bigip_un': symbols.bigip_un,
+            'bigip_pw': symbols.bigip_pw
+        }
     )
-    assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.tm.sys.folders.folder.exists(name='test_partition') is True
-    hc.delete_stack()
-    assert BigIP.tm.sys.folders.folder.exists(name='test_partition') is False
 
 
-def test_create_failed_bad_subpath(HeatStack, BigIP):
+def test_create_complete_new_partition(HeatStack, bigip):
+    hc, stack = HeatStack(
+        os.path.join(TEST_DIR, 'new_partition.yaml'),
+        'new_partition_test',
+        parameters={
+            'bigip_ip': symbols.bigip_ip,
+            'bigip_un': symbols.bigip_un,
+            'bigip_pw': symbols.bigip_pw
+        },
+        teardown=False
+    )
+    assert bigip.tm.sys.folders.folder.exists(name='test_partition') is True
+    hc.delete_stack(stack.id)
+    assert bigip.tm.sys.folders.folder.exists(name='test_partition') is False
+
+
+def test_create_failed_bad_subpath(HeatStack, bigip):
     msg = '(/BadSubPath) folder does not exist'
-    utils.ensure_failed_stack(
-        HeatStack, os.path.join(TEST_DIR, 'bad_subpath.yaml'), msg
+    hc, stack = HeatStack(
+        os.path.join(TEST_DIR, 'bad_subpath.yaml'),
+        'bad_subpath_test',
+        parameters={
+            'bigip_ip': symbols.bigip_ip,
+            'bigip_un': symbols.bigip_un,
+            'bigip_pw': symbols.bigip_pw
+        },
+        expect_fail=True
     )
-    assert BigIP.tm.sys.folders.folder.exists(name='test_partition') is False
+    assert msg in stack.stack_status_reason
+    assert bigip.tm.sys.folders.folder.exists(name='test_partition') is False

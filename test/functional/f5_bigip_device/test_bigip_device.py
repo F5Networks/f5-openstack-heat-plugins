@@ -54,7 +54,6 @@ def test_create_failed_bad_password(HeatStack):
         },
         expect_fail=True
     )
-    print(stack.stack_status_reason)
     assert 'BigIPConnectionFailed' in stack.stack_status_reason
     assert 'Authorization Required for uri' in stack.stack_status_reason
 

@@ -40,16 +40,7 @@ def test_create_failed_bad_ip(HeatStack):
         'bad_ip_test',
         expect_fail=True
     )
-    # The below messages could exist depending in the testers version of the
-    # openstack heat engine. The suffix of the variable signifies the engine
-    # version
-    msg_engine_2015_1_2 = 'Failed to initialize BigIP object'
-    msg_engine_2015_1_3 = 'Failed to establish a new connection'
-    if msg_engine_2015_1_2 not in stack.stack_status_reason and \
-            msg_engine_2015_1_3 not in stack.stack_status_reason:
-        pytest.fail('Neither of the following messages were found in the '
-                    'exception from the Heat engine to the client: %s\n\n%s' %
-                    (msg_engine_2015_1_2, msg_engine_2015_1_3))
+    assert 'ConnectionError' in stack.stack_status_reason
 
 
 def test_create_failed_bad_password(HeatStack):
@@ -63,8 +54,9 @@ def test_create_failed_bad_password(HeatStack):
         },
         expect_fail=True
     )
-    msg = 'F5 Authorization Required for uri'
-    assert msg in stack.stack_status_reason
+    print(stack.stack_status_reason)
+    assert 'BigIPConnectionFailed' in stack.stack_status_reason
+    assert 'Authorization Required for uri' in stack.stack_status_reason
 
 
 def test_create_bad_property(HeatStack):

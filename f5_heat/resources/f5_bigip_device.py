@@ -73,8 +73,7 @@ class F5BigIPDevice(resource.Resource):
         try:
             self.get_bigip()
         except HTTPError as ex:
-            msg = _('Failed to connect to BIG-IP device with message: %s') % ex
-            raise BigIPConnectionFailed(msg)
+            raise BigIPConnectionFailed(ex)
 
         self.resource_id_set(self.physical_resource_name())
 

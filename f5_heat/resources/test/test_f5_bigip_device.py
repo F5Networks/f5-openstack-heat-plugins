@@ -133,10 +133,8 @@ def test_handle_create(F5BigIPSideEffect):
 
 
 def test_handle_create_http_error(F5BigIPHTTPError):
-    with pytest.raises(BigIPConnectionFailed) as ex:
+    with pytest.raises(BigIPConnectionFailed):
         F5BigIPHTTPError.handle_create()
-    assert ex.value.message == 'Failed to connect to BIG-IP device with ' \
-        'message: '
 
 
 def test_handle_delete(F5BigIP):

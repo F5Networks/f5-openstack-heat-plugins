@@ -14,48 +14,60 @@
 #
 
 import os
-
 import pytest
-from pytest import symbols as symbols_data
+from pytest import symbols
 
-import functional.heat_client_utils as hc_utils
-import functional.plugin_test_utils as utils
+from heatclient.exc import HTTPException
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def test_create_complete(HeatStack):
-    hc, stack = HeatStack(os.path.join(TEST_DIR, 'success.yaml'))
-    assert hc.wait_until_status(stack.id, 'create_complete') is True
-
-
-def test_create_failed_bad_ip(HeatStackNoParams):
-    msg = 'Failed to establish a new connection'
-    utils.ensure_failed_stack(
-        HeatStackNoParams, os.path.join(TEST_DIR, 'bad_ip.yaml'), msg
+    hc, stack = HeatStack(
+        os.path.join(TEST_DIR, 'success.yaml'),
+        'success_test',
+        parameters={
+            'bigip_ip': symbols.bigip_ip,
+            'bigip_un': symbols.bigip_un,
+            'bigip_pw': symbols.bigip_pw
+        }
     )
+
+
+def test_create_failed_bad_ip(HeatStack):
+    hc, stack = HeatStack(
+        os.path.join(TEST_DIR, 'bad_ip.yaml'),
+        'bad_ip_test',
+        expect_fail=True
+    )
+    assert 'ConnectionError' in stack.stack_status_reason
 
 
 def test_create_failed_bad_password(HeatStack):
-    msg = 'F5 Authorization Required for uri'
-    utils.ensure_failed_stack(
-        HeatStack, os.path.join(TEST_DIR, 'bad_password.yaml'), msg
+    hc, stack = HeatStack(
+        os.path.join(TEST_DIR, 'bad_password.yaml'),
+        'bad_password_test',
+        parameters={
+            'bigip_ip': symbols.bigip_ip,
+            'bigip_un': symbols.bigip_un,
+            'bigip_pw': 'bad_password'
+        },
+        expect_fail=True
     )
+    assert 'BigIPConnectionFailed' in stack.stack_status_reason
+    assert 'Authorization Required for uri' in stack.stack_status_reason
 
 
-def test_create_bad_property():
-
-    bad_property_template = utils.get_template_file(
-        os.path.join(TEST_DIR, 'bad_property.yaml')
-    )
-    with pytest.raises(Exception) as ex:
-        hc = hc_utils.HeatClientMgr(
-            symbols_data.username,
-            symbols_data.tenant_password,
-            symbols_data.tenant_name,
-            symbols_data.auth_url,
-            symbols_data.teststackname,
-            symbols_data.heat_endpoint
+def test_create_bad_property(HeatStack):
+    with pytest.raises(HTTPException) as ex:
+        HeatStack(
+            os.path.join(TEST_DIR, 'bad_property.yaml'),
+            'bad_property',
+            parameters={
+                'bigip_ip': symbols.bigip_ip,
+                'bigip_un': symbols.bigip_un,
+                'bigip_pw': symbols.bigip_pw
+            },
+            expect_fail=True
         )
-        hc.create_stack(template=bad_property_template)
     assert 'Unknown Property bad_extra_prop' in ex.value.message

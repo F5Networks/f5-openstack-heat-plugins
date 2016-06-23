@@ -13,38 +13,44 @@
 # limitations under the License.
 #
 
+from f5.bigip import ManagementRoot
+from f5.multi_device.cluster import ClusterManager
+
 import os
 from pytest import symbols
+
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def test_create_complete(HeatStack, bigip):
+def get_devices():
+    a = ManagementRoot(
+        symbols.bigip_ip, symbols.bigip_un, symbols.bigip_pw
+    )
+    b = ManagementRoot(
+        symbols.bigip2_ip, symbols.bigip_un, symbols.bigip_pw
+    )
+    return a, b
+
+
+def test_create_two_member(HeatStack):
     HeatStack(
-        os.path.join(TEST_DIR, 'success.yaml'),
-        'success_test',
+        os.path.join(TEST_DIR, 'success_two_member.yaml'),
+        'success_two_member_test',
         parameters={
             'bigip_ip': symbols.bigip_ip,
+            'bigip2_ip': symbols.bigip2_ip,
             'bigip_un': symbols.bigip_un,
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.ltm.virtuals.virtual.exists(
-        name='test_vs', partition='Common'
-    ) is True
-
-
-def test_create_complete_new_partition(HeatStack, bigip):
-    HeatStack(
-        os.path.join(TEST_DIR, 'new_partition.yaml'),
-        'new_partition_test',
-        parameters={
-            'bigip_ip': symbols.bigip_ip,
-            'bigip_un': symbols.bigip_un,
-            'bigip_pw': symbols.bigip_pw
-        }
+    a, b = get_devices()
+    cm = ClusterManager(
+        devices=[a, b],
+        device_group_name='my_cluster',
+        device_group_partition='Common',
+        device_group_type='sync-failover'
     )
-    assert bigip.tm.ltm.virtuals.virtual.exists(
-        name='test_vs', partition='test_partition'
-    ) is True
-    assert bigip.tm.sys.folders.folder.exists(name='test_partition') is True
+    assert cm.cluster.device_group_type == 'sync-failover'
+    assert cm.cluster.device_group_partition == 'Common'
+    assert cm.cluster.device_group_name == 'my_cluster'

@@ -14,67 +14,94 @@
 #
 
 import os
+from pytest import symbols
+
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def test_create_complete(HeatStack, BigIP):
-    hc, stack = HeatStack(os.path.join(TEST_DIR, 'success.yaml'))
-    assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.sys.applications.services.service.exists(
+def test_create_complete(HeatStack, bigip):
+    HeatStack(
+        os.path.join(TEST_DIR, 'success.yaml'),
+        'success_test',
+        parameters={
+            'bigip_ip': symbols.bigip_ip,
+            'bigip_un': symbols.bigip_un,
+            'bigip_pw': symbols.bigip_pw
+        }
+    )
+    assert bigip.tm.sys.applications.services.service.exists(
         name='test_service', partition='Common') is True
 
 
-def test_create_complete_no_answers(HeatStack, BigIP):
-    hc, stack = HeatStack(os.path.join(TEST_DIR, 'success_no_answers.yaml'))
-    assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.sys.applications.services.service.exists(
+def test_create_complete_no_answers(HeatStack, bigip):
+    HeatStack(
+        os.path.join(TEST_DIR, 'success_no_answers.yaml'),
+        'success_no_answers_test',
+        parameters={
+            'bigip_ip': symbols.bigip_ip,
+            'bigip_un': symbols.bigip_un,
+            'bigip_pw': symbols.bigip_pw
+        }
+    )
+    assert bigip.tm.sys.applications.services.service.exists(
         name='test_service', partition='Common') is True
-    assert BigIP.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.applications.templates.template.exists(
         name='test_template', partition='Common') is True
 
 
-def test_create_complete_new_partition(HeatStack, BigIP):
-    hc, stack = HeatStack(os.path.join(TEST_DIR, 'success_new_partition.yaml'))
-    assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.sys.applications.services.service.exists(
+def test_create_complete_new_partition(HeatStack, bigip):
+    HeatStack(
+        os.path.join(TEST_DIR, 'success_new_partition.yaml'),
+        'success_new_partition_test',
+        parameters={
+            'bigip_ip': symbols.bigip_ip,
+            'bigip_un': symbols.bigip_un,
+            'bigip_pw': symbols.bigip_pw
+        }
+    )
+    assert bigip.tm.sys.applications.services.service.exists(
         name='test_service', partition='test_partition') is True
-    assert BigIP.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.applications.templates.template.exists(
         name='test_template', partition='test_partition') is True
-    assert BigIP.sys.folders.folder.exists(name='test_partition')
+    assert bigip.tm.sys.folders.folder.exists(name='test_partition')
 
 
 # The stack deployed here depends on several pre-existing Openstack resources
 # A client image is used (ubuntu), a server image with a node server
 # pre-installed and networks.
-def itest_create_complete_lb_deploy(HeatStackNoTeardown, BigIP):
-    hc, stack = HeatStackNoTeardown(
-        os.path.join(TEST_DIR, 'lb_deploy.yaml')
+def itest_create_complete_lb_deploy(HeatStack, bigip):
+    hc, stack = HeatStack(
+        os.path.join(TEST_DIR, 'lb_deploy.yaml'),
+        'lb_deploy_test',
+        parameters={
+            'bigip_ip': symbols.bigip_ip,
+            'bigip_un': symbols.bigip_un,
+            'bigip_pw': symbols.bigip_pw
+        },
+        teardown=False
     )
-    assert hc.wait_until_status(
-        stack.id, 'create_complete', max_tries=10, interval=15
-    ) is True
-    assert BigIP.sys.applications.services.service.exists(
+    assert bigip.tm.sys.applications.services.service.exists(
         name='lb_service', partition='Common'
     ) is True
-    assert BigIP.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.applications.templates.template.exists(
         name='lb_template', partition='Common'
     ) is True
-    assert BigIP.ltm.virtuals.virtual.exists(
+    assert bigip.tm.ltm.virtuals.virtual.exists(
         name='virtual_server1', partition='Common'
     ) is True
-    assert BigIP.ltm.pools.pool.exists(
+    assert bigip.tm.ltm.pools.pool.exists(
         name='pool1', partition='Common'
     ) is True
     hc.delete_stack()
-    assert BigIP.sys.applications.services.service.exists(
+    assert bigip.tm.sys.applications.services.service.exists(
         name='lb_service', partition='Common'
     ) is False
-    assert BigIP.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.applications.templates.template.exists(
         name='lb_template', partition='Common'
     ) is False
-    assert BigIP.ltm.virtuals.virtual.exists(
+    assert bigip.tm.ltm.virtuals.virtual.exists(
         name='virtual_server1', partition='Common'
     ) is False
-    assert BigIP.ltm.pools.pool.exists(name='pool1', partition='Common') is \
+    assert bigip.tm.ltm.pools.pool.exists(name='pool1', partition='Common') is \
         False

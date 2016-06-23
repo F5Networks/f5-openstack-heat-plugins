@@ -22,7 +22,7 @@ from heat.engine import resource
 
 from common.mixins import f5_common_resources
 from common.mixins import F5BigIPMixin
-from f5.common.iapp_parser import IappParser
+from f5.utils.iapp_parser import IappParser
 
 
 class IappFullTemplateValidationFailed(exception.StackValidationFailed):
@@ -91,7 +91,7 @@ class F5SysiAppFullTemplate(F5BigIPMixin, resource.Resource):
 
         self._validate_template_partition()
         try:
-            template = self.bigip.sys.applications.templates.template
+            template = self.bigip.tm.sys.applications.templates.template
             template.create(**self.template_dict)
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
@@ -103,12 +103,12 @@ class F5SysiAppFullTemplate(F5BigIPMixin, resource.Resource):
         :raises: ResourceFailure
         '''
 
-        if self.bigip.sys.applications.templates.template.exists(
+        if self.bigip.tm.sys.applications.templates.template.exists(
                 name=self.template_dict['name'],
                 partition=self.partition_name
         ):
             try:
-                loaded_template = self.bigip.sys.applications.templates.template.\
+                loaded_template = self.bigip.tm.sys.applications.templates.template.\
                     load(
                         name=self.template_dict['name'],
                         partition=self.partition_name

@@ -1,0 +1,14 @@
+auth_url: http://<auth_netloc>:5000/v2.0
+heat_endpoint: http://<heat_endpoint_netloc>:8004/v1/<tenant_id>
+# f5-openstack-test-inputs
+tenant_name: <tenant_name>
+tenant_password: <tenant_password>
+teststackname: func_test_stack
+username: <os_username>
+bigip_username: <bigip_username>
+bigip_password: <bigip_username>
+# heat inputs
+bigip_un: <bigip_username>
+bigip_pw: <bigip_password>
+bigip_ip: <bigip_floating_ip>
+bigip2_ip: <bigip_floating_ip>

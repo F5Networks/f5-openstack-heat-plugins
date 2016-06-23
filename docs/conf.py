@@ -28,7 +28,7 @@ from f5_heat import __version__ as VERSION
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-# needs_sphinx = '1.0'
+needs_sphinx = '1.4'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -39,6 +39,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
+    'sphinx.ext.autosectionlabel',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -310,5 +311,13 @@ texinfo_documents = [
 # texinfo_no_detailmenu = False
 
 
-# Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+# Map to other F5 projects
+intersphinx_mapping = {'heat': (
+    'http://f5-openstack-heat.readthedocs.io/en/kilo', None),
+    'lbaasv1': (
+    'http://f5-openstack-lbaasv1.readthedocs.io/en/1.0/', None),
+    # 'lbaasv2': (
+    # 'http://f5-openstack-lbaasv2-driver.readthedocs.io/en/liberty/', None),
+    'f5sdk': (
+    'http://f5-sdk.readthedocs.io/en/latest/', None),
+    }

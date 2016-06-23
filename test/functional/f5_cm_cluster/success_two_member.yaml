@@ -1,0 +1,34 @@
+heat_template_version: 2015-04-30
+
+parameters:
+  bigip_ip:
+    type: string
+  bigip2_ip:
+    type: string
+  bigip_un:
+    type: string
+  bigip_pw:
+    type: string
+
+
+resources:
+  bigip1:
+    type: F5::BigIP::Device
+    properties:
+      ip: { get_param: bigip_ip }
+      username: { get_param: bigip_un }
+      password: { get_param: bigip_pw }
+  bigip2:
+    type: F5::BigIP::Device
+    properties:
+      ip: { get_param: bigip2_ip }
+      username: { get_param: bigip_un }
+      password: { get_param: bigip_pw }
+  cluster:
+    type: F5::Cm::Cluster
+    depends_on: [bigip1, bigip2]
+    properties:
+      devices: [{ get_resource: bigip1 }, { get_resource: bigip2 }]
+      device_group_type: sync-failover
+      device_group_partition: Common
+      device_group_name: my_cluster

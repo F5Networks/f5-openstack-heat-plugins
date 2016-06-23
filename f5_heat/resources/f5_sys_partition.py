@@ -77,7 +77,7 @@ class F5SysPartition(resource.Resource, F5BigIPMixin):
 
         if self.properties[self.NAME] != 'Common':
             try:
-                self.bigip.sys.folders.folder.create(
+                self.bigip.tm.sys.folders.folder.create(
                     name=self.properties[self.NAME],
                     subPath=self.properties[self.SUBPATH]
                 )
@@ -94,12 +94,12 @@ class F5SysPartition(resource.Resource, F5BigIPMixin):
         :raises: ResourceFailure exception
         '''
 
-        if self.bigip.sys.folders.folder.exists(
+        if self.bigip.tm.sys.folders.folder.exists(
                 name=self.properties[self.NAME]
         ):
             if self.properties[self.NAME] != 'Common':
                 try:
-                    loaded_partition = self.bigip.sys.folders.folder.load(
+                    loaded_partition = self.bigip.tm.sys.folders.folder.load(
                         name=self.properties[self.NAME]
                     )
                     loaded_partition.delete()

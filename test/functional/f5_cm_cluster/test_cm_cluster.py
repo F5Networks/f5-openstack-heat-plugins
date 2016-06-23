@@ -17,7 +17,7 @@ from f5.bigip import ManagementRoot
 from f5.multi_device.cluster import ClusterManager
 
 import os
-from pytest import symbols as symbols_data
+from pytest import symbols
 
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -25,23 +25,25 @@ TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 def get_devices():
     a = ManagementRoot(
-        symbols_data.bigip_ip, symbols_data.bigip_un, symbols_data.bigip_pw
+        symbols.bigip_ip, symbols.bigip_un, symbols.bigip_pw
     )
     b = ManagementRoot(
-        symbols_data.bigip2_ip, symbols_data.bigip_un, symbols_data.bigip_pw
+        symbols.bigip2_ip, symbols.bigip_un, symbols.bigip_pw
     )
     return a, b
 
 
 def test_create_two_member(HeatStack):
-    hc, stack = HeatStack(
+    HeatStack(
         os.path.join(TEST_DIR, 'success_two_member.yaml'),
+        'success_two_member_test',
         parameters={
-            'bigip_ip': symbols_data.bigip_ip,
-            'bigip2_ip': symbols_data.bigip2_ip
+            'bigip_ip': symbols.bigip_ip,
+            'bigip2_ip': symbols.bigip2_ip,
+            'bigip_un': symbols.bigip_un,
+            'bigip_pw': symbols.bigip_pw
         }
     )
-    assert hc.wait_until_status(stack.id, 'create_complete') is True
     a, b = get_devices()
     cm = ClusterManager(
         devices=[a, b],

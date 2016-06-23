@@ -95,27 +95,27 @@ def F5BigIP(mock_mr):
 
 @pytest.fixture
 def F5BigIPSideEffect(F5BigIP):
-    mock_refresh = mock.MagicMock()
-    F5BigIP.bigip.tm.refresh = mock_refresh
+    F5BigIP.get_bigip = mock.MagicMock()
     return F5BigIP
 
 
 @pytest.fixture
 def F5BigIPHTTPError(F5BigIP):
     '''Instantiate the F5BigIP resource.'''
-    mock_refresh = mock.MagicMock(side_effect=BigIPConnectionFailed)
-    F5BigIP.bigip.tm.refresh = mock_refresh
+    mock_get_bigip = mock.MagicMock(side_effect=BigIPConnectionFailed)
+    F5BigIP.get_bigip = mock_get_bigip
     return F5BigIP
 
 
 # Tests
 
+# Removed __init__ override, so removing test
 @mock.patch.object(
     f5_bigip_device.ManagementRoot,
     '__init__',
     side_effect=Exception()
 )
-def test__init__error(mocked_bigip):
+def itest__init__error(mocked_bigip):
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
     with pytest.raises(Exception):
@@ -133,13 +133,11 @@ def test_handle_create(F5BigIPSideEffect):
 
 
 def test_handle_create_http_error(F5BigIPHTTPError):
-    with pytest.raises(BigIPConnectionFailed) as ex:
+    with pytest.raises(BigIPConnectionFailed):
         F5BigIPHTTPError.handle_create()
-    assert ex.value.message == 'Failed to connect to BigIP with message: '
 
 
 def test_handle_delete(F5BigIP):
-    assert hasattr(F5BigIP, 'bigip')
     delete_result = F5BigIP.handle_delete()
     assert delete_result is True
 

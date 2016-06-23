@@ -15,7 +15,6 @@
 
 import os
 import sys
-import f5_heat
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -67,12 +66,12 @@ author = u'F5 Networks'
 # built documents.
 #
 # The short X.Y version.
-version = "8.0.1"
+version = VERSION
 # The full version, including alpha/beta/rc tags.
-release = "8.0.1"
+release = VERSION
 
 # OpenStack release
-openstack_release = "Liberty"
+openstack_release = OPENSTACK_RELEASE
 
 rst_epilog = """
 .. |openstack| replace:: {0}
@@ -317,8 +316,8 @@ intersphinx_mapping = {'heat': (
     'http://f5-openstack-heat.readthedocs.io/en/kilo', None),
     'lbaasv1': (
     'http://f5-openstack-lbaasv1.readthedocs.io/en/1.0/', None),
-    #'lbaasv2': (
-    #'http://f5-openstack-lbaasv2-driver.readthedocs.io/en/liberty/', None),
+    # 'lbaasv2': (
+    # 'http://f5-openstack-lbaasv2-driver.readthedocs.io/en/liberty/', None),
     'f5sdk': (
     'http://f5-sdk.readthedocs.io/en/latest/', None),
     }

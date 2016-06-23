@@ -14,22 +14,37 @@
 #
 
 import os
+from pytest import symbols
 
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def test_create_complete(HeatStack, BigIP):
-    hc, stack = HeatStack(os.path.join(TEST_DIR, 'success.yaml'))
-    assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.tm.ltm.virtuals.virtual.exists(
+def test_create_complete(HeatStack, bigip):
+    HeatStack(
+        os.path.join(TEST_DIR, 'success.yaml'),
+        'success_test',
+        parameters={
+            'bigip_ip': symbols.bigip_ip,
+            'bigip_un': symbols.bigip_un,
+            'bigip_pw': symbols.bigip_pw
+        }
+    )
+    assert bigip.tm.ltm.virtuals.virtual.exists(
         name='test_vs', partition='Common'
     ) is True
 
 
-def test_create_complete_new_partition(HeatStack, BigIP):
-    hc, stack = HeatStack(os.path.join(TEST_DIR, 'new_partition.yaml'))
-    assert hc.wait_until_status(stack.id, 'create_complete') is True
-    assert BigIP.tm.ltm.virtuals.virtual.exists(
+def test_create_complete_new_partition(HeatStack, bigip):
+    HeatStack(
+        os.path.join(TEST_DIR, 'new_partition.yaml'),
+        'new_partition_test',
+        parameters={
+            'bigip_ip': symbols.bigip_ip,
+            'bigip_un': symbols.bigip_un,
+            'bigip_pw': symbols.bigip_pw
+        }
+    )
+    assert bigip.tm.ltm.virtuals.virtual.exists(
         name='test_vs', partition='test_partition'
     ) is True
-    assert BigIP.tm.sys.folders.folder.exists(name='test_partition') is True
+    assert bigip.tm.sys.folders.folder.exists(name='test_partition') is True

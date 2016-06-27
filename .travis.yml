@@ -3,7 +3,7 @@ language: python
 python:
     - "2.7"
 env:
-    - PYTHONPATH=$PWD/heat:/home/travis/f5-common-python:$PWD
+    - PYTHONPATH=~/heat:/home/travis/f5-common-python:$PWD
 before_install:
     - sudo apt-get -qq update
     - git config --global user.email "OpenStack_TravisCI@f5.com"

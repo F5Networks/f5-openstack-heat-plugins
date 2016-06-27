@@ -25,7 +25,7 @@ from common.mixins import F5BigIPMixin
 
 
 class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
-    '''Manages creation of an F5® Virtual Server Resource.'''
+    '''Manages creation of an F5® LTM Virtual Server Resource.'''
 
     PROPERTIES = (
         NAME,
@@ -48,12 +48,12 @@ class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
     properties_schema = {
         NAME: properties.Schema(
             properties.Schema.STRING,
-            _('Name of the pool resource.'),
+            _('Name of the virtual server resource.'),
             required=True
         ),
         BIGIP_SERVER: properties.Schema(
             properties.Schema.STRING,
-            _('Reference to the BigIP Server resource.'),
+            _('Reference to the BIG-IP Server resource.'),
             required=True
         ),
         PARTITION: properties.Schema(
@@ -83,7 +83,7 @@ class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
 
     @f5_common_resources
     def handle_create(self):
-        '''Create the BigIP Virtual Server resource on the given device.
+        '''Create the BIG-IP® LTM Virtual Server resource on the given device.
 
         :raises: ResourceFailure exception
         '''
@@ -114,7 +114,7 @@ class F5LTMVirtualServer(resource.Resource, F5BigIPMixin):
 
     @f5_common_resources
     def handle_delete(self):
-        '''Delete the BigIP Virtual Server resource on the given device.
+        '''Delete the BIG-IP® LTM Virtual Server resource on the given device.
 
         :raises: ResourceFailure exception
         '''

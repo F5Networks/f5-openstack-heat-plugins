@@ -30,7 +30,7 @@ class IappFullTemplateValidationFailed(exception.StackValidationFailed):
 
 
 class F5SysiAppFullTemplate(F5BigIPMixin, resource.Resource):
-    '''Manages creation of an iApp® resource on the BIG-IP®.'''
+    '''Manages creation of an iApp® Template resource on the BIG-IP®.'''
 
     PROPERTIES = (
         BIGIP_SERVER,
@@ -55,7 +55,7 @@ class F5SysiAppFullTemplate(F5BigIPMixin, resource.Resource):
         ),
         FULL_TEMPLATE: properties.Schema(
             properties.Schema.STRING,
-            _('Full iapp template string.'),
+            _('Full iApp Template string.'),
             required=True
         )
     }
@@ -65,15 +65,18 @@ class F5SysiAppFullTemplate(F5BigIPMixin, resource.Resource):
         self._parse_full_template()
 
     def _parse_full_template(self):
-        '''Parse full template and set resulting dictionary as instance attr.
-
-        '''
+        '''Parse template and set resulting dictionary as instance attr.'''
 
         templ = self.properties[self.FULL_TEMPLATE]
         self.template_dict = IappParser(templ).parse_template()
 
     @f5_common_resources
     def _validate_template_partition(self):
+        '''Validate parsed template has partition.
+
+        raises: IappFullTemplateValidationFailed
+        '''
+
         try:
             assert self.template_dict['partition'] == self.partition_name
         except AssertionError:
@@ -84,7 +87,7 @@ class F5SysiAppFullTemplate(F5BigIPMixin, resource.Resource):
 
     @f5_common_resources
     def handle_create(self):
-        '''Create the template on the BIG-IP®.
+        '''Create the iApp® Template on the BIG-IP®.
 
         :raises: ResourceFailure
         '''

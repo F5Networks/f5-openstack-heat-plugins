@@ -29,7 +29,7 @@ class UpdateNotAllowed(object):
 
 
 class F5CmCluster(resource.Resource):
-    '''Manages creation of an iApp® resource on the BIG-IP® device.'''
+    '''Manages creation of the F5::Cm::Cluster resource.'''
 
     PROPERTIES = (
         DEVICE_GROUP_NAME,
@@ -79,7 +79,7 @@ class F5CmCluster(resource.Resource):
             )
 
     def handle_create(self):
-        '''Create the template on the BIG-IP®.
+        '''Create the device service group (cluster) of devices.
 
         :raises: ResourceFailure
         '''
@@ -99,7 +99,7 @@ class F5CmCluster(resource.Resource):
             raise exception.ResourceFailure(ex, None, action='CREATE')
 
     def handle_delete(self):
-        '''Delete the iApp® Template on the BIG-IP®.
+        '''Teardown the device service group (cluster).
 
         :raises: ResourceFailure
         '''

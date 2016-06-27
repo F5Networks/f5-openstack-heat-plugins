@@ -68,6 +68,8 @@ class F5BigIPDevice(resource.Resource):
         '''Create the BigIP resource.
 
         Attempt to initialize a bigip connection to test connectivity
+
+        raises: BigIPConnectionFailed
         '''
 
         try:
@@ -78,7 +80,7 @@ class F5BigIPDevice(resource.Resource):
         self.resource_id_set(self.physical_resource_name())
 
     def handle_delete(self):
-        '''Resource will be delete by resource.delete()'''
+        '''Delete this connection to the BIG-IP® device.'''
 
         return True
 

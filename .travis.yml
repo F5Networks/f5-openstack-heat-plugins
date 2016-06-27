@@ -3,13 +3,16 @@ language: python
 python:
     - "2.7"
 env:
-    - PYTHONPATH=/home/travis/heat:/home/travis/f5-common-python:$PWD
+    - PYTHONPATH=~/heat:/home/travis/f5-common-python:$PWD
 before_install:
     - sudo apt-get -qq update
     - git config --global user.email "OpenStack_TravisCI@f5.com"
     - git config --global user.name "Travis F5 Openstack"
     - sudo apt-get -y install build-essential libssl-dev libffi-dev python-dev
-    - git clone -b stable/kilo https://github.com/openstack/heat.git ~/heat
+    - git clone https://github.com/openstack/heat.git ~/heat
+    - cd ~/heat/
+    - git checkout tags/kilo-eol
+    - cd $TRAVIS_BUILD_DIR
 install:
     - pip install -r requirements.unit.test.txt
     - pip install -r ~/heat/requirements.txt

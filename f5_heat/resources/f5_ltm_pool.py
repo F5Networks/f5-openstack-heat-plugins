@@ -25,7 +25,7 @@ from common.mixins import F5BigIPMixin
 
 
 class F5LTMPool(resource.Resource, F5BigIPMixin):
-    '''Manages creation of an F5® Resource.'''
+    '''Manages creation of an F5® LTM Pool Resource.'''
 
     PROPERTIES = (
         NAME,
@@ -115,7 +115,7 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
 
     @f5_common_resources
     def handle_create(self):
-        '''Create the BigIP Pool resource on the given device.
+        '''Create the BIG-IP® LTM Pool resource on the given device.
 
         :rasies: ResourceFailure
         '''
@@ -139,7 +139,7 @@ class F5LTMPool(resource.Resource, F5BigIPMixin):
 
     @f5_common_resources
     def handle_delete(self):
-        '''Delete the BigIP Pool resource on the given device.
+        '''Delete the BIG-IP® LTM Pool resource on the given device.
 
         :raises: ResourceFailure
         '''

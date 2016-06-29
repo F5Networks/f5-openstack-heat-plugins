@@ -25,7 +25,7 @@ from common.mixins import F5BigIPMixin
 
 
 class F5SysPartition(resource.Resource, F5BigIPMixin):
-    '''Manages creation of an F5® Virtual Server Resource.'''
+    '''Manages creation of an F5® Partition Resource.'''
 
     PROPERTIES = (
         NAME,
@@ -42,17 +42,17 @@ class F5SysPartition(resource.Resource, F5BigIPMixin):
     properties_schema = {
         NAME: properties.Schema(
             properties.Schema.STRING,
-            _('Name of the pool resource.'),
+            _('Name of the partition.'),
             required=True
         ),
         BIGIP_SERVER: properties.Schema(
             properties.Schema.STRING,
-            _('Reference to the BigIP Server resource.'),
+            _('Reference to the BIG-IP Partition resource.'),
             required=True
         ),
         SUBPATH: properties.Schema(
             properties.Schema.STRING,
-            _('Subpath for the folder or parition.'),
+            _('Subpath for the folder or partition.'),
             default='/'
         )
     }
@@ -67,7 +67,7 @@ class F5SysPartition(resource.Resource, F5BigIPMixin):
 
     @f5_bigip
     def handle_create(self):
-        '''Create the BIG-IP® Virtual Server resource on the given device.
+        '''Create the BIG-IP® Partition if necessary on the device.
 
         If the 'Common' partition was specified, do not create, as it exists
         on the BIG-IP® by default.
@@ -86,7 +86,7 @@ class F5SysPartition(resource.Resource, F5BigIPMixin):
 
     @f5_bigip
     def handle_delete(self):
-        '''Delete the BIG-IP® Virtual Server resource on the given device.
+        '''Delete the BIG-IP® Partition if necessary on the device.
 
         If the 'Common' partition was specified, do not delete, as it exists
         on the BIG-IP® by default.

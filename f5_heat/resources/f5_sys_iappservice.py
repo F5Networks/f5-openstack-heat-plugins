@@ -32,7 +32,7 @@ LOG = logging.getLogger(__name__)
 
 
 class F5SysiAppService(resource.Resource, F5BigIPMixin):
-    '''Manages creation of an iApp® resource on the BIG-IP®.'''
+    '''Manages creation of an iApp® Service resource on the BIG-IP®.'''
 
     PROPERTIES = (
         NAME,
@@ -57,12 +57,12 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
     properties_schema = {
         NAME: properties.Schema(
             properties.Schema.STRING,
-            _('Name of the template.'),
+            _('Name of the iApp Service.'),
             required=True
         ),
         BIGIP_SERVER: properties.Schema(
             properties.Schema.STRING,
-            _('IP address of BigIP device.')
+            _('IP address of BIG-IP device.')
         ),
         PARTITION: properties.Schema(
             properties.Schema.STRING,
@@ -94,6 +94,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
 
     def __init__(self, name, defn, stack):
         '''Call super and validate answer properties.'''
+
         super(F5SysiAppService, self).__init__(name, defn, stack)
 
         self.iapp_answers_from_hot = {}

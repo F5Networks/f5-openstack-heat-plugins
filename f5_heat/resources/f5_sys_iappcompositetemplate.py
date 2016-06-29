@@ -25,7 +25,7 @@ from common.mixins import F5BigIPMixin
 
 
 class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
-    '''Manages creation of an iApp® resource on the BIG-IP® device.'''
+    '''Manages creation of an iApp® Template resource on the BIG-IP® device.'''
 
     PROPERTIES = (
         NAME,
@@ -55,7 +55,7 @@ class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
         ),
         BIGIP_SERVER: properties.Schema(
             properties.Schema.STRING,
-            _('BigIP resource reference.'),
+            _('BIG-IP resource reference.'),
             required=True
         ),
         PARTITION: properties.Schema(
@@ -88,9 +88,9 @@ class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
     }
 
     def _add_optional_attr(self, iapp_dict):
-        '''When building the iApp® dictionary, add optional items.
+        '''When building the iApp® Template dictionary, add optional items.
 
-        :param iapp_dict: dictionary for iApp® template
+        :param iapp_dict: dictionary for iApp® Template
         :returns: possibly modified dictionary
         '''
 

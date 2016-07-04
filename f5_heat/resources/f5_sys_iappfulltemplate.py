@@ -94,7 +94,7 @@ class F5SysiAppFullTemplate(F5BigIPMixin, resource.Resource):
 
         self._validate_template_partition()
         try:
-            template = self.bigip.tm.sys.applications.templates.template
+            template = self.bigip.tm.sys.application.templates.template
             template.create(**self.template_dict)
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
@@ -106,12 +106,12 @@ class F5SysiAppFullTemplate(F5BigIPMixin, resource.Resource):
         :raises: ResourceFailure
         '''
 
-        if self.bigip.tm.sys.applications.templates.template.exists(
+        if self.bigip.tm.sys.application.templates.template.exists(
                 name=self.template_dict['name'],
                 partition=self.partition_name
         ):
             try:
-                loaded_template = self.bigip.tm.sys.applications.templates.template.\
+                loaded_template = self.bigip.tm.sys.application.templates.template.\
                     load(
                         name=self.template_dict['name'],
                         partition=self.partition_name

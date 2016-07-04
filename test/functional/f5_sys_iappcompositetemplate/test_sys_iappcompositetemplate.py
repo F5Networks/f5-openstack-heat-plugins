@@ -30,7 +30,7 @@ def test_create_complete(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.application.templates.template.exists(
         name='test_template', partition='Common'
     ) is True
 
@@ -45,7 +45,7 @@ def test_create_complete_new_partition(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.application.templates.template.exists(
         name='test_template', partition='test_partition'
     ) is True
 
@@ -62,7 +62,7 @@ def test_create_failed_no_implementation(HeatStack, bigip):
             },
             expect_fail=True
         )
-    assert bigip.tm.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.application.templates.template.exists(
         name='test_template', partition='Common'
     ) is False
     assert 'Property implementation not assigned' in ex.value.message

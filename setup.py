@@ -31,7 +31,7 @@ setup(
     install_requires=[
         'pbr >= 0.6, < 1.0, != 0.7',
         'requests >= 2.5.1, < 2.8.0',
-        'f5-sdk >= 0.1.7'
+        'f5-sdk >= 0.1.8'
     ],
     packages=find_packages(
         exclude=[

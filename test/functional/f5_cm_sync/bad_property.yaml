@@ -16,7 +16,7 @@ resources:
       password: { get_param: bigip_pw }
       ip: { get_param: bigip_ip }
   sync_rsrc:
-    type: F5::Sys::Sync
+    type: F5::Cm::Sync
     properties:
       bigip_server: { get_resource: bigip_rsrc }
       device_group: my_device_group

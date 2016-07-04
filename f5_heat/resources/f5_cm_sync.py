@@ -24,7 +24,7 @@ from common.mixins import f5_bigip
 from common.mixins import F5BigIPMixin
 
 
-class F5SysSync(resource.Resource, F5BigIPMixin):
+class F5CmSync(resource.Resource, F5BigIPMixin):
     '''Sync the device configuration to the device group.'''
 
     PROPERTIES = (
@@ -99,4 +99,4 @@ class F5SysSync(resource.Resource, F5BigIPMixin):
 
 
 def resource_mapping():
-    return {'F5::Sys::Sync': F5SysSync}
+    return {'F5::Cm::Sync': F5CmSync}

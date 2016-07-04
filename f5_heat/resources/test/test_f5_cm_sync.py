@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5_heat.resources import f5_sys_sync
+from f5_heat.resources import f5_cm_sync
 from heat.common import exception
 from heat.common import template_format
 from heat.engine.hot.template import HOTemplate20150430
@@ -33,7 +33,7 @@ resources:
       username: admin
       password: admin
   sync_rsrc:
-    type: F5::Sys::Sync
+    type: F5::Cm::Sync
     properties:
       bigip_server: bigip_rsrc
       device_group: dg
@@ -89,37 +89,37 @@ def create_resource_definition(templ_dict):
 
 
 @pytest.fixture
-def F5SysSync():
-    '''Instantiate the F5SysSave resource.'''
+def F5CmSync():
+    '''Instantiate the F5CmSync resource'''
     template_dict = mock_template()
     rsrc_def = create_resource_definition(template_dict)
-    return f5_sys_sync.F5SysSync(
+    return f5_cm_sync.F5CmSync(
         "testing_sync", rsrc_def, mock.MagicMock()
     )
 
 
 @pytest.fixture
-def CreateSyncDGNonExtant(F5SysSync):
-    F5SysSync.get_bigip()
-    F5SysSync.bigip.tm.cm.device_groups.device_group.exists.side_effect = \
+def CreateSyncDGNonExtant(F5CmSync):
+    F5CmSync.get_bigip()
+    F5CmSync.bigip.tm.cm.device_groups.device_group.exists.side_effect = \
         Exception('test')
-    return F5SysSync
+    return F5CmSync
 
 
 @pytest.fixture
-def CreateSyncSyncFails(F5SysSync):
-    F5SysSync.get_bigip()
-    F5SysSync.bigip.tm.cm.exec_cmd.side_effect = Exception('test')
-    return F5SysSync
+def CreateSyncSyncFails(F5CmSync):
+    F5CmSync.get_bigip()
+    F5CmSync.bigip.tm.cm.exec_cmd.side_effect = Exception('test')
+    return F5CmSync
 
 
 # Tests
 
 
-def test_handle_create(F5SysSync):
-    create_result = F5SysSync.handle_create()
+def test_handle_create(F5CmSync):
+    create_result = F5CmSync.handle_create()
     assert create_result is None
-    assert F5SysSync.bigip.tm.cm.device_groups.device_group.exists.call_args \
+    assert F5CmSync.bigip.tm.cm.device_groups.device_group.exists.call_args \
         == mock.call(name='dg', partition='partition')
 
 
@@ -137,27 +137,27 @@ def test_handle_create_error_sync_fails(CreateSyncSyncFails):
     assert 'test' in ex.value.message
 
 
-def test_handle_check_create_complete_true(F5SysSync):
-    F5SysSync.get_bigip()
-    F5SysSync.bigip.tm.cm.sync_status = SyncStatusEntries('In Sync')
-    check_result = F5SysSync.check_create_complete('token')
+def test_handle_check_create_complete_true(F5CmSync):
+    F5CmSync.get_bigip()
+    F5CmSync.bigip.tm.cm.sync_status = SyncStatusEntries('In Sync')
+    check_result = F5CmSync.check_create_complete('token')
     assert check_result is True
 
 
-def test_handle_check_create_complete_false(F5SysSync):
-    F5SysSync.get_bigip()
-    F5SysSync.bigip.tm.cm.sync_status = SyncStatusEntries('disconnected')
-    check_result = F5SysSync.check_create_complete('token')
+def test_handle_check_create_complete_false(F5CmSync):
+    F5CmSync.get_bigip()
+    F5CmSync.bigip.tm.cm.sync_status = SyncStatusEntries('disconnected')
+    check_result = F5CmSync.check_create_complete('token')
     assert check_result is False
 
 
-def test_handle_delete(F5SysSync):
-    delete_result = F5SysSync.handle_delete()
+def test_handle_delete(F5CmSync):
+    delete_result = F5CmSync.handle_delete()
     assert delete_result is True
 
 
 def test_resource_mapping():
-    rsrc_map = f5_sys_sync.resource_mapping()
+    rsrc_map = f5_cm_sync.resource_mapping()
     assert rsrc_map == {
-        'F5::Sys::Sync': f5_sys_sync.F5SysSync
+        'F5::Cm::Sync': f5_cm_sync.F5CmSync
     }

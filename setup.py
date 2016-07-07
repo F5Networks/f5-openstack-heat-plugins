@@ -31,6 +31,7 @@ setup(
     install_requires=[
         'pbr >= 1.6',
         'requests >= 2.10.0',
+        'six >= 1.10.0',
         'f5-sdk == 1.0.0'
     ],
     packages=find_packages(

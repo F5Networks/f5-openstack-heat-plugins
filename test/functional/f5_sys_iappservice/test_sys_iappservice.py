@@ -30,7 +30,7 @@ def test_create_complete(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.sys.applications.services.service.exists(
+    assert bigip.tm.sys.application.services.service.exists(
         name='test_service', partition='Common') is True
 
 
@@ -44,9 +44,9 @@ def test_create_complete_no_answers(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.sys.applications.services.service.exists(
+    assert bigip.tm.sys.application.services.service.exists(
         name='test_service', partition='Common') is True
-    assert bigip.tm.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.application.templates.template.exists(
         name='test_template', partition='Common') is True
 
 
@@ -60,9 +60,9 @@ def test_create_complete_new_partition(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.sys.applications.services.service.exists(
+    assert bigip.tm.sys.application.services.service.exists(
         name='test_service', partition='test_partition') is True
-    assert bigip.tm.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.application.templates.template.exists(
         name='test_template', partition='test_partition') is True
     assert bigip.tm.sys.folders.folder.exists(name='test_partition')
 
@@ -81,10 +81,10 @@ def itest_create_complete_lb_deploy(HeatStack, bigip):
         },
         teardown=False
     )
-    assert bigip.tm.sys.applications.services.service.exists(
+    assert bigip.tm.sys.application.services.service.exists(
         name='lb_service', partition='Common'
     ) is True
-    assert bigip.tm.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.application.templates.template.exists(
         name='lb_template', partition='Common'
     ) is True
     assert bigip.tm.ltm.virtuals.virtual.exists(
@@ -94,10 +94,10 @@ def itest_create_complete_lb_deploy(HeatStack, bigip):
         name='pool1', partition='Common'
     ) is True
     hc.delete_stack()
-    assert bigip.tm.sys.applications.services.service.exists(
+    assert bigip.tm.sys.application.services.service.exists(
         name='lb_service', partition='Common'
     ) is False
-    assert bigip.tm.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.application.templates.template.exists(
         name='lb_template', partition='Common'
     ) is False
     assert bigip.tm.ltm.virtuals.virtual.exists(

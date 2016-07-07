@@ -1,0 +1,24 @@
+heat_template_version: 2015-04-30
+description: testing stack creation in python
+parameters:
+  bigip_un:
+    type: string
+  bigip_pw:
+    type: string
+  bigip_ip:
+    type: string
+
+resources:
+  bigip_rsrc:
+    type: F5::BigIP::Device
+    properties:
+      username: { get_param: bigip_un }
+      password: { get_param: bigip_pw }
+      ip: { get_param: bigip_ip }
+  sync_rsrc:
+    type: F5::Cm::Sync
+    properties:
+      bigip_server: { get_resource: bigip_rsrc }
+      device_group: my_device_group
+      device_group_partition: Common
+      bad_property: bad_test_prop

@@ -27,7 +27,7 @@ def f5_common_resources(func):
 def f5_bigip(func):
     def func_wrapper(self, *args, **kwargs):
         self.get_bigip()
-        func(self, *args, **kwargs)
+        return func(self, *args, **kwargs)
     return func_wrapper
 
 

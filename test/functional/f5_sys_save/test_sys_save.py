@@ -1,4 +1,4 @@
-# Copyright 2015-2016 F5 Networks Inc.
+# Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,14 +13,17 @@
 # limitations under the License.
 #
 
+
 import os
 import pytest
 from pytest import symbols
 
+from heatclient.exc import HTTPException
+
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def test_create_complete(HeatStack, bigip):
+def test_create_complete(HeatStack):
     HeatStack(
         os.path.join(TEST_DIR, 'success.yaml'),
         'success_test',
@@ -30,31 +33,13 @@ def test_create_complete(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.sys.application.templates.template.exists(
-        name='test_template', partition='Common'
-    ) is True
 
 
-def test_create_complete_new_partition(HeatStack, bigip):
-    HeatStack(
-        os.path.join(TEST_DIR, 'new_partition.yaml'),
-        'new_partition_test',
-        parameters={
-            'bigip_ip': symbols.bigip_ip,
-            'bigip_un': symbols.bigip_un,
-            'bigip_pw': symbols.bigip_pw
-        }
-    )
-    assert bigip.tm.sys.application.templates.template.exists(
-        name='test_template', partition='test_partition'
-    ) is True
-
-
-def test_create_failed_no_implementation(HeatStack, bigip):
-    with pytest.raises(Exception) as ex:
+def test_create_complete_bad_prop(HeatStack):
+    with pytest.raises(HTTPException) as ex:
         HeatStack(
-            os.path.join(TEST_DIR, 'no_implementation.yaml'),
-            'no_implementation_test',
+            os.path.join(TEST_DIR, 'bad_property.yaml'),
+            'bad_property',
             parameters={
                 'bigip_ip': symbols.bigip_ip,
                 'bigip_un': symbols.bigip_un,
@@ -62,7 +47,4 @@ def test_create_failed_no_implementation(HeatStack, bigip):
             },
             expect_fail=True
         )
-    assert bigip.tm.sys.application.templates.template.exists(
-        name='test_template', partition='Common'
-    ) is False
-    assert 'Property implementation not assigned' in ex.value.message
+    assert 'Unknown Property bad_property' in ex.value.message

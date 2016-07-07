@@ -142,7 +142,7 @@ def F5SysiAppTemplateNoExists(F5SysiAppTemplate):
     '''Instantiate the F5SysiAppTemplate resource.'''
     F5SysiAppTemplate.get_bigip()
     mock_exists = mock.MagicMock(return_value=False)
-    F5SysiAppTemplate.bigip.tm.sys.applications.templates.template.exists = \
+    F5SysiAppTemplate.bigip.tm.sys.application.templates.template.exists = \
         mock_exists
     return F5SysiAppTemplate
 
@@ -150,7 +150,7 @@ def F5SysiAppTemplateNoExists(F5SysiAppTemplate):
 @pytest.fixture
 def CreateTemplateSideEffect(F5SysiAppTemplate):
     F5SysiAppTemplate.get_bigip()
-    F5SysiAppTemplate.bigip.tm.sys.applications.templates.template.create.\
+    F5SysiAppTemplate.bigip.tm.sys.application.templates.template.create.\
         side_effect = exception.ResourceFailure(
             mock.MagicMock(),
             None,
@@ -162,7 +162,7 @@ def CreateTemplateSideEffect(F5SysiAppTemplate):
 @pytest.fixture
 def DeleteTemplateSideEffect(F5SysiAppTemplate):
     F5SysiAppTemplate.get_bigip()
-    F5SysiAppTemplate.bigip.tm.sys.applications.templates.template.load.\
+    F5SysiAppTemplate.bigip.tm.sys.application.templates.template.load.\
         side_effect = exception.ResourceFailure(
             mock.MagicMock(),
             None,
@@ -176,7 +176,7 @@ def DeleteTemplateSideEffect(F5SysiAppTemplate):
 def test_handle_create(F5SysiAppTemplate):
     create_result = F5SysiAppTemplate.handle_create()
     assert create_result is None
-    assert F5SysiAppTemplate.bigip.tm.sys.applications.templates.template.\
+    assert F5SysiAppTemplate.bigip.tm.sys.application.templates.template.\
         create.call_args == mock.call(**iapp_actions_dict)
 
 
@@ -188,7 +188,7 @@ def test_handle_create_error(CreateTemplateSideEffect):
 
 def test_handle_delete(F5SysiAppTemplate):
     assert F5SysiAppTemplate.handle_delete() is True
-    assert F5SysiAppTemplate.bigip.tm.sys.applications.templates.template.\
+    assert F5SysiAppTemplate.bigip.tm.sys.application.templates.template.\
         load.call_args == mock.call(
             name='testing_template', partition='Common')
 

@@ -158,7 +158,7 @@ def F5SysiAppService():
 def F5SysiAppServiceExists(F5SysiAppService):
     F5SysiAppService.get_bigip()
     mock_exists = mock.MagicMock(return_value=True)
-    F5SysiAppService.bigip.tm.sys.applications.services.service.exists = \
+    F5SysiAppService.bigip.tm.sys.application.services.service.exists = \
         mock_exists
     return F5SysiAppService
 
@@ -167,7 +167,7 @@ def F5SysiAppServiceExists(F5SysiAppService):
 def F5SysiAppServiceNoExists(F5SysiAppService):
     F5SysiAppService.get_bigip()
     mock_exists = mock.MagicMock(return_value=False)
-    F5SysiAppService.bigip.tm.sys.applications.services.service.exists = \
+    F5SysiAppService.bigip.tm.sys.application.services.service.exists = \
         mock_exists
     return F5SysiAppService
 
@@ -175,7 +175,7 @@ def F5SysiAppServiceNoExists(F5SysiAppService):
 @pytest.fixture
 def CreateServiceSideEffect(F5SysiAppService):
     F5SysiAppService.get_bigip()
-    F5SysiAppService.bigip.tm.sys.applications.services.service.create.\
+    F5SysiAppService.bigip.tm.sys.application.services.service.create.\
         side_effect = Exception()
     return F5SysiAppService
 
@@ -183,7 +183,7 @@ def CreateServiceSideEffect(F5SysiAppService):
 @pytest.fixture
 def DeleteServiceSideEffect(F5SysiAppService):
     F5SysiAppService.get_bigip()
-    F5SysiAppService.bigip.tm.sys.applications.services.service.load.\
+    F5SysiAppService.bigip.tm.sys.application.services.service.load.\
         side_effect = exception.ResourceFailure(
             mock.MagicMock(),
             None,
@@ -197,7 +197,7 @@ def DeleteServiceSideEffect(F5SysiAppService):
 def test_handle_create(F5SysiAppService):
     create_result = F5SysiAppService.handle_create()
     assert create_result is None
-    assert F5SysiAppService.bigip.tm.sys.applications.services.service.create.\
+    assert F5SysiAppService.bigip.tm.sys.application.services.service.create.\
         call_args == mock.call(
             **iapp_service_dict
         )
@@ -211,7 +211,7 @@ def test_handle_create_error(CreateServiceSideEffect):
 
 def test_handle_delete(F5SysiAppServiceExists):
     assert F5SysiAppServiceExists.handle_delete() is True
-    assert F5SysiAppServiceExists.bigip.tm.sys.applications.services.\
+    assert F5SysiAppServiceExists.bigip.tm.sys.application.services.\
         service.load.call_args == mock.call(
             name=u'testing_service', partition='Common')
 

@@ -139,7 +139,7 @@ def test_handle_create_error(CreatePartitionSideEffect):
 
 def test_handle_delete(F5SysPartition):
     delete_result = F5SysPartition.handle_delete()
-    assert delete_result is None
+    assert delete_result is True
     assert F5SysPartition.bigip.tm.sys.folders.folder.load.\
         call_args == mock.call(name=u'partition_test')
 

@@ -5,21 +5,17 @@ f5-openstack-heat-plugins
 
 Introduction
 ------------
-This repository houses all of F5®'s OpenStack Heat resource plugins. F5's
-Heat plugins can be used to orchestrate BIG-IP®  services in your OpenStack environment.
+This repository houses all of F5®'s OpenStack Heat resource plugins. F5's Heat plugins can be used to orchestrate BIG-IP® services in your OpenStack environment.
 
 Releases and Versions
 ---------------------
 This branch supports the OpenStack Kilo release.
 
-Please see `F5 OpenStack Releases, Versioning, and Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`_ for additional information
- about F5's OpenStack plugins and BIG-IP compatibility.
+Please see `F5 OpenStack Releases, Versioning, and Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`_ for additional information about F5's OpenStack plugins and BIG-IP compatibility.
 
 Documentation
 -------------
-Project documentation, which includes installation and usage instructions, can
- be found on `Read The Docs <https://f5-openstack-heat-plugins.readthedocs
- .org/en/>`_.
+Project documentation, which includes installation and usage instructions, can be found on `Read The Docs <https://f5-openstack-heat-plugins.readthedocs.io>`_.
 
 For Developers
 --------------
@@ -48,25 +44,17 @@ Unit Tests
 ~~~~~~~~~~
 We use pytest for our unit tests.
 
-#. If you haven't already, install requirements.unit.test.txt in your virtual
-   environment.
+#. If you haven't already, install the project requirements in your virtual environment.
 
-    .. code:: shell
+   .. code:: shell
 
        pip install hacking pytest pytest-cov
        pip install -r requirements.txt
+       pip install -r requirements.unit.test.txt
 
 #. Run the tests and produce a coverage report. The ``--cov-report=html`` will create a ``htmlcov/`` directory that you can view in your browser to see the missing lines of code.
 
-    .. code:: shell
-
-       pip install -r requirements.unit.test.txt
-
-#. Run the tests and produce a coverage report. The ``--cov-report=html`` will
-   create a ``htmlcov/`` directory that you can view in your browser to see
-   the missing lines of code.
-
-    .. code:: shell
+   .. code:: shell
 
        py.test --cov f5_heat/resources/test --cov-report=html
        open htmlcov/index.html
@@ -76,19 +64,15 @@ Functional Tests
 ~~~~~~~~~~~~~~~~
 Pytest is also used for functional tests
 
-#. If you haven't already, install requirements.func.test.txt in your virtual
-   environment.
+#. If you haven't already, install requirements.func.test.txt in your virtual environment.
 
    .. code:: shell
 
        pip install -r requirements.func.test.txt
 
-#. Currently, you must modify ``test/functional/test_variables.py`` file to
-     provide the proper credentials to Openstack. See that file for more info
-     on what is needed. Also remember not to include this file in your pull
-     request, since it may contiain sensitive information.
+#. Currently, you must modify ``test/functional/test_variables.py`` file to provide the proper credentials to Openstack. See that file for more info on what is needed. Also remember not to include this file in your pull request, since it may contiain sensitive information.
 
-#. Run the functional tests and pass in arguments to connect to the F5® Device.
+#. Run the functional tests and pass in arguments to connect to the F5 device.
 
    .. code:: shell
 

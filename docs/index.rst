@@ -1,7 +1,7 @@
 .. _home:
 
-F5® OpenStack Heat Plugins
-==========================
+F5 OpenStack Heat Plugins
+=========================
 
 .. raw:: html
 
@@ -10,28 +10,28 @@ F5® OpenStack Heat Plugins
 Overview
 --------
 This repository houses all of F5®'s `Openstack Heat <https://wiki.openstack.org/wiki/Heat>`__
-resource plugins. F5®'s Heat plugins can be used to orchestrate BIG-IP® services
+resource plugins. F5's Heat plugins can be used to orchestrate BIG-IP® LTM® services
 in your OpenStack environment.
 
 Releases and Versions
 ---------------------
 The current release, v |release|, supports the OpenStack |openstack| release.
 
-Please see `F5® OpenStack Releases, Versioning, and Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`_ for additional information about F5®'s OpenStack plugins, versioning, and BIG-IP® compatibility.
+Please see `F5 OpenStack Releases, Versioning, and Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`_ for additional information about F5's OpenStack plugins, versioning, and BIG-IP compatibility.
 
 Before You Begin
 ----------------
 
 Before you begin, please note the following:
 
-* The F5® Heat plugins must be installed on the same machine as the Heat engine service in your stack.
+* The F5 Heat plugins must be installed on the same machine as the Heat engine service in your stack.
 * You may need to use ``sudo`` to execute some of the installation and/or configuration commands.
 * You will need to install the Python tool ``pip`` on your machine.
 
     .. code-block:: shell
 
-        $ apt-get install python-pip \\ Ubuntu
         $ yum install python-pip \\ CentOS
+        $ apt-get install python-pip \\ Ubuntu
 
 * If you are installing a pre-release version of the package with pip, you will need to use the ``--pre`` option.
 
@@ -47,76 +47,83 @@ Installation
 
     Please remember that your installation may differ (sometimes greatly) from what we show below.
 
-Ubuntu
+CentOS
 ~~~~~~
 
-1. Install the F5® Heat plugins.
+1. Install the F5 Heat plugins.
 
     .. code-block:: shell
 
-        $ pip install f5-openstack-heat-plugins
+        $ sudo pip install f5-openstack-heat-plugins
 
 2. Make the Heat plugins directory (**NOTE:** this may already exist).
 
     .. code-block:: shell
 
-        $ mkdir -p /usr/lib/heat
+        $ sudo mkdir -p /usr/lib/heat
 
-3. Create a link to the F5® plugins in the Heat plugins directory.
+3. Create a link to the F5 plugins in the Heat plugins directory.
 
     .. code-block:: shell
 
-        $ ln -s /usr/lib/python2.7/dist-packages/f5_heat /usr/lib/heat/f5_heat
+        $ sudo ln -s /usr/lib/python2.7/site-packages/f5_heat /usr/lib/heat/f5_heat
 
 4. Restart the Heat engine service.
 
     .. code-block:: shell
 
-        $ service heat-engine restart
+        $ sudo systemctl restart openstack-heat-engine.service
 
 
+Ubuntu
+~~~~~~
 
-RedHat/CentOS
-~~~~~~~~~~~~~
-
-.. include:: index.rst
-    :start-line: 50
-    :end-line: 62
-
-3. Create a link to the F5® plugins in the Heat plugins directory.
+1. Install the F5 Heat plugins.
 
     .. code-block:: shell
 
-        $ ln -s /usr/lib/python2.7/site-packages/f5_heat /usr/lib/heat/f5_heat
+        $ sudo pip install f5-openstack-heat-plugins
+
+2. Make the Heat plugins directory (**NOTE:** this may already exist).
+
+    .. code-block:: shell
+
+        $ sudo mkdir -p /usr/lib/heat
+
+3. Create a link to the F5 plugins in the Heat plugins directory.
+
+    .. code-block:: shell
+
+        $ sudo ln -s /usr/local/lib/python2.7/dist-packages/f5_heat /usr/lib/heat
 
 4. Restart the Heat engine service.
 
     .. code-block:: shell
 
-        $ systemctl restart openstack-heat-engine.service
+        $ sudo service heat-engine restart
 
 
 Usage
 -----
-The objects defined by the F5® Heat plugins can be used in Heat templates to orchestrate F5® services in an OpenStack cloud. The sample Heat template below does the following:
+The objects defined by the F5 Heat plugins can be used in Heat templates to orchestrate F5 services in an OpenStack cloud. The sample Heat template below does the following:
 
-* identifies the BIG-IP® we want to configure
-* provides login credentials for an admin user on the BIG-IP®
-* identifies the partition on the BIG-IP® where the objects we want to create should be placed
-* identifies an iApp® template to use to deploy/manage BIG-IP® services
+* identifies the BIG-IP we want to configure
+* provides login credentials for an admin user on the BIG-IP
+* identifies the partition on the BIG-IP where the objects we want to create should be placed
+* identifies an iApp® template to use to deploy/manage BIG-IP services
 
-The first two resources defined here are required to deploy any object on BIG-IP® VE.
+The first two resources defined here are required to deploy any object on BIG-IP VE.
 
-* :py:mod:`F5BigIPDevice` identifies and authenticates to the BIG-IP®
-* :py:mod:`F5SysPartition` identifies the partition on the BIG-IP® in which objects will be placed (``Common`` is the default partition).
+* :py:mod:`F5BigIPDevice` identifies and authenticates to the BIG-IP
+* :py:mod:`F5SysPartition` identifies the partition on the BIG-IP in which objects will be placed (``Common`` is the default partition).
 
 These two requirements will be linked with the obects we intend to configure (iAppTemplate, iAppService) by calling the 'get_resource' intrinsic function.
 
-.. topic:: Sample Heat template using objects defined by the F5® Heat plugins.
+.. topic:: Sample Heat template using objects defined by the F5 Heat plugins.
 
     .. code-block:: yaml
         :linenos:
-        :emphasize-lines: 12, 14, 18, 19, 24, 25, 34
+        :emphasize-lines: 9, 12, 14, 17, 18, 22, 25, 26
 
         resources:
           bigip:
@@ -149,7 +156,7 @@ These two requirements will be linked with the obects we intend to configure (iA
 
 .. tip::
 
-    See the `F5® Heat templates <https://github.com/F5Networks/f5-openstack-heat>`_ repo on GitHub for additional examples, or peruse the `documentation <http://f5-openstack-heat.readthedocs.org/en/latest/>`_.
+    See the `F5 Heat templates <https://github.com/F5Networks/f5-openstack-heat>`_ repo on GitHub for additional examples, or peruse the `documentation <http://f5-openstack-heat.readthedocs.org/en/latest/>`_.
 
 API Documentation
 -----------------

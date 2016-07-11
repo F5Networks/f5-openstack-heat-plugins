@@ -1,6 +1,5 @@
 # These packages are required when testing the module
--e .
+.
 hacking
 pytest
 pytest-cov
-Sphinx==1.3.5

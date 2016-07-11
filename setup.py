@@ -29,7 +29,7 @@ setup(
     url='https://github.com/F5Networks/f5-openstack-heat-plugins/',
     keywords=['F5', 'openstack', 'heat', 'bigip', 'orchestration'],
     install_requires=[
-        'f5-sdk >= 0.1.7'
+        'f5-sdk == 1.0.0'
     ],
     packages=find_packages(
         exclude=[

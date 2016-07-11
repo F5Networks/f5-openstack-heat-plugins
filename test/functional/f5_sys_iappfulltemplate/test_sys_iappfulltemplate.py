@@ -30,7 +30,7 @@ def test_create_complete(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.application.templates.template.exists(
         name='thanks_world', partition='Common'
     ) is True
 
@@ -45,7 +45,7 @@ def test_create_complete_new_partition(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.application.templates.template.exists(
         name='thanks_world', partition='test_partition') is True
 
 
@@ -69,6 +69,6 @@ def test_create_failed_bad_iapp_parsing(HeatStack, bigip):
             },
             expect_fail=True
         )
-    assert bigip.tm.sys.applications.templates.template.exists(
+    assert bigip.tm.sys.application.templates.template.exists(
         name='thanks_world', partition='Common') is False
     assert 'NonextantSectionException' in ex.value.message

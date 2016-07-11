@@ -25,7 +25,7 @@ from common.mixins import F5BigIPMixin
 
 
 class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
-    '''Manages creation of an iApp® resource on the BIG-IP® device.'''
+    '''Manages creation of an iApp® Template resource on the BIG-IP® device.'''
 
     PROPERTIES = (
         NAME,
@@ -55,7 +55,7 @@ class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
         ),
         BIGIP_SERVER: properties.Schema(
             properties.Schema.STRING,
-            _('BigIP resource reference.'),
+            _('BIG-IP resource reference.'),
             required=True
         ),
         PARTITION: properties.Schema(
@@ -88,9 +88,9 @@ class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
     }
 
     def _add_optional_attr(self, iapp_dict):
-        '''When building the iApp® dictionary, add optional items.
+        '''When building the iApp® Template dictionary, add optional items.
 
-        :param iapp_dict: dictionary for iApp® template
+        :param iapp_dict: dictionary for iApp® Template
         :returns: possibly modified dictionary
         '''
 
@@ -133,7 +133,7 @@ class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
         template_dict['partition'] = self.partition_name
 
         try:
-            template = self.bigip.tm.sys.applications.templates.template
+            template = self.bigip.tm.sys.application.templates.template
             template.create(**template_dict)
         except Exception as ex:
             raise exception.ResourceFailure(ex, None, action='CREATE')
@@ -145,12 +145,12 @@ class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
         :raises: ResourceFailure
         '''
 
-        if self.bigip.tm.sys.applications.templates.template.exists(
+        if self.bigip.tm.sys.application.templates.template.exists(
                 name=self.properties[self.NAME],
                 partition=self.partition_name
         ):
             try:
-                loaded_template = self.bigip.tm.sys.applications.templates.template.\
+                loaded_template = self.bigip.tm.sys.application.templates.template.\
                     load(
                         name=self.properties[self.NAME],
                         partition=self.partition_name

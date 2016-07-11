@@ -313,11 +313,11 @@ texinfo_documents = [
 
 # Map to other F5 projects
 intersphinx_mapping = {'heat': (
-    'http://f5-openstack-heat.readthedocs.io/en/kilo', None),
+    'http://f5-openstack-heat.readthedocs.io/en/master', None),
     'lbaasv1': (
-    'http://f5-openstack-lbaasv1.readthedocs.io/en/1.0/', None),
-    # 'lbaasv2': (
-    # 'http://f5-openstack-lbaasv2-driver.readthedocs.io/en/liberty/', None),
+    'http://f5-openstack-lbaasv1.readthedocs.io/en/master/', None),
+    'lbaasv2': (
+    'http://f5-openstack-lbaasv2-driver.readthedocs.io/en/master/', None),
     'f5sdk': (
     'http://f5-sdk.readthedocs.io/en/latest/', None),
     }

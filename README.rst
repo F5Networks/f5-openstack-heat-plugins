@@ -5,15 +5,15 @@ f5-openstack-heat-plugins
 
 Introduction
 ------------
-This repository houses all of F5®'s OpenStack Heat resource plugins. F5®'s
+This repository houses all of F5®'s OpenStack Heat resource plugins. F5's
 Heat plugins can be used to orchestrate BIG-IP®  services in your OpenStack environment.
 
 Releases and Versions
 ---------------------
 This branch supports the OpenStack Kilo release.
 
-Please see `F5® OpenStack Releases, Versioning, and Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`_ for additional information
- about F5®'s OpenStack plugins and BIG-IP® compatibility.
+Please see `F5 OpenStack Releases, Versioning, and Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`_ for additional information
+ about F5's OpenStack plugins and BIG-IP compatibility.
 
 Documentation
 -------------
@@ -38,11 +38,11 @@ To make a PyPI package...
 
 .. code:: bash
 
-    $ python setup.py sdist
+    python setup.py sdist
 
 Test
 ````
-Before you open a pull request, your code must have passing `pytest <http://pytest.org>`_ unit tests. In addition, you should include a set of functional tests written to use a real BIG-IP®  device for testing. Information on how to run our set of tests is included below.
+Before you open a pull request, your code must have passing `pytest <http://pytest.org>`_ unit tests. In addition, you should include a set of functional tests written to use a real BIG-IP device for testing. Information on how to run our set of tests is included below.
 
 Unit Tests
 ~~~~~~~~~~
@@ -51,23 +51,26 @@ We use pytest for our unit tests.
 #. If you haven't already, install requirements.unit.test.txt in your virtual
    environment.
 
-.. code:: shell
+    .. code:: shell
 
-   $ pip install hacking pytest pytest-cov
-   $ pip install -r requirements.txt
+       pip install hacking pytest pytest-cov
+       pip install -r requirements.txt
 
 #. Run the tests and produce a coverage report. The ``--cov-report=html`` will create a ``htmlcov/`` directory that you can view in your browser to see the missing lines of code.
 
-.. code:: shell
-       $ pip install -r requirements.unit.test.txt
+    .. code:: shell
 
-#. | Run the tests and produce a coverage report. The
-     ``--cov-report=html`` will
-   | create a ``htmlcov/`` directory that you can view in your browser
-     to see the
-   | missing lines of code.
+       pip install -r requirements.unit.test.txt
+
+#. Run the tests and produce a coverage report. The ``--cov-report=html`` will
+   create a ``htmlcov/`` directory that you can view in your browser to see
+   the missing lines of code.
+
+    .. code:: shell
+
        py.test --cov f5_heat/resources/test --cov-report=html
        open htmlcov/index.html
+
 
 Functional Tests
 ~~~~~~~~~~~~~~~~
@@ -78,14 +81,14 @@ Pytest is also used for functional tests
 
    .. code:: shell
 
-       $ pip install -r requirements.func.test.txt
+       pip install -r requirements.func.test.txt
 
-#. | Currently, you must modify ``test/functional/test_variables.py`` file to
+#. Currently, you must modify ``test/functional/test_variables.py`` file to
      provide the proper credentials to Openstack. See that file for more info
      on what is needed. Also remember not to include this file in your pull
      request, since it may contiain sensitive information.
 
-#. | Run the functional tests and pass in arguments to connect to the F5® Device.
+#. Run the functional tests and pass in arguments to connect to the F5® Device.
 
    .. code:: shell
 
@@ -97,7 +100,7 @@ We use the hacking module for our style checks (installed as part of step 1 in t
 
 .. code:: shell
 
-    $ flake8 ./
+    flake8 ./
 
 Copyright
 ---------
@@ -111,7 +114,7 @@ License
 -------
 
 Apache V2.0
-~~~~~~~~~~~
+```````````
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this file except in compliance with the License. You may obtain a copy of the
 License at
@@ -125,7 +128,7 @@ implied. See the License for the specific language governing
 permissions and limitations under the License.
 
 Contributor License Agreement
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`````````````````````````````
 Individuals or business entities who contribute to this project must
 have completed and submitted the `F5® Contributor License
 Agreement <http://f5-openstack-docs.readthedocs.org/en/latest/cla_landing.html>`__

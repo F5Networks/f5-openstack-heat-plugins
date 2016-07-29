@@ -1,13 +1,25 @@
+# To run these tests with TLC (for Boulder office)
+# 1. You can start a TLC sessions with 3 compute hosts and provision 6 floating IP addresses on your TLC file
+# 2. Once cmd ready has been run, 'scp -r dev-test/common/heat_templates/' up to your controller
+# 3. ssh into your controller and run the install_heat_plugins.sh script, giving it the repo@branch as an arugment
+#   so it can pip install the plugins from the correct repo and branch
+#       sudo ./install_heat_plugins https://github.com/F5Networks/f5-openstack-heat-plugins.git@experiment_branch
+# 4. Launch the heat stack in heat_templates on your controller like so:
+#   source keystone_testlab
+#   heat stack-create -f heat_plugin_test.yaml -e heat_plugin_test.params.yaml heat_plugin_test_infrastructure
+
 auth_url: http://<auth_netloc>:5000/v2.0
-heat_endpoint: http://<heat_endpoint_netloc>:8004/v1/<tenant_id>
+heatclient_url: http://<heat_endpoint_netloc>:8004/v1/<tenant_id>
 # f5-openstack-test-inputs
-tenant_name: <tenant_name>
-tenant_password: <tenant_password>
+# The bigip_username and bigip_password below duplicates bigip_un and bigip_pw. To be fixed in later iterations.
+os_tenant_name: <tenant_name>
+os_username: <username>
+os_password: <password>
 teststackname: func_test_stack
-username: <os_username>
 bigip_username: <bigip_username>
 bigip_password: <bigip_username>
 # heat inputs
+# bigip_ip and bigip2_ip are the floating IP addresses for each BIG-IP created in step 4 above
 bigip_un: <bigip_username>
 bigip_pw: <bigip_password>
 bigip_ip: <bigip_floating_ip>

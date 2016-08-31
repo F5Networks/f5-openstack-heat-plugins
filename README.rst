@@ -9,9 +9,8 @@ This repository houses all of F5®'s OpenStack Heat resource plugins. F5's Heat 
 
 Releases and Versions
 ---------------------
-This branch supports the OpenStack Kilo release.
 
-Please see `F5 OpenStack Releases, Versioning, and Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`_ for additional information about F5's OpenStack plugins and BIG-IP compatibility.
+Please see `F5 OpenStack Releases, Versioning, and Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`_ for information about F5's OpenStack product suite and BIG-IP compatibility.
 
 Documentation
 -------------
@@ -120,11 +119,11 @@ to Openstack_CLA@f5.com prior to their code submission being included in this
 project.
 
 
-.. |travis build| image:: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins.svg?branch=kilo
+.. |travis build| image:: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins.svg?branch=mitaka
     :target: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins
 
-.. |docs build| image:: https://readthedocs.org/projects/f5-openstack-heat-plugins/badge/?version=kilo
-    :target: http://f5-openstack-heat-plugins.readthedocs.org/en/latest/?badge=kilo
+.. |docs build| image:: https://readthedocs.org/projects/f5-openstack-heat-plugins/badge/?version=mitaka
+    :target: http://f5-openstack-heat-plugins.readthedocs.org/en/latest/?badge=mitaka
 
 .. |slack badge| image:: https://f5-openstack-slack.herokuapp.com/badge.svg
     :target: https://f5-openstack-slack.herokuapp.com/

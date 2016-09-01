@@ -122,8 +122,8 @@ project.
 .. |travis build| image:: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins.svg?branch=master
     :target: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins
 
-.. |docs build| image:: https://readthedocs.org/projects/f5-openstack-heat-plugins/badge/?version=latest
-    :target: http://f5-openstack-heat-plugins.readthedocs.org/en/latest/?badge=liberty
+.. |docs build| image:: https://readthedocs.org/projects/f5-openstack-heat-plugins/badge/?version=master
+    :target: http://f5-openstack-heat-plugins.readthedocs.io/en/master/?badge=master
 
 .. |slack badge| image:: https://f5-openstack-slack.herokuapp.com/badge.svg
     :target: https://f5-openstack-slack.herokuapp.com/

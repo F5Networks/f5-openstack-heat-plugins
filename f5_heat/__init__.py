@@ -1,2 +1,2 @@
-__version__ = u'9.0.2'
-__openstackrelease__ = u'mitaka'
+__version__ = u'10.0.0'
+__openstackrelease__ = u'newton'

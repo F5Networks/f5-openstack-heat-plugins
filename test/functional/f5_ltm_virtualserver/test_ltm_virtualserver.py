@@ -47,4 +47,5 @@ def test_create_complete_new_partition(HeatStack, mgmt_root):
     assert mgmt_root.tm.ltm.virtuals.virtual.exists(
         name='test_vs', partition='test_partition'
     ) is True
-    assert mgmt_root.tm.sys.folders.folder.exists(name='test_partition') is True
+    assert \
+        mgmt_root.tm.sys.folders.folder.exists(name='test_partition') is True

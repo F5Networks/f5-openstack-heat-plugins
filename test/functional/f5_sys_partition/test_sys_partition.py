@@ -43,9 +43,11 @@ def test_create_complete_new_partition(HeatStack, mgmt_root):
         },
         teardown=False
     )
-    assert mgmt_root.tm.sys.folders.folder.exists(name='test_partition') is True
+    assert \
+        mgmt_root.tm.sys.folders.folder.exists(name='test_partition') is True
     hc.delete_stack(stack.id)
-    assert mgmt_root.tm.sys.folders.folder.exists(name='test_partition') is False
+    assert \
+        mgmt_root.tm.sys.folders.folder.exists(name='test_partition') is False
 
 
 def test_create_failed_bad_subpath(HeatStack, mgmt_root):
@@ -61,4 +63,5 @@ def test_create_failed_bad_subpath(HeatStack, mgmt_root):
         expect_fail=True
     )
     assert msg in stack.stack_status_reason
-    assert mgmt_root.tm.sys.folders.folder.exists(name='test_partition') is False
+    assert \
+        mgmt_root.tm.sys.folders.folder.exists(name='test_partition') is False

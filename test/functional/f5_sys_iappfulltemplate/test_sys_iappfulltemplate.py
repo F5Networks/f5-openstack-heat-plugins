@@ -20,7 +20,7 @@ from pytest import symbols
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def test_create_complete(HeatStack, bigip):
+def test_create_complete(HeatStack, mgmt_root):
     HeatStack(
         os.path.join(TEST_DIR, 'success_common_partition.yaml'),
         'success_common_partition_test',
@@ -30,12 +30,12 @@ def test_create_complete(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.sys.application.templates.template.exists(
+    assert mgmt_root.tm.sys.application.templates.template.exists(
         name='thanks_world', partition='Common'
     ) is True
 
 
-def test_create_complete_new_partition(HeatStack, bigip):
+def test_create_complete_new_partition(HeatStack, mgmt_root):
     HeatStack(
         os.path.join(TEST_DIR, 'success_new_partition.yaml'),
         'success_new_partition_test',
@@ -45,7 +45,7 @@ def test_create_complete_new_partition(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.sys.application.templates.template.exists(
+    assert mgmt_root.tm.sys.application.templates.template.exists(
         name='thanks_world', partition='test_partition') is True
 
 
@@ -57,7 +57,7 @@ def itest_create_failed_literal_partition(HeatStack):
     # Heat teardown fails now due to bug: Issue #23 in github
 
 
-def test_create_failed_bad_iapp_parsing(HeatStack, bigip):
+def test_create_failed_bad_iapp_parsing(HeatStack, mgmt_root):
     with pytest.raises(Exception) as ex:
         HeatStack(
             os.path.join(TEST_DIR, 'bad_iapp.yaml'),
@@ -69,6 +69,6 @@ def test_create_failed_bad_iapp_parsing(HeatStack, bigip):
             },
             expect_fail=True
         )
-    assert bigip.tm.sys.application.templates.template.exists(
+    assert mgmt_root.tm.sys.application.templates.template.exists(
         name='thanks_world', partition='Common') is False
     assert 'NonextantSectionException' in ex.value.message

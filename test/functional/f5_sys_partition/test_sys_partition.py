@@ -32,7 +32,7 @@ def test_create_complete(HeatStack):
     )
 
 
-def test_create_complete_new_partition(HeatStack, bigip):
+def test_create_complete_new_partition(HeatStack, mgmt_root):
     hc, stack = HeatStack(
         os.path.join(TEST_DIR, 'new_partition.yaml'),
         'new_partition_test',
@@ -43,12 +43,14 @@ def test_create_complete_new_partition(HeatStack, bigip):
         },
         teardown=False
     )
-    assert bigip.tm.sys.folders.folder.exists(name='test_partition') is True
+    assert \
+        mgmt_root.tm.sys.folders.folder.exists(name='test_partition') is True
     hc.delete_stack(stack.id)
-    assert bigip.tm.sys.folders.folder.exists(name='test_partition') is False
+    assert \
+        mgmt_root.tm.sys.folders.folder.exists(name='test_partition') is False
 
 
-def test_create_failed_bad_subpath(HeatStack, bigip):
+def test_create_failed_bad_subpath(HeatStack, mgmt_root):
     msg = '(/BadSubPath) folder does not exist'
     hc, stack = HeatStack(
         os.path.join(TEST_DIR, 'bad_subpath.yaml'),
@@ -61,4 +63,5 @@ def test_create_failed_bad_subpath(HeatStack, bigip):
         expect_fail=True
     )
     assert msg in stack.stack_status_reason
-    assert bigip.tm.sys.folders.folder.exists(name='test_partition') is False
+    assert \
+        mgmt_root.tm.sys.folders.folder.exists(name='test_partition') is False

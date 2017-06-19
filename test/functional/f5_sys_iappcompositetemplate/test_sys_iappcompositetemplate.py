@@ -20,7 +20,7 @@ from pytest import symbols
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def test_create_complete(HeatStack, bigip):
+def test_create_complete(HeatStack, mgmt_root):
     HeatStack(
         os.path.join(TEST_DIR, 'success.yaml'),
         'success_test',
@@ -30,12 +30,12 @@ def test_create_complete(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.sys.application.templates.template.exists(
+    assert mgmt_root.tm.sys.application.templates.template.exists(
         name='test_template', partition='Common'
     ) is True
 
 
-def test_create_complete_new_partition(HeatStack, bigip):
+def test_create_complete_new_partition(HeatStack, mgmt_root):
     HeatStack(
         os.path.join(TEST_DIR, 'new_partition.yaml'),
         'new_partition_test',
@@ -45,12 +45,12 @@ def test_create_complete_new_partition(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.sys.application.templates.template.exists(
+    assert mgmt_root.tm.sys.application.templates.template.exists(
         name='test_template', partition='test_partition'
     ) is True
 
 
-def test_create_failed_no_implementation(HeatStack, bigip):
+def test_create_failed_no_implementation(HeatStack, mgmt_root):
     with pytest.raises(Exception) as ex:
         HeatStack(
             os.path.join(TEST_DIR, 'no_implementation.yaml'),
@@ -62,7 +62,7 @@ def test_create_failed_no_implementation(HeatStack, bigip):
             },
             expect_fail=True
         )
-    assert bigip.tm.sys.application.templates.template.exists(
+    assert mgmt_root.tm.sys.application.templates.template.exists(
         name='test_template', partition='Common'
     ) is False
     assert 'Property implementation not assigned' in ex.value.message

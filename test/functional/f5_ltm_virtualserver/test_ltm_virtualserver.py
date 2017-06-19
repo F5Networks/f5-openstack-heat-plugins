@@ -19,7 +19,7 @@ from pytest import symbols
 TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def test_create_complete(HeatStack, bigip):
+def test_create_complete(HeatStack, mgmt_root):
     HeatStack(
         os.path.join(TEST_DIR, 'success.yaml'),
         'success_test',
@@ -29,12 +29,12 @@ def test_create_complete(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.ltm.virtuals.virtual.exists(
+    assert mgmt_root.tm.ltm.virtuals.virtual.exists(
         name='test_vs', partition='Common'
     ) is True
 
 
-def test_create_complete_new_partition(HeatStack, bigip):
+def test_create_complete_new_partition(HeatStack, mgmt_root):
     HeatStack(
         os.path.join(TEST_DIR, 'new_partition.yaml'),
         'new_partition_test',
@@ -44,7 +44,7 @@ def test_create_complete_new_partition(HeatStack, bigip):
             'bigip_pw': symbols.bigip_pw
         }
     )
-    assert bigip.tm.ltm.virtuals.virtual.exists(
+    assert mgmt_root.tm.ltm.virtuals.virtual.exists(
         name='test_vs', partition='test_partition'
     ) is True
-    assert bigip.tm.sys.folders.folder.exists(name='test_partition') is True
+    assert mgmt_root.tm.sys.folders.folder.exists(name='test_partition') is True

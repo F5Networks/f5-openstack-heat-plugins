@@ -35,15 +35,16 @@ deploy:
       python: 2.7
     skip_cleanup: true
   # deploy docs to s3
-  # if this is not a tagged release, the docs will deploy to /products/openstack/$TRAVIS_BRANCH/heat-plugins/
+  # if this is not a tagged release, the docs will deploy to /products/openstack/heat-plugins/$TRAVIS_BRANCH
   - provider: script
     skip_cleanup: true
     on:
       repo: F5Networks/f5-openstack-heat-plugins
+      all_branches: true
       condition: $TRAVIS_TAG = ""
     script:
-    - ./docs/doc_scripts/deploy-docs.sh publish-product-docs-to-prod openstack/$TRAVIS_BRANCH heat-plugins
-  # if this is a tagged release, the docs go to /products/openstack/<openstack-version>/heat-plugins/vX.Y
+    - ./docs/doc_scripts/deploy-docs.sh publish-product-docs-to-prod openstack/heat-plugins $TRAVIS_BRANCH
+  # if this is a tagged release, the docs go to /products/openstack/heat-plugins/$TRAVIS_BRANCH/vX.Y
   - provider: script
     skip_cleanup: true
     env:
@@ -52,7 +53,7 @@ deploy:
       tags: true
       repo: F5Networks/f5-openstack-heat-plugins
     script:
-    - ./scripts/deploy-docs.sh publish-product-docs-to-prod openstack/$TRAVIS_BRANCHheat-plugins/ $RELEASE_TAG
+    - ./scripts/deploy-docs.sh publish-product-docs-to-prod openstack/heat-plugins/$TRAVIS_BRANCH $RELEASE_TAG
 notifications:
     slack:
       rooms:

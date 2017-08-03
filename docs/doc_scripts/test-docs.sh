@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 html="make -C docs html"
-linkcheck=$(make -C docs linkcheck | grep 'broken')
 grammar="write-good `find ./docs -not \( -path ./docs/drafts -prune \) -name '*.rst'` --passive --so --no-illusion --thereIs --cliches"
 
 if [[ $TRAVIS != "" ]]; then
@@ -17,6 +16,8 @@ goodjob() {
 
 echo "Installing project dependencies"
 pip install --user -r requirements.txt
+
+linkcheck=$(make -C docs linkcheck | grep 'broken')
 
 set -e
 set -x

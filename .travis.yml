@@ -2,9 +2,12 @@ sudo: required
 language: python
 python:
     - "2.7"
+services:
+- docker
 env:
     - PYTHONPATH=~/heat:/home/travis/f5-common-python:$PWD
 before_install:
+    - docker pull f5devcentral/containthedocs
     - sudo apt-get -qq update
     - git config --global user.email "OpenStack_TravisCI@f5.com"
     - git config --global user.name "Travis F5 Openstack"
@@ -13,24 +16,41 @@ before_install:
 install:
     - pip install -r requirements.unit.test.txt
     - pip install -r ~/heat/requirements.txt
-    - pip install -r requirements.docs.txt
 script:
     - flake8 f5_heat/resources/
     - py.test f5_heat/resources/test --cov=f5_heat/resources
     - python setup.py sdist
-    - cd docs
-    - make html
-    - cd ../
+    - ./docs/doc_scripts/docker-docs.sh ./docs/doc_scripts/test-docs.sh
 deploy:
-  provider: pypi
-  user: $PYPI_USER
-  password: $PYPI_PASSWORD
-  server: https://pypi.python.org/pypi
-  on:
-     all_branches: true
-     tags: true
-     python: 2.7
-  skip_cleanup: true
+  - provider: pypi
+    user: $PYPI_USER
+    password: $PYPI_PASSWORD
+    server: https://pypi.python.org/pypi
+    on:
+      all_branches: true
+      tags: true
+      python: 2.7
+    skip_cleanup: true
+  # deploy docs to s3
+  # if this is not a tagged release, the docs will deploy to /products/openstack/heat-plugins/$TRAVIS_BRANCH
+  - provider: script
+    skip_cleanup: true
+    on:
+      repo: F5Networks/f5-openstack-heat-plugins
+      branch: stable/newton
+      condition: $TRAVIS_TAG = ""
+    script:
+    - ./docs/doc_scripts/deploy-docs.sh publish-product-docs-to-prod openstack/heat-plugins newton
+  # if this is a tagged release, the docs go to /products/openstack/heat-plugins/$TRAVIS_BRANCH/vX.Y
+  - provider: script
+    skip_cleanup: true
+    env:
+    - RELEASE_TAG="$(echo $TRAVIS_TAG |cut -c1-4)"
+    on:
+      tags: true
+      repo: F5Networks/f5-openstack-heat-plugins
+    script:
+    - ./scripts/deploy-docs.sh publish-product-docs-to-prod openstack/heat-plugins/newton $RELEASE_TAG
 notifications:
     slack:
       rooms:

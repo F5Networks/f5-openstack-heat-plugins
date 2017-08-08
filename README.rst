@@ -14,7 +14,7 @@ Please see `F5 OpenStack Releases, Versioning, and Support Matrix <http://cloudd
 
 Documentation
 -------------
-Please see the `product documentation <http://clouddocs.f5.com/products/openstack/heat-plugins/mitaka>`_ on `clouddocs.f5.com <http://clouddocs.f5.com>`_
+Please see the `product documentation <http://clouddocs.f5.com/products/openstack/heat-plugins/latest>`_ on `clouddocs.f5.com <http://clouddocs.f5.com>`_
 
 For Developers
 --------------
@@ -119,7 +119,7 @@ to Openstack_CLA@f5.com prior to their code submission being included in this
 project.
 
 
-.. |travis build| image:: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins.svg?branch=mitaka
+.. |travis build| image:: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins.svg?branch=master
     :target: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins
 .. |slack badge| image:: https://f5-openstack-slack.herokuapp.com/badge.svg
     :target: https://f5-openstack-slack.herokuapp.com/

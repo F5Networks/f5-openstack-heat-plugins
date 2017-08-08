@@ -1,21 +1,20 @@
 f5-openstack-heat-plugins
 =========================
 
-|travis build| |docs build| |slack badge|
+|travis build| |slack badge|
 
 Introduction
 ------------
-This repository houses all of F5®'s OpenStack Heat resource plugins. F5's Heat plugins can be used to orchestrate BIG-IP® services in your OpenStack environment.
+This repository houses all of F5's OpenStack Heat resource plugins. F5's Heat plugins can be used to orchestrate BIG-IP services in your OpenStack environment.
 
 Releases and Versions
 ---------------------
-This branch supports the OpenStack Kilo release.
 
-Please see `F5 OpenStack Releases, Versioning, and Support Matrix <http://f5-openstack-docs.readthedocs.org/en/latest/releases_and_versioning.html>`_ for additional information about F5's OpenStack plugins and BIG-IP compatibility.
+Please see `F5 OpenStack Releases, Versioning, and Support Matrix <http://clouddocs.f5.com/cloud/openstack/support/releases_and_versioning.html>`_ for additional information about F5's OpenStack plugins and BIG-IP compatibility.
 
 Documentation
 -------------
-Project documentation, which includes installation and usage instructions, can be found on `Read The Docs <https://f5-openstack-heat-plugins.readthedocs.io>`_.
+Please see the `product documentation <http://clouddocs.f5.com/products/openstack/heat-plugins/mitaka>`_ on `clouddocs.f5.com <http://clouddocs.f5.com>`_
 
 For Developers
 --------------
@@ -120,12 +119,8 @@ to Openstack_CLA@f5.com prior to their code submission being included in this
 project.
 
 
-.. |travis build| image:: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins.svg?branch=kilo
+.. |travis build| image:: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins.svg?branch=mitaka
     :target: https://travis-ci.org/F5Networks/f5-openstack-heat-plugins
-
-.. |docs build| image:: https://readthedocs.org/projects/f5-openstack-heat-plugins/badge/?version=kilo
-    :target: http://f5-openstack-heat-plugins.readthedocs.org/en/latest/?badge=kilo
-
 .. |slack badge| image:: https://f5-openstack-slack.herokuapp.com/badge.svg
     :target: https://f5-openstack-slack.herokuapp.com/
     :alt: Slack

@@ -106,7 +106,7 @@ Call the :func:`get_resource` function to link the required resources with the o
         name: Common                            # Put these objects in the /Common partition
         bigip_server: { get_resource: bigip }   # Create dependency on bigip
     iapp_template:
-      type: F5::Sys::iAppTemplate
+      type: F5::Sys::iAppFullTemplate
       properties:
         name: test_template
         bigip_server: { get_resource: bigip }   # Depends on bigip resource

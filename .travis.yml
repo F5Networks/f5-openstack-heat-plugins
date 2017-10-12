@@ -18,6 +18,7 @@ before_install:
     - cd $TRAVIS_BUILD_DIR
 install:
     - pip install -r requirements.unit.test.txt
+    - pip install -r requirements.docs.txt
     - pip install -r ~/heat/requirements.txt
 script:
     - flake8 f5_heat/resources/

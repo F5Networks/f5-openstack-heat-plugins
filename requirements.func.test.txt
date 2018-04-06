@@ -2,5 +2,5 @@
 .
 markupsafe
 git+https://github.com/F5Networks/pytest-symbols.git
-git+https://github.com/F5Networks/f5-openstack-test.git@stable/newton
+git+https://github.com/F5Networks/f5-openstack-test.git@newton-eol
 hacking

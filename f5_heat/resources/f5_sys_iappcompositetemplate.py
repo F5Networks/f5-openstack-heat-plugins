@@ -150,8 +150,8 @@ class F5SysiAppCompositeTemplate(F5BigIPMixin, resource.Resource):
                 partition=self.partition_name
         ):
             try:
-                loaded_template = self.bigip.tm.sys.application.templates.template.\
-                    load(
+                loaded_template = self.bigip.tm.sys.application.templates.\
+                template.load(
                         name=self.properties[self.NAME],
                         partition=self.partition_name
                     )

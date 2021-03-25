@@ -18,7 +18,6 @@
 
 from heat.common import exception
 from heat.common.i18n import _
-from heat.common.i18n import _LE
 from heat.engine import properties
 from heat.engine import resource
 
@@ -114,9 +113,7 @@ class F5SysiAppService(resource.Resource, F5BigIPMixin):
                 self.properties[prop_name]
             )
         except Exception:
-            LOG.error(
-                _LE("'%s' property failed to parse as JSON") % prop_name
-            )
+            LOG.error("'%s' property failed to parse as JSON" % prop_name)
             raise
 
     def _build_service_dict(self):
